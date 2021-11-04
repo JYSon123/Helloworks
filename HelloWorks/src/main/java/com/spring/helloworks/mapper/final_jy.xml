@@ -11,6 +11,6 @@
 		select name
 		from tbl_test
 	</select>
-	
+	<!-- 확인용 확인용!!  -->
 	
 </mapper>
