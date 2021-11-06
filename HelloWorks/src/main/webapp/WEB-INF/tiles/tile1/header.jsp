@@ -30,13 +30,13 @@
 %>
 
 <!-- 좌측 사이드바 시작 -->
-<nav class="w3-sidebar w3-bar-block w3-card w3-top w3-xlarge w3-animate-left w3-light" style="display:none; z-index:3; max-width:380px" id="mySidebar">
+<nav class="w3-sidebar w3-bar-block w3-card w3-top w3-xlarge w3-animate-left w3-light" style="display:none; z-index:3; max-width:370px; overflow:hidden" id="mySidebar">
   <div class="container" style="background-color:#f5f5f5; height:90px">
-	  <a href="javascript:void(0)" onclick="w3_close()"class="w3-button " style="border-radius: 70px; width:60px; height:60px; margin:20px 0 12px 30px"><i class="fas fa-angle-left" style="width:30px; color:gray; font-size:20pt; margin-top:8px"></i></a>
-	  <a class="navbar-brand" href="#메인" style="margin-left:16px; margin-top:20px"><img src="<%= ctxPath %>/resources/images/logo2.jpg" alt="HELLOWORKS_logo" width="165" height="54"/></a>
+	  <a href="javascript:void(0)" onclick="w3_close()"class="w3-button " style="border-radius: 70px; width:60px; height:60px; margin:20px 0 18px 5px"><i class="fas fa-angle-left" style="width:30px; color:gray; font-size:20pt; margin-top:8px"></i></a>
+	  <a class="navbar-brand" href="#메인" style="margin-left: 8px; margin-bottom: 10px"><img src="<%= ctxPath %>/resources/images/logo2.jpg" alt="HELLOWORKS_logo" width="165" height="54"/></a>
   </div>
   
-  <div class="container" style="margin:30px 0 0 110px; font-size:20px; color:#595959; width:320px">
+  <div class="container" style="margin:30px 0 0 75px; font-size:20px; color:#595959; width:320px">
       <span style="color:#0070C0" class="ml-3"><b>전체메뉴</b></span><br><br>
 	  <a href="#메일" onclick="#" class="w3-bar-item w3-button"><i class="far fa-envelope"></i>&emsp;메일</a>
 	  <a href="#게시판" onclick="#" class="w3-bar-item w3-button"><i class="far fa-clipboard"></i>&emsp;게시판</a>
