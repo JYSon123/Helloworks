@@ -44,7 +44,7 @@ create table tbl_employee
 , emppw varchar2(30) not null
 , email varchar2(30) not null -- 아이디@helloworks.com
 , ranking number default 1-- 사원(1), 대리(2), 부장(3), 팀장(4),  사장(5)
-, fk_deptnum varchar2(10) 
+, fk_deptnum varchar2(10) -- 부서번호
 , empstatus number(1) default 1 -- (1: 재직, 0: 퇴사, 2:휴직) 
 , empsalary number(20) not null  
 , hiredate  date default sysdate
@@ -79,10 +79,13 @@ nocache;
 (
   deptnum varchar2 not null -- 부서번호 
 , deptname varchar2(10) not null -- 부서명   
-, fk_empno number not null -- 부장 사원번호 
+, fk_empno number not null -- 관리자 사원번호 
 constraint FK_tbl_emp_empno foreign key(fk_empno) references tbl_employee(empno) on delete set null 
 );
 
 
 select *
 from tbl_department;
+
+
+[기안(문서) 테이블] tbl_document
