@@ -28,93 +28,79 @@
  // System.out.println("serverName : " + serverName);
  // serverName : http://211.238.142.72:9090 
 %>
-    <!-- 상단 네비게이션 시작 -->
-   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top mx-4 py-3">
-      <!-- Brand/logo --> 
-      <a class="navbar-brand" href="<%= ctxPath %>/index.action" style="margin-right: 10%;"><img src="<%= ctxPath %>/resources/images/sist_logo.png" /></a>
-      
-      <!-- 아코디언 같은 Navigation Bar 만들기 -->
-       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-         <span class="navbar-toggler-icon"></span>
-       </button>
-      
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav h5"> <%-- .h5 는 글자크기임 --%>  
-           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" data-toggle="dropdown">Home</a> 
-                                           <%-- .text-info 는 글자색으로 청록색임 --%>  
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                 <a class="dropdown-item" href="<%= ctxPath %>/index.action">Home</a>
-                 <a class="dropdown-item" href="<%= serverName%><%=ctxPath%>/chatting/multichat.action">웹채팅</a>
-              </div>
-           </li>
-           
-           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" data-toggle="dropdown">게시판</a>  
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                 <a class="dropdown-item" href="<%=ctxPath%>/list.action">목록보기</a>
-            <%-- <c:if test="${not empty sessionScope.loginuser}"> --%>
-                 <a class="dropdown-item" href="<%=ctxPath%>/add.action">글쓰기</a>
-            <%-- </c:if>  --%>
-              </div>
-           </li>
-           
-           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" data-toggle="dropdown">로그인</a>  
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                 <c:if test="${empty sessionScope.loginuser}">
-                    <a class="dropdown-item" href="#">회원가입</a>
-                    <a class="dropdown-item" href="<%=ctxPath%>/login.action">로그인</a>
-                 </c:if>
-                             
-               <c:if test="${not empty sessionScope.loginuser}">
-                  <a class="dropdown-item" href="#">나의정보</a>
-                  <a class="dropdown-item" href="<%=ctxPath%>/logout.action">로그아웃</a>
-               </c:if>
-              </div>
-           </li>
-           
-           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" data-toggle="dropdown">인사관리</a>  
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                 <a class="dropdown-item" href="<%=ctxPath%>/emp/empList.action">직원목록</a>
-                 <a class="dropdown-item" href="<%=ctxPath%>/emp/chart.action">통계차트</a>
-              </div>
-           </li>
-           
-        <!-- === #169. 제품등록(다중파일첨부)및 제품정보 메뉴 추가하기 === -->      
-     <%-- <c:if test="${sessionScope.loginuser.gradelevel == 10 }">  --%>
-           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" data-toggle="dropdown">제품등록(다중파일첨부)</a>  
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                 <a class="dropdown-item" href="#">제품등록</a>
-                 <a class="dropdown-item" href="#">제품입고</a>
-              </div>
-           </li>
-    <%-- </c:if>  --%>
-           
-          <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-info" href="#" id="navbarDropdown" data-toggle="dropdown">제품정보</a>  
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                 <a class="dropdown-item" href="#">제품목록</a>
-              </div>
-          </li>
-        </ul>
-      </div>
-      
-      <!-- === #49. 로그인이 성공되어지면 로그인되어진 사용자의 이메일 주소를 출력하기 === -->
-      <c:if test="${not empty sessionScope.loginuser}">
-         <div style="float: right;">
-           <span style="color: navy; font-weight: bold;">${sessionScope.loginuser.email}</span> 님 로그인중.. 
-         </div>
-      </c:if>
-         
-   </nav>
-   <!-- 상단 네비게이션 끝 -->
-   
 
-      <p class="h5" style="margin: auto">
-         <marquee> [공지사항] 쌍용강북교육센터 C클래스 수강생 여러분들의 수료후 프로그래머 입사를 진심으로 기원합니다.</marquee>
-        </p>
+<!-- 좌측 사이드바 시작 -->
+<nav class="w3-sidebar w3-bar-block w3-card w3-top w3-xlarge w3-animate-left w3-light" style="display:none; z-index:3; max-width:500px" id="mySidebar">
+  <div class="container" style="background-color:#f5f5f5; height:90px">
+	  <a href="javascript:void(0)" onclick="w3_close()"class="w3-button " style="border-radius: 70px; width:60px; height:60px; margin:20px 0 12px 30px"><i class="fas fa-angle-left" style="width:30px; color:gray; font-size:20pt; margin-top:8px"></i></a>
+	  <a class="navbar-brand" href="#메인" style="margin-left:91px; margin-top:20px"><img src="<%= ctxPath %>/resources/images/logo2.jpg" alt="HELLOWORKS_logo" width="165" height="54"/></a>
+  </div>
+  
+  <div class="container" style="margin:30px 0 0 180px; font-size:20px; color:#595959; width:260px">
+      <span style="color:#0070C0" class="ml-3"><b>전체메뉴</b></span><br><br>
+	  <a href="#메일" onclick="#" class="w3-bar-item w3-button"><i class="far fa-envelope"></i>&emsp;메일</a>
+	  <a href="#게시판" onclick="#" class="w3-bar-item w3-button"><i class="far fa-clipboard"></i>&emsp;게시판</a>
+	  <a href="#채팅" onclick="#" class="w3-bar-item w3-button"><i class="far fa-comment"></i>&emsp;채팅</a>
+	  <a href="#전자세금" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-calculator"></i>&emsp;전자세금계산서</a>
+	  <a href="#일정" onclick="#" class="w3-bar-item w3-button"><i class="far fa-check-square"></i>&emsp;일정</a>
+	  <a href="#주소록" onclick="#" class="w3-bar-item w3-button"><i class="far fa-address-book"></i>&emsp;주소록</a>
+	  <a href="#예약" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-chart-pie"></i>&emsp;예약</a>
+	  <a href="#인사" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-users"></i>&emsp;인사</a>
+	  <a href="#전자결재" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-clipboard-check"></i>&emsp;전자결재</a>
+	  <a href="#관리" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-cog"></i>&emsp;오피스관리</a>
+	  <a href="#회계지원" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-sticky-note"></i>&emsp;회계지원</a>
+ </div>
+</nav>
+<!-- 좌측 사이드바 끝-->
 
+
+<!-- 상단 고정 네비게이션 시작 -->
+<div class="w3-top" style="border-bottom: 1px solid #e6e6e6;">
+  <div class="w3-bar w3-white w3-padding">
+    <a class="navbar-brand w3-left mt-2" href="##" >
+    	<img src="<%= ctxPath %>/resources/images/logo.jpg" alt="HELLOWORKS_logo" width="153" height="43"/>
+    </a>  
+    <div class="w3-button w3-padding-16 w3-left mt-2" style="border-radius: 70px; width:60px; height:60px;"  onclick="w3_open()">
+	  	<i class="fas fa-angle-right" style="color:gray; font-size:20pt;"></i>
+	</div>
+
+    <div class="w3-right w3-hide-small">
+		  <button type="button" class="btn btn-light dropdown-toggle" id="myinfo"  data-toggle="dropdown" aria-haspopup="true"  aria-expanded="false" style="border-radius: 70px; width: 60px; height: 60px; margin-top: 11px" >
+			  <i class="fa fa-user" style="font-size: 18pt; color:gray; background-color:#f5f5f5"></i>
+		  </button>
+		
+		  <div class="dropdown-menu" aria-labelledby="myinfo" style=" margin-left:1100px; margin-top:8px;  width: 400px; height:200px">
+		    <table style="margin:10px"> 
+		     	<tr>
+		     		<td>
+		     			<button type="button" class="btn btn-light"style="border-radius: 70px; width: 70px; height: 70px;" >
+			  			<i class="fa fa-user" style="font-size: 18pt; color:gray; background-color:#f5f5f5"></i>
+						</button>
+					</td> 
+					
+					<!-- 로그인했을 경우 나타낼 것--> 
+		     	  	<td style="font-size: 24pt;">
+		     			&emsp;<span><b>김사원</b></span>
+		     		</td>
+		     		<td></td>
+		     	</tr>
+	     		<tr style="heigth:30px; font-size: 12pt">			     			
+	     			<td></td> 	
+	     			<td>&emsp;&emsp;kim@naver.com</td>    
+	     			<td></td>
+	     		 </tr>
+	     		 <tr>
+	     			<td></td><td></td>
+	     		 	<td>
+	     		 		<button type="button" class="btn btn-light" id="btnMy" style=" background-color:#f5f5f5; margin-top:10px; margin-left:30px; border-radius: 50px; font-size:16px; width: 110px; height:53px">
+	           				<b>로그아웃</b>
+	           			</button>
+	           		</td>
+	     		 </tr>
+	        </table>     	
+	  	</div>
+	</div>
+  </div>
+</div>
+<!-- 상단 고정 네비게이션 끝 --> 
   
