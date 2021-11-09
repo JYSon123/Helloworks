@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== #29. mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!! 팀원님들 각자 하나씩 만드셔요) ==== -->
+<mapper namespace="jihee">
+	
+	<select id="getLoginEmp" parameterType="HashMap" resultType="com.spring.helloworks.model.EmpVO_KJH">
+		
+		select empno, empname, empid, emppw, email, ranking, fk_deptnum
+	         , empstatus, empsalary, hiredate, otpkey, lastlogingap
+		from
+		(
+		    select empno, empname, empid, emppw, email, ranking, fk_deptnum
+		         , empstatus, empsalary, to_char(hiredate, 'yyyy-mm-dd') AS hiredate, otpkey
+		    from tbl_employee
+		    where empstatus != 0 and empid = #{empid} and emppw = #{emppw}
+		) E
+		cross join
+		(
+		    select trunc(months_between(sysdate, max(logindate))) AS lastlogingap
+		    from tbl_loginhistory
+		    where fk_empid = #{empid}
+		) H
+		
+	</select>
+	
+	<update id="updateOtpKey" parameterType="HashMap">
+		
+		update tbl_employee set otpkey = #{otpKey}
+		where empid = #{empid}
+		
+	</update>
+	
+	<insert id="insertLoginHistory" parameterType="HashMap">
+		
+		insert into tbl_loginhistory(fk_empid, clientip)
+		values(#{fk_empid}, #{clientip})
+		
+	</insert>
+	
+	<update id="updateEmppw" parameterType="HashMap">
+		
+		update tbl_employee set emppw = #{newpw}
+		where empid = #{empid}
+		
+	</update>
+	
+</mapper>
