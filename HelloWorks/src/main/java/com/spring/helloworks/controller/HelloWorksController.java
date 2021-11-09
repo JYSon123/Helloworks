@@ -3,6 +3,7 @@ package com.spring.helloworks.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,7 @@ public class HelloWorksController {
    */
    
    @RequestMapping(value="/index.hello2")
-      public String index(HttpServletRequest request) {
+      public String requiredLogin_index(HttpServletRequest request, HttpServletResponse response) {
          
          return "main/index.tiles1";
          // /WEB-INF/views/tiles1/main/index.jsp 파일을 생성한다.

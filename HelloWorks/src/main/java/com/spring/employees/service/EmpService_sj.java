@@ -41,7 +41,7 @@ public class EmpService_sj implements InterEmpService_sj {
 		// === 원글쓰기인지 답변글쓰기인지 구분하기 시작 ===
 		if("".equals(boardvo.getFk_seq()) ) {
 			// 원글쓰기인 경우
-			int groupno = dao.getGroupnoMax()+1;
+			int groupno = dao.getGroupnoMax() + 1;
 			boardvo.setGroupno(String.valueOf(groupno));
 		}
 		// === 원글쓰기인지 답변글쓰기인지 구분하기 끝 ===

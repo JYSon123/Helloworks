@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <% String ctxPath = request.getContextPath(); %>
 
    
@@ -123,9 +124,18 @@
   <div class="w3-container w3-padding-large" style="margin-bottom: 800px;">
     <div style="display: flex;">
 	<div style="margin:70px 0 0 280px; padding-left: 3%;">
+	
 
+
+	<c:if test="${requestScope.fk_seq eq ''}">
 		<h4 style="margin-bottom: 30px; color:#0070C0"><b>자유게시판 글쓰기</b></h4>
-
+	</c:if>
+	
+	<c:if test="${requestScope.fk_seq ne ''}">
+		<h4 style="margin-bottom: 30px; color:#0070C0"><b>자유게시판 답변쓰기</b></h4>
+	</c:if>
+	
+	
 	<form name="addFrm" enctype="multipart/form-data">
 	
 		<div style="margin: 20px 0 ">
@@ -137,14 +147,24 @@
 			<tr>
 				<th>제목</th>
 				<td colspan="3">
+					
+					<%-- 원글쓰기인 경우 --%>
+					<c:if test="${requestScope.fk_seq eq ''}">
 						<input type="text" name="subject" id="subject" size="90" /> 	
+					</c:if>
+					
+					<%-- 답변쓰기인 경우 --%>
+					<c:if test="${requestScope.fk_seq ne ''}">
+						<input type="text" name="subject" id="subject" size="90" value="${requestScope.fk_seq}번 글에 대한 답변입니다."/> 	
+					</c:if>
+							
 				</td>		
 			</tr>
 			<tr>
 				<th>성명</th>
 				<td style="width: 40%">
-					<input type="hidden" name="fk_empno" value="${sessionScope.loginuser.empno}" />
-					<input type="text" name="name" value="${sessionScope.loginuser.name}" readonly /> 
+					<input type="hidden" name="fk_empno" value="${sessionScope.loginEmp.empno}" />
+					<input style="border:none"type="text" name="name" value="${sessionScope.loginEmp.empname}" readonly /> 
 				</td>
 				
 				<th>파일첨부</th>
@@ -172,6 +192,14 @@
 				</td>
 			</tr>
 		</table>
+		
+		
+		<%-- 답변글쓰기를 위한 값들 시작--%>
+		<input type="hidden" name="fk_seq"  value="${requestScope.fk_seq}"/>
+		<input type="hidden" name="groupno" value="${requestScope.groupno}"/>
+		<input type="hidden" name="depthno" value="${requestScope.depthno}"/>
+		<%-- 답변글쓰기를 위한 값들 끝 --%>
+		
 	</form>
 
 </div>	
