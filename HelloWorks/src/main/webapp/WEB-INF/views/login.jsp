@@ -111,13 +111,13 @@
 
 <body>
 	
-	<div class="container mx-auto pt-2 pb-2" style="margin-top: 20%; border: solid 4px #2648A3; width: 50%; background-color: white; border-radius: 20px;">
+	<div class="container mx-auto pt-2 pb-2 mb-5" style="margin-top: 15%; border: solid 4px #2648A3; width: 50%; background-color: white; border-radius: 20px;">
 		
 		<img src="<%= ctxPath %>/resources/images/logo.jpg" style="width: 100%; height:100%" alt="###">
 		
-		<form name="loginFrm" class="py-3">
+		<form name="loginFrm">
 			
-			<div class="container">
+			<div class="container py-3">
 				
 				<p class="mx-auto text-center px-0" style="width: 70%;">					
 					<input style="width: 100%;" type="text" name="empid" id="empid" class="form-control mx-auto"/>

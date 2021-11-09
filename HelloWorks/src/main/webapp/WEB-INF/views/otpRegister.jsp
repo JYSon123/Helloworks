@@ -59,7 +59,7 @@
 
 <body>
 	
-	<div class="container mx-auto pt-2 pb-2" style="margin-top: 20%; border: solid 4px #2648A3; width: 50%; background-color: white; border-radius: 20px;">
+	<div class="container mx-auto pt-2 pb-2 mb-5" style="margin-top: 15%; border: solid 4px #2648A3; width: 50%; background-color: white; border-radius: 20px;">
 		
 		<img src="<%= ctxPath %>/resources/images/logo.jpg" style="width: 100%; height:100%" alt="###">
 					
