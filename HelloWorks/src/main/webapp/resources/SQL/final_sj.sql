@@ -177,10 +177,14 @@ values(boardSeq.nextval, '202111081004', '사용자', '테스트글입니다', '
 -- 커밋 완료.
 select *
 from tbl_board;
+
 commit;
 
 select *
 from tbl_employee;
+
+select nvl(max(groupno), 0)
+		from tbl_board
 
 
 
