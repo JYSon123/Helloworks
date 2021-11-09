@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== #29. mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!! 팀원님들 각자 하나씩 만드셔요) ==== -->
+<mapper namespace="yoosj">
+	
+	
+	<!-- tbl_board테이블에서 groupno 컬럼의 최대값 알아오기 -->
+	<select id="getGroupnoMax" resultType="int">
+		select nvl(max(groupno), 0)
+		from tbl_board
+	</select>
+	
+	
+	<!-- 파일첨부가 없는 글쓰기  -->
+	<!-- 원글 또는 답변글 쓰기 (파일첨부 x)-->
+	<insert id="add" parameterType="com.spring.employees.model.BoardVO">
+		<if test='fk_seq.equals("") '>
+			insert into tbl_board(seq, fk_empno, name, subject, content, pw, readCount, regDate, status, groupno, fk_seq, depthno)
+			values(boardSeq.nextval, #{fk_empno}, #{name}, #{subject}, #{content}, #{pw}, default, default, default, #{groupno}, default, default)
+		</if>
+		
+		<if test='!fk_seq.equals("") '>
+			insert into tbl_board(seq, fk_empno, name, subject, content, pw, readCount, regDate, status, groupno, fk_seq, depthno)
+			values(boardSeq.nextval, #{fk_empno}, #{name}, #{subject}, #{content}, #{pw}, default, default, default, #{groupno}, #{fk_seq}, #{depthno}+1)
+		</if>
+	</insert>
+	
+	
+	<!-- 파일첨부가 있는 글쓰기 -->
+	<!-- 원글 또는 답변글 쓰기 (파일첨부 O) -->
+	<insert id="add_withFile" parameterType="com.spring.employees.model.BoardVO">
+		<if test='fk_seq.equals("")'>
+			insert into tbl_board(seq, fk_empno, name, subject, content, pw, readCount, regDate, status, groupno, fk_seq, depthno, fileName, orgFilename, fileSize)
+			values(boardSeq.nextval, #{fk_empno}, #{name}, #{subject}, #{content}, #{pw}, default, default, default, #{groupno}, default, default, #{fileName}, #{orgFilename}, #{fileSize} )
+		</if>
+		
+		<if test='!fk_seq.equals("")'>
+			insert into tbl_board(seq, fk_empno, name, subject, content, pw, readCount, regDate, status, groupno, fk_seq, depthno, fileName, orgFilename, fileSize)
+			values(boardSeq.nextval, #{fk_empno}, #{name}, #{subject}, #{content}, #{pw}, default, default, default, #{groupno}, #{fk_seq}, #{depthno}+1, #{fileName}, #{orgFilename}, #{fileSize})
+		</if>	
+	</insert>	
+	
+</mapper>
