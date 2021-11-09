@@ -167,12 +167,20 @@ nocycle
 nocache;
 
 select *
-from tbl_comment;
+from tbl_employee;
 
 
 
+insert into tbl_board(seq, fk_empno, name, subject, content, pw, readCount, regDate, status, groupno, fk_seq, depthno)
+values(boardSeq.nextval, '202111081004', '사용자', '테스트글입니다', '안녕하세요? 테스트입니다.', '1234', default, default, default, 0, default, default);
+-- 1 행 이(가) 삽입되었습니다.
+-- 커밋 완료.
+select *
+from tbl_board;
+commit;
 
-
+select *
+from tbl_employee;
 
 
 
