@@ -43,7 +43,7 @@ public class EmpController_sj {
 	
 	
 	// 보드 jsp 확인용 메소드
-	@RequestMapping(value="/list.hello2")
+	@RequestMapping(value="/listtest.hello2")
     public String board2(HttpServletRequest request) {
       
        return "board_sj/list.tiles1";   
@@ -140,9 +140,7 @@ public class EmpController_sj {
 			n = service.add_withFile(boardvo);
 		}
 		
-		mav.setViewName("redirect:/index.hello2");
-		// 글목록 만들면 주석 풀기
-		// mav.setViewName("redirect:/add.hello2");
+		mav.setViewName("redirect:/list.hello2");
 		// list.hello2페이지로 redirect(페이지이동)해라는 말이다.
 		
 		return mav;
@@ -150,7 +148,37 @@ public class EmpController_sj {
 	}
 	
 
-
+	// === 글목록 보기 페이지 요청 === //
+	@RequestMapping(value="/list.hello2")
+	public ModelAndView list(ModelAndView mav, HttpServletRequest request) {
+		
+		List<BoardVO> boardList = null;		
+		boardList = service.boardListNoSearch();
+		
+		// 글조회수 증가는 새로고침 했을 때는 적용되지 않도록 해야 한다. session이용.
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("readCountPermission", "yes"); // 조회수 증가를 허락하겠다.
+	
+		String searchType = request.getParameter("searchType");
+		String searchWord = request.getParameter("searchWord");
+		String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+		
+		if(searchType == null || (!"suject".equals(searchType) && !"name".equals(searchType)) ) { // 유저가 장난친 경우
+			searchType = "";
+		}
+		
+		if(searchWord == null || "".equals(searchWord) || searchWord.trim().isEmpty() ) { // 검색어 자체가 아예 없다면
+			searchWord = "";
+		}
+		
+		Map<String, String> paraMap = new HashMap<>();
+		
+		mav.addObject("boardList", boardList);
+		mav.setViewName("board_sj/list.tiles1");
+		
+		return mav;
+	}
 	
 	
 	
