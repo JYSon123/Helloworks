@@ -33,7 +33,7 @@
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a>
-	  <a href="#게시판"   class="w3-bar-item w3-button">문서목록보기</a>
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">문서목록보기</a>
 	  <a href="#채팅"    class="w3-bar-item w3-button">결재하기</a>
   	</div>
   </div>  

@@ -132,42 +132,6 @@
 		min-height: 100vh;
 	}
 	
-	h1 {
-		font-family: 'Lato', sans-serif;
-		position: relative;
-		display: block;
-		margin: 0 0 0 10px;
-		font-size: 55pt;
-		line-height: 1;
-		transform: translateY(6rem);
-		animation: up 500ms linear forwards;
-		z-index: 1;
-		text-shadow: 0px 1px 1px white;
-		color: white;
-		
-		&::before,
-		&::after {
-			position: absolute;
-			content: '';
-			width: 0px;
-			height: 1px;
-			left: 0;
-			background-color: white;
-			z-index: -1;
-		}
-		
-	&::before {
-		top: 1.4rem;
-		animation: draw 500ms linear 1s forwards;
-	}
-	
-	&::after {
-		bottom: 0.4rem;
-		animation: draw 500ms linear 1s forwards;
-	}
-	
-	}
-	
 	.title-main {
 		font-size: 0;
 		position: relative;
