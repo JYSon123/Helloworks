@@ -1,5 +1,7 @@
 package com.spring.employees.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,16 @@ public class EmpService_sj implements InterEmpService_sj {
 		
 		int n = dao.add_withFile(boardvo); // 첨부파일이 있는 경우
 		return n;
+	}
+
+
+	// === 페이징 처리 x 검색어 x 전체 글목록 보여주기(수정 예정) === //
+	@Override
+	public List<BoardVO> boardListNoSearch() {
+		
+		List<BoardVO> boardList = dao.boardListNoSearch();
+		
+		return boardList;
 	}
 	
 }

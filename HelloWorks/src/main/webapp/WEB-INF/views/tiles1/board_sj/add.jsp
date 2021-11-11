@@ -102,14 +102,14 @@
     </a>
 	<br><br>
 	
-	<button type="button" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
+	<button type="button" onclick="location.href='<%= ctxPath %>/add.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
 				<b>글쓰기</b></button>
 	<br>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 16pt; color:#595959">
 	  <br>
-	  <a href="#메일" class="w3-bar-item w3-button">자유게시판</a>
+	  <a href="<%= ctxPath %>/list.hello2" class="w3-bar-item w3-button">자유게시판</a>
   	</div>
   </div>  
 </nav>
@@ -188,7 +188,6 @@
 					<button type="button" class="btn btn-light" id="pwCheck" style=" font-size:16px; width: 90px; height:38px">
 					암호확인</button>
 					<span class="error" style="color:#0070C0; font-size:17px">암호는 숫자 네자리로 입력해주세요.</span>
-					
 				</td>
 			</tr>
 		</table>
