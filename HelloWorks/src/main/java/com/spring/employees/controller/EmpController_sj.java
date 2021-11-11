@@ -53,9 +53,9 @@ public class EmpController_sj {
 	
 	// === 게시판 글쓰기 폼페이지 요청 === //
 	@RequestMapping(value="/add.hello2")
-	public ModelAndView add(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+	public ModelAndView requiredLogin_add(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
 		
-		// getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 페이지로 돌아가는 메소드 호출
+	    // getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 페이지로 돌아가는 메소드 호출
 		
 		String fk_seq = request.getParameter("fk_seq");
 		String groupno = request.getParameter("groupno");
@@ -89,8 +89,12 @@ public class EmpController_sj {
 			HttpSession session = mrequest.getSession();
 			String root = session.getServletContext().getRealPath("/"); // 경로를 알려주는 메소드
 			
+			
 			String path = root + "resources" + File.separator + "files";
 			                                 //File.seaparator는 운영체제에서 사용하는 폴더와 파일의 구분자
+			
+			// System.out.println("~~~ 확인용 path => " + path);
+			// ~~~ 확인용 path => C:\NCS\workspace(spring)\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\HelloWorks\resources\files
 			
 			// 2. 파일첨부를 위한 변수의 설정 및 초기화한 후 파일 올리기
 			String newFileName = ""; // WAS(톰캣)의 디스크에 저장될 파일명
@@ -144,7 +148,37 @@ public class EmpController_sj {
 	}
 	
 
-
+	// === 글목록 보기 페이지 요청 === //
+	@RequestMapping(value="/list.hello2")
+	public ModelAndView list(ModelAndView mav, HttpServletRequest request) {
+		
+		List<BoardVO> boardList = null;		
+		boardList = service.boardListNoSearch();
+		
+		// 글조회수 증가는 새로고침 했을 때는 적용되지 않도록 해야 한다. session이용.
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("readCountPermission", "yes"); // 조회수 증가를 허락하겠다.
+	
+		String searchType = request.getParameter("searchType");
+		String searchWord = request.getParameter("searchWord");
+		String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+		
+		if(searchType == null || (!"suject".equals(searchType) && !"name".equals(searchType)) ) { // 유저가 장난친 경우
+			searchType = "";
+		}
+		
+		if(searchWord == null || "".equals(searchWord) || searchWord.trim().isEmpty() ) { // 검색어 자체가 아예 없다면
+			searchWord = "";
+		}
+		
+		Map<String, String> paraMap = new HashMap<>();
+		
+		mav.addObject("boardList", boardList);
+		mav.setViewName("board_sj/list.tiles1");
+		
+		return mav;
+	}
 	
 	
 	

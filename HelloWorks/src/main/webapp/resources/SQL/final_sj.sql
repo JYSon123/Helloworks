@@ -177,17 +177,46 @@ values(boardSeq.nextval, '202111081004', '사용자', '테스트글입니다', '
 -- 커밋 완료.
 select *
 from tbl_board;
+
 commit;
 
 select *
 from tbl_employee;
 
+select nvl(max(groupno), 0)
+		from tbl_board
+
+
+select *
+from tbl_board;
+<th style="width: 70px;">글번호</th>
+			<th style="width: 200px;">제목</th>
+			<th style="width: 130px;">성명</th>
+			<th style="width: 100px;">날짜</th>
+			<th style="width: 70px;">조회수</th>
+            
+select seq, fk_empno, name, subject, readcount, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') as regDate,
+    commentCount
+from tbl_board
+where status = 1
+order by seq desc;
+
+select *
+from tbl_board;
 
 
 
+begin
+    for i in 1..20 loop
+        insert into tbl_board(seq, fk_empno, name, subject, content, pw, readCount, regDate, status, groupno)
+        values(boardSeq.nextval, '202111081004', '테스트', '테스트글입니다'||i, '안녕하세요'|| i ||' 테스트글입니다.', '1234', default, default, default, i);
+    end loop;
+end;
+commit;
+rollback;
 
-
-
+select *
+from tbl_board;
 
 
 

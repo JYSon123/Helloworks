@@ -7,6 +7,44 @@
 	String ctxPath = request.getContextPath();
 %> 
 
+<style type="text/css">
+h1 {
+		font-family: 'Lato', sans-serif;
+		position: relative;
+		display: block;
+		margin: 0 0 0 10px;
+		font-size: 55pt;
+		line-height: 1;
+		transform: translateY(6rem);
+		animation: up 500ms linear forwards;
+		z-index: 1;
+		text-shadow: 0px 1px 1px white;
+		color: white;
+		
+		&::before,
+		&::after {
+			position: absolute;
+			content: '';
+			width: 0px;
+			height: 1px;
+			left: 0;
+			background-color: white;
+			z-index: -1;
+		}
+		
+	&::before {
+		top: 1.4rem;
+		animation: draw 500ms linear 1s forwards;
+	}
+	
+	&::after {
+		bottom: 0.4rem;
+		animation: draw 500ms linear 1s forwards;
+	}
+	
+	}
+
+</style>
 
 <!-- 메인 이미지 화면 시작-->
 <div id="body">
@@ -40,7 +78,7 @@
 		</div>
 		
 		<div class="w3-quarter">
-		 <button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		 <button type="button" onclick="location.href='<%= ctxPath %>/list.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="far fa-clipboard" style="font-size: 34pt"></i></button>
 			  <p class="p">게시판</p>
 		</div>
