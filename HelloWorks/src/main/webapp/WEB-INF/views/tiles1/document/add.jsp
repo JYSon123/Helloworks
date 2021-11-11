@@ -9,6 +9,7 @@
 
    $(document).ready(function(){
       
+	   
       // 쓰기버튼
       $("button#btnWrite").click(function(){
          
@@ -29,7 +30,7 @@
          // 폼(form)을 전송(submit)
          var frm = document.addFrm;
          frm.method = "POST";
-         frm.action = "<%= ctxPath%>/addEnd.hello2";
+         frm.action = "<%= ctxPath%>/addEndjy.hello2";
          frm.submit();
       });
       
@@ -51,7 +52,7 @@
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a>
-	  <a href="#게시판"   class="w3-bar-item w3-button">문서목록보기</a>
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">문서목록보기</a>
 	  <a href="#채팅"    class="w3-bar-item w3-button">결재하기</a>
   	</div>
   </div>  
@@ -70,24 +71,24 @@
 -->
 
      <form name="addFrm" enctype="multipart/form-data">
-      <table style="width: 1050px; margin-top:30px; " class="table table-bordered">
+      <table style="width: 1050px; margin-top:30px;" class="table table-bordered">
          <tr>
             <th style="width: 15%; background-color: #DDDDDD">성명</th>
             <td>
-               <input type="hidden" name="fk_empno" value="${sessionScope.loginuser.fk_empno}" />
-               <input type="hidden" name="fk_deptnum" value="${sessionScope.loginuser.fk_deptnum}" />
-               <input type="hidden" name="fk_userid" value="${sessionScope.loginuser.userid}" />
-               <input type="text" name="name" value="${sessionScope.loginuser.name}" readonly /> 
+               <input type="hidden" name="fk_empno" value="${sessionScope.loginEmp.empno}" />
+               <input type="hidden" name="fk_deptnum" value="${sessionScope.loginEmp.fk_deptnum}" />
+               <input type="hidden" name="fk_userid" value="${sessionScope.loginEmp.empid}" />
+               <input type="text" name="empname" value="${sessionScope.loginEmp.empname}" readonly /> 
             </td>
          </tr>
          <tr>
             <th style="width: 15%; background-color: #DDDDDD " >문서종류</th>
             <td>
 			     <select name="documentKind" style="width: 15%; height: 30px;">
-			     	<option>연차</option>
-			     	<option>지출결의서</option>
-			     	<option>품의서</option>
-			     	<option>업무협조요청</option>
+			     	<option value="1">연차</option>
+			     	<option value="2">지출결의서</option>
+			     	<option value="3">품의서</option>
+			     	<option value="4">업무협조요청</option>
 			     </select>
             </td>
          </tr>
