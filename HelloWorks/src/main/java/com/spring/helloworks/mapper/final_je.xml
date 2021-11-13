@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- ==== #29. mapper 기본설정 ==== -->
+<!-- ==== mapper 기본설정 ==== -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 
-<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!!) ==== -->
+<!-- ==== 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!!) ==== -->
 <mapper namespace="hje">
 	
+	<!-- DB연결 테스트용 (이순신, 엄정화 select) -->
 	<select id="getName" resultType="String" >
 		select name
 		from tbl_test
+	</select>
+	
+	
+	<!-- 캘린더 추가하기 -->
+	<insert id="addCalendar" parameterType="HashMap">
+		insert into tbl_calendar (calno, fk_cno, calname, color, shareEmp)
+		values(calnoSeq.nextval, #{fk_cno}, #{calname}, #{color}, #{shareEmp})
+	</insert>
+	
+	
+	<!-- 개인 캘린더 리스트 받아오기 -->
+	<select id="showCalendarList" resultType="com.spring.schedule.model.CalendarVO_HJE" parameterType="String">
+		select calname, color, fk_cno
+		from tbl_calendar
+		where shareemp like '%'|| #{empid} ||'%'
 	</select>
 	
 	

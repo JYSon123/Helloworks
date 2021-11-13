@@ -1,8 +1,11 @@
 select *
 from tab;
 
+purge recyclebin;
+
 desc tbl_department
 
+-- 직원테이블 생성---------------------------------
 create table tbl_employee
 (
   empno varchar2(200) not null  -- to_char(sysdate, ‘yyyy’) || to_char(empnoSeq.nextvals)
@@ -36,3 +39,77 @@ nomaxvalue
 nominvalue
 nocycle
 nocache;
+-----------------------------------------------------------------
+
+-- 캘린더 카테고리 테이블 생성 ---------------------------------------
+create table tbl_calCategory (
+ cno    number not null         -- 카테고리번호  (1,2)
+,cname  varchar2(15) not null   -- 카테고리명    (Personal/Share)
+,constraint PK_tbl_calCategory_cno primary key(cno)
+);
+
+insert into tbl_calCategory(cno, cname) values (1, 'personal');
+insert into tbl_calCategory(cno, cname) values  (2, 'share');
+-----------------------------------------------------------------
+
+-- 캘린더 테이블 생성 ---------------------------------------
+create table tbl_calendar (
+ calno    number not null           -- 캘린더번호
+,fk_cno   number not null           -- 카테고리 번호
+,calname  varchar2(50) not null     -- 캘린더 명
+,color    varchar2(10) not null     -- 색상
+,shareEmp varchar2(50)              -- 공유인원
+,constraint PK_tbl_calCategory_calno primary key(calno)
+,constraint FK_tbl_calCategory_cno foreign key(fk_cno) references tbl_calCategory(cno)
+);
+
+create sequence calnoSeq
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+nocache;
+-----------------------------------------------------------------
+
+-- 일정 테이블 생성 ---------------------------------------
+create table tbl_schedule (
+ sno        number not null         -- 일정일련번호
+,fk_calno   number not null         -- 캘린더번호
+,title      varchar2(200) not null  -- 일정 제목
+,content    varchar2(2000)          -- 내용
+,location   varchar2(200)           -- 장소
+,startdate  varchar2(100) not null  -- 시작날짜
+,enddate    varchar2(100) not null  -- 마감날짜
+,status     number  default 0       -- 상태
+,constraint PK_tbl_schedule_sno primary key(sno)
+,constraint FK_tbl_schedule_calno foreign key(fk_calno) references tbl_calendar(calno)
+);
+
+create sequence snoSeq
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+nocache;
+------------------------------------------------------------------
+
+-- 캘린더 카테고리 테이블 조회
+select * from tbl_calCategory;
+desc tbl_calCategory;
+-- 카테고리 테이블 조회
+select * from tbl_calendar;
+desc tbl_calendar;
+-- 일정 테이블 조회
+select * from tbl_schedule;
+desc tbl_schedule;
+
+select calname 
+from tbl_calendar
+
+select calname, color, fk_cno
+from tbl_calendar
+where shareemp like '%'|| 'test' ||'%'
+        
+
