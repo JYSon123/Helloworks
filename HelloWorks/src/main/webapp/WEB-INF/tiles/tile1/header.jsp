@@ -9,9 +9,11 @@
 <%
    String ctxPath = request.getContextPath();
 
+   // localhost는 각각 자기 ip를 말하므로 모두 다 localhost를 갖고 있어 웹 채팅에서 사용할 수 없다.
+   
    // === #172. (웹채팅관련3) === 
    // === 서버 IP 주소 알아오기(사용중인 IP주소가 유동IP 이라면 IP주소를 알아와야 한다.) ===
-   InetAddress inet = InetAddress.getLocalHost(); 
+   InetAddress inet = InetAddress.getLocalHost();  
    String serverIP = inet.getHostAddress();
    
  // System.out.println("serverIP : " + serverIP);

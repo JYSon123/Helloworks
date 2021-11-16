@@ -47,5 +47,103 @@
 		where empid = #{empid}
 		
 	</update>
+		
+	<!-- 우리 회사 사업자 정보 SELECT -->
+	<select id="getMycomp" resultType="com.spring.helloworks.model.MycompanyVO_KJH">
+		
+		select mycompany_id, mycompany_comp, mycompany_name, mycompany_addr, mycompany_sort
+		from tbl_mycompany
+		
+	</select>
+	
+	<!-- 우리 회사 정보 INSERT -->
+	<insert id="registerCompany" parameterType="com.spring.helloworks.model.MycompanyVO_KJH">
+		
+		insert into tbl_mycompany(mycompany_id, mycompany_comp, mycompany_name, mycompany_addr, mycompany_sort)
+		values(#{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr}, #{mycompany_sort})
+		
+	</insert>
+	
+	<!-- 우리 회사 정보 UPDATE -->
+	<update id="updateCompany" parameterType="com.spring.helloworks.model.MycompanyVO_KJH">
+		
+		update tbl_mycompany set mycompany_id = #{mycompany_id}
+							   , mycompany_comp = #{mycompany_comp}
+							   , mycompany_name = #{mycompany_name}
+							   , mycompany_addr = #{mycompany_addr}
+							   , mycompany_sort = #{mycompany_sort}
+		
+	</update>
+	
+	<!-- 우리 회사 정보 DELETE -->
+	<delete id="deleteCompany" parameterType="String">
+		
+		delete from tbl_mycompany where mycompany_id = #{mycompany_id}
+		
+	</delete>
+	
+	<!-- 검색어에 해당하는 총 거래처 수 -->
+	<select id="getTotalCount" parameterType="HashMap" resultType="int">
+		
+		select count(*)
+		from tbl_customer
+		<if test="searchType != '' and searchWord != ''">
+			where lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+		</if>
+		
+	</select>
+	
+	<!-- 거래처 목록 SELECT -->
+	<select id="getCustomerList" parameterType="HashMap" resultType="com.spring.helloworks.model.CustomerVO_KJH">
+		
+		select customer_id, nvl(customer_comp, '') AS customer_comp, nvl(customer_name, '') AS customer_name, nvl(customer_addr, '') AS customer_addr, nvl(customer_email, '') AS customer_email
+		from
+		(
+			select row_number() over(order by customer_regdate desc) AS rno, customer_id, customer_comp, customer_name, customer_addr, customer_email
+			from tbl_customer
+			<if test="searchType != '' and searchWord != ''">
+				where lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+			</if>
+		) V
+		where rno between #{startRno} and #{endRno}
+		order by rno
+				
+	</select>
+	
+	<!-- 신규 거래처 INSERT -->	
+	<insert id="insertCustomer" parameterType="com.spring.helloworks.model.CustomerVO_KJH">
+		
+		insert into tbl_customer(customer_id, customer_comp, customer_name, customer_addr, customer_email)
+		values(#{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{customer_email})
+		
+	</insert>
+	
+	<!-- 거래처 1개 SELECT -->
+	<select id="selectCustomer" parameterType="String" resultType="com.spring.helloworks.model.CustomerVO_KJH">
+		
+		select customer_id, nvl(customer_comp, '') AS customer_comp, nvl(customer_name, '') AS customer_name, nvl(customer_addr, '') AS customer_addr, nvl(customer_email, '') AS customer_email
+		from tbl_customer
+		where customer_id = #{customer_id}
+		
+	</select>
+	
+	<!-- 거래처 정보 UPDATE -->
+	<update id="updateCustomer" parameterType="com.spring.helloworks.model.CustomerVO_KJH">
+		
+		update tbl_customer set customer_comp = #{customer_comp}
+							  , customer_name = #{customer_name}
+							  , customer_addr = #{customer_addr}
+							  , customer_email = #{customer_email}
+		where customer_id = #{customer_id}		
+		
+	</update>
+	
+	<!-- 거래처 DELETE -->
+	<delete id="deleteCustomer" parameterType="String">
+		
+		delete from tbl_customer
+		where customer_id = #{customer_id}
+		
+	</delete>
 	
 </mapper>

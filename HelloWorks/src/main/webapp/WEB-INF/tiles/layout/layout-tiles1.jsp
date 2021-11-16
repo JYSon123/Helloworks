@@ -23,13 +23,11 @@
 <!-- Font Awesome 5 Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-<!-- 직접 만든 CSS 1 -->
-<%-- <link rel="stylesheet" type="text/css" href="<%=ctxPath %>/resources/css/style1.css" /> --%>
-
 <!-- Optional JavaScript -->
 <script type="text/javascript" src="<%= ctxPath%>/resources/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="<%= ctxPath%>/resources/bootstrap-4.6.0-dist/js/bootstrap.bundle.min.js" ></script> 
 <script type="text/javascript" src="<%= ctxPath%>/resources/smarteditor/js/HuskyEZCreator.js" charset="utf-8"></script> 
+
 
 <!-- w3 탬플릿 css -->
 <link rel="stylesheet" type="text/css"  href="https://www.w3schools.com/w3css/4/w3.css">
@@ -45,18 +43,11 @@
 <!-- Font Awesome 5 Icons -->
 <script src="https://kit.fontawesome.com/69a29bca1e.js" crossorigin="anonymous"></script>
 
-<!-- Optional JavaScript -->
-<script src="../js/jquery-3.3.1.min.js" type="text/javascript"></script>
-<script src="../js/bootstrap.bundle.min.js" type="text/javascript"></script>
-
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css">
-
 <!-- Required meta tags -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
  
- 
+<script type="text/javascript" src="<%=request.getContextPath() %>/resources/smarteditor/js/HuskyEZCreator.js" charset="utf-8"></script>
  
  <%--  ===== 스피너를 사용하기 위해  jquery-ui 사용하기 ===== --%>
 <link rel="stylesheet" type="text/css" href="<%= ctxPath%>/resources/jquery-ui-1.11.4.custom/jquery-ui.css" />
