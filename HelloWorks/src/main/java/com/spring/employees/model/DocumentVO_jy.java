@@ -17,16 +17,18 @@ public class DocumentVO_jy {
     private String orgFilename;  // 진짜 파일명(강아지.png)
     private String fileSize;     // 파일크기  
     
+    private String breakkind;
+    private String breakstart;
+    private String breakend;
+    
 
-    
     public DocumentVO_jy() {}
-    
-    
+ 
     
     
 	public DocumentVO_jy(String doument_seq, String fk_empno, String fk_deptnum, String name, String subject,
 			String content, String regDate, String status, String result, String fileName, String orgFilename,
-			String fileSize) {
+			String fileSize, String breakstart, String  breakend , String breakkind) {
 
 		this.doument_seq = doument_seq;
 		this.fk_empno = fk_empno;
@@ -160,6 +162,48 @@ public class DocumentVO_jy {
 
 	public void setFileSize(String fileSize) {
 		this.fileSize = fileSize;
+	}
+
+
+
+
+	public String getBreakkind() {
+		return breakkind;
+	}
+
+
+
+
+	public void setBreakkind(String breakkind) {
+		this.breakkind = breakkind;
+	}
+
+
+
+
+	public String getBreakstart() {
+		return breakstart;
+	}
+
+
+
+
+	public void setBreakstart(String breakstart) {
+		this.breakstart = breakstart;
+	}
+
+
+
+
+	public String getBreakend() {
+		return breakend;
+	}
+
+
+
+
+	public void setBreakend(String breakend) {
+		this.breakend = breakend;
 	}
 	
 	

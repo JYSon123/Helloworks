@@ -27,14 +27,16 @@
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:gray"><b>DOCUMENT</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#3399ff"><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
-	  <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a>
-	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">문서목록보기</a>
-	  <a href="#채팅"    class="w3-bar-item w3-button">결재하기</a>
+	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
+	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
+	  <a href="#채팅"    class="w3-bar-item w3-button">나의 기안목록 (평사원)</a>
+	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
   	</div>
   </div>  
 </nav>

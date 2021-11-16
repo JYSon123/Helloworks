@@ -37,6 +37,25 @@ public class EmpDAO_jy implements InterEmpDAO_jy {
 	public List<DocumentVO_jy> documentListSearchWithPaging(Map<String, String> paraMap) {
 		List<DocumentVO_jy> documentList = sqlsession2.selectList("sonjy.documentListSearchWithPaging" , paraMap);
 		return documentList;
+	}
+
+	// 문서 하나를 자세히 보기
+	@Override
+	public DocumentVO_jy viewDocument(Map<String, String> paraMap) {
+		
+		DocumentVO_jy documentvo = sqlsession2.selectOne("sonjy.viewDocument", paraMap);
+		
+		return documentvo;
+	}
+
+	
+	// 캘린더에 연차를 표시해주는 메소드
+	@Override
+	public List<BreakCalendarVO_jy> viewBreak(Map<String, String> paraMap) {
+		
+		List<BreakCalendarVO_jy> breakCalendarList = sqlsession2.selectList("sonjy.viewBreak", paraMap);
+		
+		return breakCalendarList;
 	}  
 	
 	

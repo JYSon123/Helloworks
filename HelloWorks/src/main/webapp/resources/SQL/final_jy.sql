@@ -69,7 +69,7 @@ nocache;
 
 
 부서번호
-10: 인사팀
+10: 인사팀(경영지원팀)
 20: 회계팀
 30: 총무팀
 40: 마케팅팀
@@ -90,6 +90,8 @@ constraint FK_tbl_emp_empno foreign key(fk_empno) references tbl_employee(empno)
 select *
 from tbl_department;
 
+select *
+from tbl_document
 
 
 [기안(문서) 테이블] tbl_document
@@ -103,10 +105,14 @@ create table tbl_document
 , content       Nvarchar2(2000)       not null    -- 문서내용   -- clob (최대 4GB까지 허용) 
 , regDate       date default sysdate  not null    -- 문서기안시간
 , status        number(1)    not null             -- 문서종류   1:연차,  2:지출결의서, 3:품의서, 4:업무협조요청  
-,result         number default 0                  -- 결과, 0대기, 1승인, 2 반려
+, result         number default 0                  -- 결과, 0대기, 1승인, 2 반려
 , fileName      varchar2(255)                    -- WAS(톰캣)에 저장될 파일명(2021110809271535243254235235234.png)                                       
 , orgFilename   varchar2(255)                    -- 진짜 파일명(강아지.png)  // 사용자가 파일을 업로드 하거나 파일을 다운로드 할때 사용되어지는 파일명 
 , fileSize      number                           -- 파일크기  
+
+, breakstart   date      -- 연차시작날짜
+, breakend     date      -- 연차 끝나는 날짜
+, breakkind    number    -- 연차 종류(반차 등등)
 
 ,constraint PK_tbl_document_seq primary key(doument_seq)
 ,constraint FK_tbl_document_fk_empno foreign key(fk_empno) references tbl_employee(empno)
@@ -114,6 +120,16 @@ create table tbl_document
 ,constraint CK_tbl_document_status check(status in(1,2,3,4))
 );
 -- Table TBL_DOCUMENT이(가) 생성되었습니다.
+
+
+alter table tbl_document add breakstart date;
+
+alter table tbl_document add breakend date;
+
+alter table tbl_document add breakkind number;
+
+commit;
+
 
 alter table tbl_document drop CK_tbl_document_status check;
 
@@ -138,6 +154,34 @@ values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), 20211108100
 rollback;
 
 commit;
+
+
+
+
+[휴가, 연차 테이블] tbl_break
+
+create table tbl_break
+( 
+, fk_empno      varchar2(200)         not null    -- 사원번호
+, fk_deptnum    varchar2(10)          not null    -- 부서번호
+, useDate       varchar2(20)                      -- 연차사용날짜
+, subject       varchar2(20)          not null    -- 연차유형 1:연차 2:반차 3:포상휴가 4:경조사 5:기타
+, content       Nvarchar2(2000)                   -- 연차사용사유   -- clob (최대 4GB까지 허용) 
+, fileName      varchar2(255)                     -- WAS(톰캣)에 저장될 파일명(2021110809271535243254235235234.png)                                       
+, orgFilename   varchar2(255)                     -- 진짜 파일명(강아지.png)  // 사용자가 파일을 업로드 하거나 파일을 다운로드 할때 사용되어지는 파일명 
+, fileSize      number                            -- 파일크기   ===== 여기까지가 연차 기안 폼 =====
+, regDate       date default sysdate  not null    -- 연차기안시간 (생성, 사용, 기안 모두 다 )
+, preason varchar2(255)-- 연차발생 사유
+, mreason varchar2(255)-- 연차차감 사유
+, breakCount not null -- 연차개수 (남은연차 count용), 사용이면 -1, 생성이면 1 식으로..?
+, result        number default 0                  -- 결과, 0발생, 1사용, 2기안중 (select 용으로)
+
+,constraint FK_tbl_document_fk_empno foreign key(fk_empno) references tbl_employee(empno)
+,constraint FK_tbl_document_fk_deptnum foreign key(fk_deptnum) references tbl_department(deptnum)
+);
+
+
+
 
 select *
 from TBL_DOCUMENT;
@@ -217,3 +261,42 @@ update TBL_DOCUMENT set result = '2'
 where doument_seq = 202111095;
 
 commit;
+
+
+select doument_seq, status, result, fk_deptnum, name, subject, content, regDate, filename
+from tbl_document
+where doument_seq = 202111095;
+
+
+
+
+create table tbl_breakcalendar(
+  fk_empno      varchar2(200)   not null  -- 사원번호
+, title         varchar2(50)    not null  -- 연차종류 (연차,반차,포상휴가)
+, start1        date            not null  -- 시작날짜
+, end1          date            not null  -- 끝나는날짜
+,constraint FK_tbl_breakcalendar_fk_empno foreign key(fk_empno) references tbl_employee(empno)
+);
+
+INSERT INTO tbl_breakcalendar values('202111081004','반차',to_date('2021/11/22','YYYY/MM/DD'), to_date('2021/11/23','YYYY/MM/DD'));
+commit;
+
+INSERT INTO tbl_breakcalendar values('202111081004','연차',to_date('2021/11/29','YYYY/MM/DD'), to_date('2021/11/30','YYYY/MM/DD'));
+commit;
+
+INSERT INTO tbl_breakcalendar values('202111081004','포상휴가',to_date('2021/12/10','YYYY/MM/DD'), to_date('2021/12/15','YYYY/MM/DD'));
+commit;
+
+
+select  title, to_char(start1,'YYYY-MM-DD') AS start1 ,  to_char(end1,'YYYY-MM-DD') AS end1
+from tbl_breakcalendar
+where fk_empno = '202111081004';
+
+
+
+
+
+
+
+
+

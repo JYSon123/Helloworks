@@ -5,6 +5,13 @@
 
 <% String ctxPath = request.getContextPath(); %> 
 
+<style>
+
+  .rest { display: none; }
+
+
+</style>
+
 <script type="text/javascript">
 
    $(document).ready(function(){
@@ -34,8 +41,30 @@
          frm.submit();
       });
       
+ 
+      
+      
    });// end of $(document).ready(function(){})--------------------------
 
+   
+   function form1(value){
+	   
+	   var state = value;
+	   
+	   console.log(state);
+	   
+	   if(state == 1) {
+		   $("span#rest").removeClass("rest");   
+	   }
+	   else {
+		   $("span#rest").addClass("rest");
+		   
+	   }
+	   
+	   
+   }
+   
+   
 </script>   
 
 
@@ -46,14 +75,16 @@
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:gray"><b>DOCUMENT</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#3399ff""><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
-	  <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a>
-	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">문서목록보기</a>
-	  <a href="#채팅"    class="w3-bar-item w3-button">결재하기</a>
+	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
+	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
+	  <a href="#채팅"    class="w3-bar-item w3-button">기안목록 (평사원)</a>
+	  <a href="#채팅"    class="w3-bar-item w3-button">휴가관리 (모든직원)</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
   	</div>
   </div>  
 </nav>
@@ -73,7 +104,7 @@
      <form name="addFrm" enctype="multipart/form-data">
       <table style="width: 1050px; margin-top:30px;" class="table table-bordered">
          <tr>
-            <th style="width: 15%; background-color: #DDDDDD">성명</th>
+            <th style="width: 15%; background-color: #e6f5ff">성명</th>
             <td>
                <input type="hidden" name="fk_empno" value="${sessionScope.loginEmp.empno}" />
                <input type="hidden" name="fk_deptnum" value="${sessionScope.loginEmp.fk_deptnum}" />
@@ -82,25 +113,44 @@
             </td>
          </tr>
          <tr>
-            <th style="width: 15%; background-color: #DDDDDD " >문서종류</th>
+            <th style="width: 15%; background-color: #e6f5ff " >문서종류</th>
             <td>
-			     <select name="documentKind" style="width: 15%; height: 30px;">
+			     <select onchange="form1(value)" name="documentKind" style="width: 15%; height: 30px;">
+			     	<option value="0">선택</option>
 			     	<option value="1">연차</option>
 			     	<option value="2">지출결의서</option>
 			     	<option value="3">품의서</option>
 			     	<option value="4">업무협조요청</option>
 			     </select>
+			     
+			     <span id="rest" class="rest" >
+			     <span style="margin-left: 14px;">종류 : </span>
+			     <select name="breakkind" style="width: 13%; height: 30px;">
+			     	<option value="1">종일</option>
+			     	<option value="2">반차(오전)</option>
+			     	<option value="3">반차(오후)</option>
+			     	<option value="4">기타</option>
+			     </select>
+			     
+			     <span style="margin-left: 14px;">사용날짜 : </span>
+			     <input name="breakstart" style="height: 30px; " type="date" />
+			     
+			     <span style="margin-left: 3px; font-weight: bolder;">-</span>
+			     
+			     <input name="breakend" style="height: 30px; " type="date" />
+			     
+			     </span>
             </td>
          </tr>
          <tr>
-            <th style="width: 15%; background-color: #DDDDDD" >제목</th>
+            <th style="width: 15%; background-color: #e6f5ff" >제목</th>
             <td>
                <%-- 원글쓰기인 경우 --%>
 			     <input type="text" name="subject" id="subject" size="100"/>
             </td>
          </tr>
          <tr>
-            <th style="width: 15%; background-color: #DDDDDD; vertical-align: middle;">내용</th>
+            <th style="width: 15%; background-color: #e6f5ff; vertical-align: middle;">내용</th>
             <td>
                <textarea style="width: 100%; height: 412px;" name="content" id="content"></textarea> 
             </td>
@@ -108,7 +158,7 @@
          
         <%-- === # 150. 파일첨부 타입 추가하기 === --%> 
          <tr>
-            <th style="width: 25%; background-color: #DDDDDD">증빙첨부</th>
+            <th style="width: 25%; background-color: #e6f5ff">증빙첨부</th>
             <td>
                <input type="file" name="attach" /> 
             </td>
@@ -123,8 +173,8 @@
       <%-- === 답변글쓰기가 추가된 경우 끝 ===  --%>
       
       <div style=" margin-top: 30px;">
-         <button type="button" class="btn btn-secondary  mr-3" id="btnWrite">기안하기</button>
-         <button type="button" class="btn btn-secondary " onclick="javascript:history.back()">취소</button> 
+         <button type="button" class="btn btn-info  mr-3" id="btnWrite">기안하기</button>
+         <button type="button" class="btn btn-info " onclick="javascript:history.back()">취소</button> 
       </div>
       
       <div style="margin-bottom: 150px;"></div>

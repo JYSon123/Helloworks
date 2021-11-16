@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spring.employees.model.BreakCalendarVO_jy;
 import com.spring.employees.model.DocumentVO_jy;
 import com.spring.employees.model.InterEmpDAO_jy;
 
@@ -42,6 +43,25 @@ public class EmpService_jy implements InterEmpService_jy {
 		
 		return documentList;
 
+	}
+
+	// 문서 하나를 자세히 보기
+	@Override
+	public DocumentVO_jy viewDocument(Map<String, String> paraMap) {
+		
+		DocumentVO_jy documentvo = dao.viewDocument(paraMap);
+		
+		return documentvo;
+	}
+
+	
+	// 캘린더에 연차를 표시해주는 메소드
+	@Override
+	public List<BreakCalendarVO_jy> viewBreak(Map<String, String> paraMap) {
+		
+		List<BreakCalendarVO_jy> breakCalendarList = dao.viewBreak(paraMap);
+		
+		return breakCalendarList;
 	}
 
 	

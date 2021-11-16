@@ -6,17 +6,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.spring.employees.model.BreakCalendarVO_jy;
 import com.spring.employees.model.DocumentVO_jy;
 import com.spring.employees.model.FileManager_sj;
 import com.spring.employees.service.InterEmpService_jy;
 import com.spring.helloworks.model.EmpVO_KJH;
-import com.sun.xml.internal.txw2.Document;
 
 @Controller
 public class EmpController_jy {
@@ -66,6 +69,21 @@ public class EmpController_jy {
 		String subject = request.getParameter("subject");
 		String content = request.getParameter("content");
 		
+		// 문서의 종류가 연차일때만 사용하게 된다.
+		String breakkind = null;
+		String breakstart = null;
+		String breakend = null;
+		
+		
+		// 문서의 종류가 연차일 경우
+		if(status.equals("1")) {
+			breakkind = request.getParameter("breakkind");
+			breakstart = request.getParameter("breakstart");
+			breakend = request.getParameter("breakend");
+		}
+		
+		
+		
 		
 		Map<String,String> paraMap = new HashMap<>();
 	    paraMap.put("fk_empno", fk_empno);
@@ -74,7 +92,14 @@ public class EmpController_jy {
 	    paraMap.put("status", status);
 	    paraMap.put("subject", subject);
 	    paraMap.put("content", content);
-		
+
+		// 문서의 종류가 연차일 경우
+		if(status.equals("1")) {
+			paraMap.put("breakkind", breakkind);
+			paraMap.put("breakstart", breakstart);
+			paraMap.put("breakend", breakend);
+		}
+	    
 	    // 작성한 문서를 테이블에 insert 시켜주는 메소드
 	    documentaddend = service.documentaddend(paraMap);
 	    
@@ -85,8 +110,8 @@ public class EmpController_jy {
 	
 	}
 	
-	
-	// 기안한 문서 보여주기
+
+	// 기안한 문서 보여주기 (관리자용, 결재하기를 만들자)
 	@RequestMapping(value="/documentlist.hello2")
     public ModelAndView documentlist(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
        
@@ -99,15 +124,6 @@ public class EmpController_jy {
         String searchWord = request.getParameter("searchWord");
         String str_currentShowPageNo = request.getParameter("currentShowPageNo");
         
-        /*
-        if(searchType == null || (!"subject".equals(searchType) && !"name".equals(searchType)) ) {  // 유저가 장난을 쳐왔다면
-           searchType = "";
-        }
-        
-        if(searchWord == null || "".equals(searchWord) || searchWord.trim().isEmpty() ) {  // 검색어 자체가 아예 없다면
-           searchWord = "";
-        }
-        */
         
         if(searchType == null) {
         	searchType = "";
@@ -158,15 +174,7 @@ public class EmpController_jy {
         }
         
         // **** 가져올 게시글의 범위를 구한다.(공식임!!!) **** 
-        /*
-             currentShowPageNo      startRno     endRno
-            --------------------------------------------
-                 1 page        ===>    1           10
-                 2 page        ===>    11          20
-                 3 page        ===>    21          30
-                 4 page        ===>    31          40
-                 ......                ...         ...
-         */
+
         
         startRno = ( ( currentShowPageNo -1 ) * sizePerPage ) +1;
         endRno = startRno + sizePerPage - 1;
@@ -174,14 +182,10 @@ public class EmpController_jy {
         paraMap.put("startRno", String.valueOf(startRno));
         paraMap.put("endRno", String.valueOf(endRno));
         
-
         documentList = service.documentListSearchWithPaging(paraMap);
         // 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한 것)
         
-        
         // 아래는 검색대상 컬럼과 검색어를 유지시키기 위한 것임.
-        
-        
         if(!"".equals(searchType) && !"".equals(searchWord)) {
            mav.addObject("paraMap",paraMap);
         }
@@ -190,11 +194,6 @@ public class EmpController_jy {
         // === #121. 페이지바 만들기 === //
         int blockSize = 10;
         // blockSize 는 1개 블럭(토막)당 보여지는 페이지번호의 개수 이다.
-        /*
-                         1  2  3  4  5  6  7  8  9 10 [다음][마지막]  -- 1개블럭
-           [맨처음][이전]  11 12 13 14 15 16 17 18 19 20 [다음][마지막]  -- 1개블럭
-           [맨처음][이전]  21 22 23
-        */
         
         int loop = 1;
         /*
@@ -203,43 +202,7 @@ public class EmpController_jy {
         
         int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
         // *** !! 공식이다. !! *** //
-        
-    /*
-        1  2  3  4  5  6  7  8  9  10  -- 첫번째 블럭의 페이지번호 시작값(pageNo)은 1 이다.
-        11 12 13 14 15 16 17 18 19 20  -- 두번째 블럭의 페이지번호 시작값(pageNo)은 11 이다.
-        21 22 23 24 25 26 27 28 29 30  -- 세번째 블럭의 페이지번호 시작값(pageNo)은 21 이다.
-        
-        currentShowPageNo         pageNo
-       ----------------------------------
-             1                      1 = ((1 - 1)/10) * 10 + 1
-             2                      1 = ((2 - 1)/10) * 10 + 1
-             3                      1 = ((3 - 1)/10) * 10 + 1
-             4                      1
-             5                      1
-             6                      1
-             7                      1 
-             8                      1
-             9                      1
-             10                     1 = ((10 - 1)/10) * 10 + 1
-            
-             11                    11 = ((11 - 1)/10) * 10 + 1
-             12                    11 = ((12 - 1)/10) * 10 + 1
-             13                    11 = ((13 - 1)/10) * 10 + 1
-             14                    11
-             15                    11
-             16                    11
-             17                    11
-             18                    11 
-             19                    11 
-             20                    11 = ((20 - 1)/10) * 10 + 1
-             
-             21                    21 = ((21 - 1)/10) * 10 + 1
-             22                    21 = ((22 - 1)/10) * 10 + 1
-             23                    21 = ((23 - 1)/10) * 10 + 1
-             ..                    ..
-             29                    21
-             30                    21 = ((30 - 1)/10) * 10 + 1
-    */  
+
         
         String pageBar = "<ul style='list-style:none;'>"; 
         String url = "documentlist.hello2";
@@ -299,6 +262,109 @@ public class EmpController_jy {
     }
 	
 	
+	// 문서 하나를 자세히 보기
+	@RequestMapping(value="/viewDocument.hello2")
+	public ModelAndView viewDocument(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		String doument_seq = request.getParameter("doument_seq");
+		String searchType = request.getParameter("searchType");
+		String searchWord = request.getParameter("searchWord");
+		
+		DocumentVO_jy documentvo = null;
+		
+		Map<String, String> paraMap = new HashMap<>();
+        paraMap.put("doument_seq", doument_seq);
+        paraMap.put("searchType", searchType);
+        paraMap.put("searchWord", searchWord);
+       
+       
+        mav.addObject("searchType",searchType); // request에 담아주는 것이다.
+        mav.addObject("searchWord",searchWord);
+		
+	    
+        documentvo =  service.viewDocument(paraMap);
+        
+        
+        String gobackURL = request.getParameter("gobackURL");
+		
+        if(gobackURL != null && gobackURL.contains(" ") ) { // 이 문자열속에 공백이 포함 되었다면 contains()
+     	   gobackURL = gobackURL.replaceAll(" ", "&"); 
+     	   // 이전글제목, 다음글제목을 클릭했을때 돌아갈 페이지 주소를 올바르게 만들어주기 위해서 한 것임.
+     	   //   System.out.println("~~~~~~ 확인용 gobackURL => " + gobackURL);
+           // ~~~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=%EC%9E%85%EB%8B%88%EB%8B%A4&currentShowPageNo=15
+        }
+        
+        mav.addObject("documentvo", documentvo);
+        
+        mav.addObject("gobackURL", gobackURL);
+
+	    mav.setViewName("document/view.tiles1");
+		
+		return mav;
+	}
+	
+	
+	
+	// 로그인한 유저가 기안한 문서목록 보기
+	
+	
+	
+	// 로그인한 유저가 기안한 문서 1개 상세보기
+	
+	
+	// 연차캘린더 보여주기
+	@RequestMapping(value="/viewBreak.hello2")
+	public ModelAndView viewBreak(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {	
+		
+	//	getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 호출
+		
+		mav.setViewName("break/breakMain.tiles1");
+
+		return mav;
+	}
+	
+	
+	
+	// 연차캘린더 ajax로 값 받아오기
+	@ResponseBody
+	@RequestMapping(value="/viewBreak2.hello2", method= {RequestMethod.GET}, produces="text/plain;charset=UTF-8")
+	public String viewBreak2(HttpServletRequest request, HttpServletResponse response) {
+		 
+		 List<BreakCalendarVO_jy> breakCalendarList = null;
+		 
+		 HttpSession session = request.getSession();
+		 
+		 EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+		 
+	//	 String fk_empno = loginEmp.getEmpno();
+		 
+		 String fk_empno = "202111081004";
+		 
+		 Map<String, String> paraMap = new HashMap<>();
+		 paraMap.put("fk_empno", fk_empno);
+		 
+		 breakCalendarList =  service.viewBreak(paraMap); // 캘린더에 연차를 표시해주는 메소드
+		 
+		 JSONArray jsonArr = new JSONArray();
+		 
+		 if(breakCalendarList != null) {
+	          for(BreakCalendarVO_jy breakvo : breakCalendarList) {
+	             JSONObject jsonObj = new JSONObject();
+	             jsonObj.put("title", breakvo.getTitle());
+	             jsonObj.put("start", breakvo.getStart1());
+	             jsonObj.put("end", breakvo.getEnd1());
+	   
+	             jsonArr.put(jsonObj);
+	          }
+		 }      
+		 
+		 return jsonArr.toString();
+		
+	}
+	
+	
+	
+	
 	
 	////////////////////////////////////////////////////////////////////
 	// 로그인한 유저의 소속부서를 확인하는 메소드
@@ -310,7 +376,7 @@ public class EmpController_jy {
 	      
 	      EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
 	      
-	      if(loginEmp != null && deptnum.equals(loginEmp.getFk_deptnum())) {
+	      if(loginEmp != null && (deptnum.equals(loginEmp.getFk_deptnum()) || "00".equals(loginEmp.getFk_deptnum()))) {
 	         checkDepartment = true;
 	      }
 	      

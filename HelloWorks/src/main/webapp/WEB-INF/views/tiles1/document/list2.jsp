@@ -56,7 +56,7 @@
 	   }// end of function change(){}-------------------
    
 	   
-	function goView(seq){
+	function goView(doument_seq){
 		   
       <%--   
          location.href="<%= ctxPath%>/view.action?seq="+seq;
@@ -66,14 +66,14 @@
       //            사용자가 목록보기 버튼을 클릭했을 때 돌아갈 페이지를 알려주기 위해
       //           현재 페이지 주소를 뷰단으로 넘겨준다.
       var frm = document.goViewFrm;  // goViewFrm 밑에 있는 폼
-      frm.seq.value = seq;
+      frm.doument_seq.value = doument_seq;
       frm.gobackURL.value = "${requestScope.gobackURL}"; // 자바스크립트라서 ""
       frm.searchType.value = "${requestScope.paraMap.searchType}";
       frm.searchWord.value = "${requestScope.paraMap.searchWord}";
       
       frm.method = "GET";
       frm.action = "<%= ctxPath%>/viewDocument.hello2";
-  //    frm.submit();
+      frm.submit();
       
    }// end of function goView(seq){}------------------
   
@@ -90,14 +90,16 @@
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:gray"><b>DOCUMENT</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#3399ff"><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
-	  <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a>
-	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">문서목록보기</a>
-	  <a href="#채팅"    class="w3-bar-item w3-button">결재하기</a>
+	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
+	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
+	  <a href="#채팅"    class="w3-bar-item w3-button">기안목록 (평사원)</a>
+	  <a href="#채팅"    class="w3-bar-item w3-button">휴가관리 (모든직원)</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
   	</div>
   </div>  
 </nav>
@@ -115,7 +117,7 @@
  <div style="display: flex;">
 <div style="margin: auto; padding-left: 3%;">
 
-   <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;">문서목록</h2>
+   <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;">문서목록(관리자용, 모든문서 조회가능)</h2>
    <div style="height: 800px;">
    <table style="width: 1250px;" class="table table-bordered">
       <thead>
@@ -221,7 +223,7 @@
         사용자가 목록보기 버튼을 클릭했을 때 돌아갈 페이지를 알려주기 위해
         현재 페이지 주소를 뷰단으로 넘겨준다. --%>
    <form name="goViewFrm">
-      <input type="hidden" name="seq" />
+      <input type="hidden" name="doument_seq" />
       <input type="hidden" name="gobackURL" />
 	  <input type="hidden" name="searchType" />
 	  <input type="hidden" name="searchWord" />
