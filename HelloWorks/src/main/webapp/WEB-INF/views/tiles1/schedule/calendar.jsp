@@ -370,6 +370,24 @@
 			return;
 		}
 		
+		var form_data = $("form[name=addSchFrm]").serialize();
+		
+		$.ajax({
+			url:"<%=ctxPath%>/addSchedule.hello2",
+			data:form_data,
+			type:"POST",
+			dataType:"JSON",
+			success:function(json){  
+				
+				opener.parent.location.reload();
+				window.close();
+				
+			},
+			error: function(request, status, error){
+				alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+		 	}
+		});	
+		
 		
 		var frm = document.addSchFrm;
 		

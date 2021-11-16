@@ -1,6 +1,6 @@
 package com.spring.schedule.model;
 
-public class ScheduleVO {
+public class ScheduleVO_HJE {
 	
 	private String sno;			// 일정일련번호
 	private String fk_calno;	// 캘린더번호
@@ -11,9 +11,9 @@ public class ScheduleVO {
 	private String endDate;		// 마감날짜
 	private String status;		// 상태
 	
-	public ScheduleVO() {};
+	public ScheduleVO_HJE() {};
 	
-	public ScheduleVO(String sno, String fk_calno, String title, String content, String location, String startDate,
+	public ScheduleVO_HJE(String sno, String fk_calno, String title, String content, String location, String startDate,
 			String endDate, String status) {
 		super();
 		this.sno = sno;

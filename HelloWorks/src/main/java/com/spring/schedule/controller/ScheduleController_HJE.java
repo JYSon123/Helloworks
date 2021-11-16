@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.spring.helloworks.model.EmpVO_KJH;
 import com.spring.schedule.model.CalendarVO_HJE;
+import com.spring.schedule.model.ScheduleVO_HJE;
 import com.spring.schedule.service.InterScheduleService_HJE;
 
 
@@ -126,10 +127,10 @@ public class ScheduleController_HJE {
 	   return jsonArr.toString();
    }
    
-   // 일정 Submit
-   @RequestMapping(value="/addSchedule.hello2")
-//   public ModelAndView addSchedule (ModelAndView mav, HttpServletRequest request) {
-   public void addSchedule (HttpServletRequest request) {
+   // ajax를 사용한 일정 추가
+   @ResponseBody
+   @RequestMapping(value="/addSchedule.hello2", method= {RequestMethod.POST})
+   public String addSchedule(HttpServletRequest request) {
 	   
 	   String calname = request.getParameter("calname");
 	   String title = request.getParameter("title");
@@ -146,10 +147,6 @@ public class ScheduleController_HJE {
 	   
 	   System.out.println("calname : " + calname);
 	   System.out.println("title : " + title);
-	   System.out.println("startDay : " + startDay);
-	   System.out.println("startTime : " + startTime);
-	   System.out.println("endDay : " + endDay);
-	   System.out.println("endTime : " + endTime);
 	   System.out.println("allDay : " + allDay);
 	   System.out.println("location : " + location);
 	   System.out.println("content : " + content);
@@ -157,9 +154,14 @@ public class ScheduleController_HJE {
 	   System.out.println("mnoticeTime : " + mnoticeTime);
 	   System.out.println("enoticeTime : " + enoticeTime);
 	   
+	   System.out.println("startDay : " + startDay);
+	   System.out.println("startTime : " + startTime);
+	   System.out.println("endDay : " + endDay);
+	   System.out.println("endTime : " + endTime);
 	   
 	   
-//	   return mav;
+	   
+	   return "";
    }
    
    
