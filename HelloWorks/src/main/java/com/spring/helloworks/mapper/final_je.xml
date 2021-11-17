@@ -23,10 +23,47 @@
 	
 	<!-- 개인 캘린더 리스트 받아오기 -->
 	<select id="showCalendarList" resultType="com.spring.schedule.model.CalendarVO_HJE" parameterType="String">
-		select calname, color, fk_cno
+		select calno, calname, color, fk_cno
 		from tbl_calendar
 		where shareemp like '%'|| #{empid} ||'%'
 	</select>
+	
+	
+	<resultMap type="HashMap" id="schduleMap">
+       <result property="title"    		column="title"       javaType="String" />
+       <result property="startdate"    	column="startdate"   javaType="String" />
+       <result property="enddate"       column="enddate"     javaType="String" />
+       <result property="color"      	column="color"       javaType="String" />
+    </resultMap>
+	<!-- 일정 출력하기 -->
+	<select id="showSchedule"  resultMap="schduleMap"  parameterType="String">
+		select title, startdate, enddate, color
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+	</select>
+	
+	<!-- 일정 추가하기 -->
+	<insert id="addSchedule" parameterType="HashMap">
+		
+		insert into tbl_schedule (sno, fk_calno, title, startdate, enddate
+			<if test="content != ''">
+				, content
+			</if>
+			<if test="location != ''">
+				, location
+			</if>
+		)
+		values (snoSeq.nextval, #{fk_calno}, #{title}, #{startDate}, #{endDate}
+			<if test="content != ''">
+				, #{content}
+			</if>
+			<if test="location != ''">
+				, #{location}
+			</if>
+		)
+	</insert>
+	
 	
 	
 </mapper>

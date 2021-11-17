@@ -10,7 +10,14 @@ public interface InterScheduleDAO_HJE {
 	// 캘린더 추가하기
 	int addCalendar(Map<String, String> paraMap);
 
-	// 개인 캘린더 리스트 받아오기
+	// 캘린더 리스트 받아오기
 	List<CalendarVO_HJE> showCalendarList(String empid);
+
+	// 일정 출력하기
+	List<Map<String, String>> showSchedule(String empid);
+
+	// 일정 추가하기
+	void addSchedule(Map<String, String> paraMap);
+
 	
 }

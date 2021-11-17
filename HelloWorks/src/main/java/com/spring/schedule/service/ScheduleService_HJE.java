@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.spring.schedule.model.CalendarVO_HJE;
 import com.spring.schedule.model.InterScheduleDAO_HJE;
+import com.spring.schedule.model.ScheduleVO_HJE;
 
 // 트랜잭션 처리 담당, DB담당
 @Service
@@ -35,12 +36,30 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 	}
 
 
-	// 개인 캘린더 리스트 받아오기
+	// 캘린더 리스트 받아오기
 	@Override
 	public List<CalendarVO_HJE> showCalendarList(String empid) {
-		List<CalendarVO_HJE> personalList = dao.showCalendarList(empid);
-		return personalList;
+		List<CalendarVO_HJE> calList = dao.showCalendarList(empid);
+		return calList;
 	}
+
+
+	// 일정 출력하기
+	@Override
+	public List<Map<String, String>> showSchedule(String empid) {
+		List<Map<String, String>> schList = dao.showSchedule(empid);
+		return schList;
+	}
+
+
+	// 일정 추가하기
+	@Override
+	public void addSchedule(Map<String, String> paraMap) {
+		dao.addSchedule(paraMap);
+	}
+
+
+	
 
 	
 	

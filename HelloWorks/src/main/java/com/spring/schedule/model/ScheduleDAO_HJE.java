@@ -34,12 +34,30 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 	}
 
 
-	// 개인 캘린더 리스트 받아오기
+	// 캘린더 리스트 받아오기
 	@Override
 	public List<CalendarVO_HJE> showCalendarList(String empid) {
-		List<CalendarVO_HJE> personalList = sqlsession2.selectList("hje.showCalendarList",empid);
-		return personalList;
+		List<CalendarVO_HJE> calList = sqlsession2.selectList("hje.showCalendarList",empid);
+		return calList;
 	}
+
+
+	// 일정 출력하기
+	@Override
+	public List<Map<String, String>> showSchedule(String empid) {
+		List<Map<String, String>> schList = sqlsession2.selectList("hje.showSchedule", empid);
+		return schList;
+	}
+
+
+	// 일정 추가하기
+	@Override
+	public void addSchedule(Map<String, String> paraMap) {
+		sqlsession2.insert("hje.addSchedule",paraMap);
+		
+	}
+
+
 
 	
 	

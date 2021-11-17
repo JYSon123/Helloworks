@@ -1,7 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     
-<% String ctxPath = request.getContextPath(); %>    
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page import="java.util.*"%>
+    
+<% 
+	String ctxPath = request.getContextPath();
+	List<Map<String,String>> schList = (ArrayList<Map<String,String>>) request.getAttribute("schList");
+%>  
+  
 
 <link href='<%=request.getContextPath() %>/resources/lib/main.css' rel='stylesheet' />
 <style>
@@ -90,7 +97,8 @@
 
 <script src='<%=request.getContextPath() %>/resources/lib/main.js'></script>
 <script>
-
+  
+  var scheduleList ="";	
   document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
 
@@ -108,56 +116,26 @@
       selectable: true,
       locale: "ko",
       events: [
-        {
-          title: 'Business Lunch',
-          start: '2020-09-03T13:00:00',
-          constraint: 'businessHours'
-        },
-        {
-          title: 'Meeting',
-          start: '2020-09-13T11:00:00',
-          constraint: 'availableForMeeting', // defined below
-          color: '#257e4a'
-        },
-        {
-          title: 'Conference',
-          start: '2020-09-18',
-          end: '2020-09-20'
-        },
-        {
-          title: 'Party',
-          start: '2020-09-29T20:00:00'
-        },
-
-        // areas where "Meeting" must be dropped
-        {
-          groupId: 'availableForMeeting',
-          start: '2020-09-11T10:00:00',
-          end: '2020-09-11T16:00:00',
-          display: 'background'
-        },
-        {
-          groupId: 'availableForMeeting',
-          start: '2020-09-13T10:00:00',
-          end: '2020-09-13T16:00:00',
-          display: 'background'
-        },
-
-        // red areas where no events can be dropped
-        {
-          start: '2020-09-24',
-          end: '2020-09-28',
-          overlap: false,
-          display: 'background',
-          color: '#ff9f89'
-        },
-        {
-          start: '2020-09-06',
-          end: '2020-09-08',
-          overlap: false,
-          display: 'background',
-          color: '#ff9f89'
-        }
+    	  <% 
+    	  	for( Map<String,String> map : schList) {
+    	  		
+    	  %>
+    	  		{
+    	  			title: "<%= map.get("title") %>",
+    	  			start: "<%= map.get("startdate") %>",
+    	  			end: "<%= map.get("enddate") %>",
+    	  			color: "<%= map.get("color") %>",
+    	  		},
+    	  
+    	  <% 
+    	  	}
+    	  %>
+    	  {
+    		  title: "default",
+    		  start: "1998-01-21",
+    		  end: "1998-01-21"
+    	  }
+    	  
       ]
     });
 
@@ -240,7 +218,6 @@
   	        }
   		});
   		
-  	    
   	}); // end of $(document).ready(function(){}
   	
 	// Function Declaration
@@ -295,6 +272,7 @@
 		frm.action ="<%=ctxPath%>/addCalendar.hello2";
 		frm.method = "POST";
 		frm.submit();
+		
 	}
 	
 	// Ajax를 사용한 전체 캘린더 리스트 받아오기
@@ -369,33 +347,16 @@
 		if(boolFlag) {
 			return;
 		}
-		
-		var form_data = $("form[name=addSchFrm]").serialize();
-		
-		$.ajax({
-			url:"<%=ctxPath%>/addSchedule.hello2",
-			data:form_data,
-			type:"POST",
-			dataType:"JSON",
-			success:function(json){  
 				
-				opener.parent.location.reload();
-				window.close();
-				
-			},
-			error: function(request, status, error){
-				alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
-		 	}
-		});	
-		
-		
 		var frm = document.addSchFrm;
 		
 		frm.action ="<%=ctxPath%>/addSchedule.hello2";
-		frm.method = "GET";
+		frm.method = "POST";
 		frm.submit();
 		
 	}
+	
+	
 	
 	
 	
@@ -493,9 +454,10 @@
 									<tr>
 										<td style="width: 20%;" id="title">캘린더&nbsp;<span class="star">*</span></td>
 										<td style="width: 80%; text-align: left;">
-										<select id="calname" name="calname" style="width: 100%" class="form-control requiredInfo">
-											<option>캘린더1</option>
-											<option>캘린더2</option>
+										<select id="fk_calno" name="fk_calno" style="width: 100%" class="form-control requiredInfo">
+											<c:forEach var="cal" items="${requestScope.calList}">
+								               <option value="${cal.calno}">${cal.calname}</option>
+								            </c:forEach>
 										</select>
 									</tr>
 									<tr>

@@ -1,8 +1,6 @@
 package com.spring.schedule.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,9 +48,18 @@ public class ScheduleController_HJE {
    
    // 일정 페이지
    @RequestMapping(value="/schedule.hello2")
-   public String calendar(HttpServletRequest request) {
+   public String requiredLogin_calendar(HttpServletRequest request, HttpServletResponse response) {
 	   
+	   HttpSession session = request.getSession();
+	   EmpVO_KJH loginEmp =  (EmpVO_KJH) session.getAttribute("loginEmp");
+	   String empid = loginEmp.getEmpid();
 	   
+	   List<CalendarVO_HJE> calList = service.showCalendarList(empid);
+	   request.setAttribute("calList", calList);
+	   
+	   List<Map<String,String>> schList = service.showSchedule(empid);
+	   
+	   request.setAttribute("schList", schList);
 	   
 	   return "schedule/calendar.tiles1";
    }
@@ -104,16 +111,17 @@ public class ScheduleController_HJE {
 	   EmpVO_KJH loginEmp =  (EmpVO_KJH) session.getAttribute("loginEmp");
 	   String empid = loginEmp.getEmpid();
 	   
-	   List<CalendarVO_HJE> personalList = service.showCalendarList(empid);
+	   List<CalendarVO_HJE> calList = service.showCalendarList(empid);
 	   
 	   JSONArray jsonArr = new JSONArray();
 	   
-	   if( personalList.size() > 0 ) {
+	   if( calList.size() > 0 ) {
 		   
-		   for( CalendarVO_HJE cvo : personalList ) {
+		   for( CalendarVO_HJE cvo : calList ) {
 			   
 			   JSONObject jsonObj = new JSONObject();
 			   
+			   jsonObj.put("calno", cvo.getCalno());
 			   jsonObj.put("calname", cvo.getCalname());
 			   jsonObj.put("color", cvo.getColor());
 			   jsonObj.put("fk_cno", cvo.getFk_cno());
@@ -128,24 +136,57 @@ public class ScheduleController_HJE {
    }
    
    // ajax를 사용한 일정 추가
-   @ResponseBody
    @RequestMapping(value="/addSchedule.hello2", method= {RequestMethod.POST})
    public String addSchedule(HttpServletRequest request) {
 	   
-	   String calname = request.getParameter("calname");
+	   HttpSession session = request.getSession();
+	   EmpVO_KJH loginEmp =  (EmpVO_KJH) session.getAttribute("loginEmp");
+	   String empid = loginEmp.getEmpid();
+	   
+	   String fk_calno = request.getParameter("fk_calno");
 	   String title = request.getParameter("title");
+	   String location = request.getParameter("location");
+	   String content = request.getParameter("content");
+	   
 	   String startDay = request.getParameter("startDay");
 	   String startTime = request.getParameter("startTime");
+
 	   String endDay = request.getParameter("endDay");
 	   String endTime = request.getParameter("endTime");
+	   
+	   // 시간 : 하루종일
 	   String allDay = request.getParameter("allDay");
-	   String location = request.getParameter("location");
+	   if("true".equals(allDay)) {
+		   startTime = "00:00";
+		   endTime = "24:00";
+	   }
+	   
+	   // 시작일시(날짜+시간)
+	   String startDate = startDay + "T" + startTime+":00";
+	   
+	   // 마감일시(날짜+시간)
+	   String endDate = endDay + "T" + endTime+":00";
+	   
+	   // 알림관련
 	   String notice = request.getParameter("notice");
-	   String content = request.getParameter("content");
 	   String mnoticeTime = request.getParameter("mnoticeTime");
 	   String enoticeTime = request.getParameter("enoticeTime");
 	   
-	   System.out.println("calname : " + calname);
+	   
+	   Map<String,String> paraMap = new HashMap<>();
+	   
+	   paraMap.put("fk_calno", fk_calno);	   
+	   paraMap.put("title", title);	   
+	   paraMap.put("location", location);	   
+	   paraMap.put("content", content);	   
+	   paraMap.put("startDate", startDate);	   
+	   paraMap.put("endDate", endDate);	   
+	   paraMap.put("empid", empid);	   
+	   
+	   service.addSchedule(paraMap);
+	   
+	   /*
+	   System.out.println("fk_calno : " + fk_calno);
 	   System.out.println("title : " + title);
 	   System.out.println("allDay : " + allDay);
 	   System.out.println("location : " + location);
@@ -154,14 +195,12 @@ public class ScheduleController_HJE {
 	   System.out.println("mnoticeTime : " + mnoticeTime);
 	   System.out.println("enoticeTime : " + enoticeTime);
 	   
-	   System.out.println("startDay : " + startDay);
-	   System.out.println("startTime : " + startTime);
-	   System.out.println("endDay : " + endDay);
-	   System.out.println("endTime : " + endTime);
+	   System.out.println("startDate : " + startDate);
+	   System.out.println("endDate : " + endDate);
+	   */
 	   
 	   
-	   
-	   return "";
+	   return "redirect:/schedule.hello2";
    }
    
    
