@@ -23,6 +23,19 @@ public interface InterScheduleService_HJE {
 	// 일정 추가하기
 	void addSchedule(Map<String, String> paraMap);
 
+	// 개인 캘린더 수정하기
+	void updatePersonal(Map<String, String> paraMap);
+
+	// 개인 캘린더 삭제하기
+	void deletePersonal(Map<String, String> paraMap);
+
+	// 공유 캘린더 수정하기
+	void updateShare(Map<String, String> paraMap);
+
+	// 공유 캘린더 삭제하기
+	void deleteShare(Map<String, String> paraMap);
+
+	
 
 
 	

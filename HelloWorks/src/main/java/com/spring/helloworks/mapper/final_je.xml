@@ -23,7 +23,7 @@
 	
 	<!-- 개인 캘린더 리스트 받아오기 -->
 	<select id="showCalendarList" resultType="com.spring.schedule.model.CalendarVO_HJE" parameterType="String">
-		select calno, calname, color, fk_cno
+		select calno, calname, color, fk_cno, shareemp
 		from tbl_calendar
 		where shareemp like '%'|| #{empid} ||'%'
 	</select>
@@ -63,6 +63,30 @@
 			</if>
 		)
 	</insert>
+	
+	<!-- 개인 캘린더 수정하기 -->
+	<update id="updatePersonal" parameterType="HashMap">
+		update tbl_calendar set calname= #{calname} , color= #{color}
+		where calno= #{calno} and fk_cno = 1 
+	</update>
+	
+	<!-- 개인 캘린더 삭제하기 -->	
+	<delete id="deletePersonal" parameterType="HashMap">
+		delete from tbl_calendar
+		where calno= #{calno} and fk_cno = 1
+	</delete>
+	
+	<!-- 공유 캘린더 수정하기 -->
+	<update id="updateShare" parameterType="HashMap">
+		update tbl_calendar set calname= #{calname} , color= #{color}, shareEmp=#{shareEmp}
+		where calno= #{calno} and fk_cno = 2 
+	</update>
+	
+	<!-- 공유 캘린더 삭제하기 -->	
+	<delete id="deleteShare" parameterType="HashMap">
+		delete from tbl_calendar
+		where calno= #{calno} and fk_cno = 2
+	</delete>
 	
 	
 	

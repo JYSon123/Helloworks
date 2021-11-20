@@ -59,8 +59,6 @@
 		border-collapse: collapse;
 		background-color: #fff;
 		border-radius: 10px; 
-		font-weight: normal;
-		font-size: 13pt;
 	}
 	
 	#subcatg li {
@@ -160,17 +158,17 @@
   		});
   		
   		// 일정 카테고리 접었다 펴기
-  		$("li#catg").click(function(){
-            if($(this).find("#subcatg").is(":visible")){
-                $(this).find("#subcatg").slideUp();
-                $(this).children().first().removeClass("fa-caret-down");
-                $(this).children().first().addClass("fa-caret-right");
+  		$("span#upNdown").click(function(){
+            if($(this).parent().find("#subcatg").is(":visible")){
+                $(this).parent().find("#subcatg").slideUp();
+                $(this).parent().children().first().removeClass("fa-caret-down");
+                $(this).parent().children().first().addClass("fa-caret-right");
                 
             }
             else{
-                $(this).find("#subcatg").slideDown();
-                $(this).children().first().removeClass("fa-caret-right");
-                $(this).children().first().addClass("fa-caret-down");
+                $(this).parent().find("#subcatg").slideDown();
+                $(this).parent().children().first().removeClass("fa-caret-right");
+                $(this).parent().children().first().addClass("fa-caret-down");
             }
         });
   		 	
@@ -274,6 +272,44 @@
 		frm.submit();
 		
 	}
+
+	// 개인 캘린더 수정 및 삭제 모달창에 값 보내주기
+	function gochangepersonalmodal(obj) {
+		var index = $("button.my_btn").index(obj);
+		//alert(index);
+		
+		var calno =  $("input.my_calno").eq(index).val();
+		var calname =  $("input.my_calname").eq(index).val();
+		var color =  $("input.my_color").eq(index).val();
+		
+ 		//alert("calname : " + calname + ", color : " + color);
+		
+		$("input#calno").val(calno); 
+		$("input#updateCalname").val(calname); 
+		$("input#updateColor").val(color); 
+		
+		$("#changePersonalModal").modal();
+	}
+
+	// 공유 캘린더 수정 및 삭제 모달창에 값 보내주기
+	function gochangesharemodal(obj) {
+		var index = $("button.our_btn").index(obj);
+		//alert(index);
+		
+		var calno =  $("input.our_calno").eq(index).val();
+		var calname =  $("input.our_calname").eq(index).val();
+		var color =  $("input.our_color").eq(index).val();
+		var shareemp =  $("input.our_shareemp").eq(index).val();
+		
+ 		// alert("shareemp : " + shareemp );
+		
+		$("input#calno").val(calno); 
+		$("input#updateCalname").val(calname); 
+		$("input#updateColor").val(color); 
+		$("input#updateShareEmp").val(shareemp); 
+		
+		$("#changeShareModal").modal();
+	}
 	
 	// Ajax를 사용한 전체 캘린더 리스트 받아오기
 	function showCalendarList(){
@@ -292,12 +328,23 @@
 					if (item.fk_cno == 1) {
 					
 						phtml += "<li><span style='color:"+item.color+";'>■ </span>" +
-								 "<span>"+item.calname+"</span></li>";
+								 "<input type='hidden' class='my_calno' name='calno' value='"+item.calno+"' />"+
+								 "<input type='hidden' class='my_calname' name='calname' value='"+item.calname+"' />"+
+								 "<input type='hidden' class='my_color' name='color' value='"+item.color+"' />"+
+// 								 "<button type='button' class='btn' data-toggle='modal' data-target='#changePersonalModal' data-dismiss='modal'>"+item.calname+"</button>"+
+								 "<button type='button' class='my_btn btn' onclick='gochangepersonalmodal(this)'>"+item.calname+"</button>"+
+								 "</li>";
 					}
 					else if (item.fk_cno == 2) {
 						
 						shtml += "<li><span style='color:"+item.color+";'>■ </span>" +
-						 		 "<span>"+item.calname+"</span></li>";
+								 "<input type='hidden' class='our_calno' name='calno' value='"+item.calno+"' />"+
+								 "<input type='hidden' class='our_calname' name='calname' value='"+item.calname+"' />"+
+								 "<input type='hidden' class='our_color' name='color' value='"+item.color+"' />"+
+								 "<input type='hidden' class='our_shareemp' name='shareemp' value='"+item.shareemp+"' />"+
+		//						 "<button type='button' class='btn' data-toggle='modal' data-target='#changePersonalModal' data-dismiss='modal'>"+item.calname+"</button>"+
+								 "<button type='button' class='our_btn btn' onclick='gochangesharemodal(this)'>"+item.calname+"</button>"+
+						 		 "</li>";
 					}
 					
 				});
@@ -356,6 +403,60 @@
 		
 	}
 	
+	// 개인캘린더 모달창 수정 및 삭제
+	function changePersonal(i){
+		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
+// 			alert("수정");
+			$("input#changePOption").val("1"); 
+		}
+		if (i==2) { // 삭제일 경우 changeOption의 value값을 2로 준다.
+// 			alert("삭제");
+			$("input#changePOption").val("2"); 
+		}
+		
+// 		alert($("input#changeOption").val());
+		
+		var frm = document.changePersonalFrm;
+		
+		frm.action ="<%=ctxPath%>/changePersonal.hello2";
+		frm.method = "POST";
+		frm.submit();
+	}
+	
+	// 공유캘린더 모달창 수정 및 삭제
+	function changeShare(i){
+				
+		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
+// 			alert("수정");
+			$("input#changeSOption").val("1"); 
+		}
+		if (i==2) { // 삭제일 경우 changeOption의 value값을 2로 준다.
+// 			alert("삭제");
+			$("input#changeSOption").val("2"); 
+		}
+		
+// 		alert($("input#changeSOption").val());
+		
+		var frm = document.changeShareFrm;
+		
+		frm.action ="<%=ctxPath%>/changeShare.hello2";
+		frm.method = "POST";
+		frm.submit();
+	}
+	
+	// 검색
+	function goSearch(){
+		var frm = document.searchFrm;
+		frm.action="<%=request.getContextPath()%>/list.action";
+		frm.method="GET";
+		frm.submit();
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -380,7 +481,7 @@
 			<div style="width: 80%; margin: 30px auto;">
 				<ul>
 					<li id="catg">
-						<i class="fas fa-caret-right" ></i> &nbsp; 개인 캘린더
+						<i class="fas fa-caret-right" ></i> &nbsp; <span id="upNdown" style="cursor:pointer;">개인 캘린더</span>
 						<button type="button" style="float: right;" class="btn"  data-toggle="modal" data-target="#addPersonalModal" data-dismiss="modal" ><i class="fas fa-plus"></i></button>
 						<ul id="subcatg" class="personalList" style="display:none">
 							
@@ -388,7 +489,7 @@
 						
 					</li>
 					<li id="catg">
-						<i class="fas fa-caret-right"></i> &nbsp; 공유 캘린더
+						<i class="fas fa-caret-right"></i> &nbsp; <span id="upNdown"  style="cursor:pointer;">공유 캘린더</span>
 						<button type="button" style="float: right;" class="btn" data-toggle="modal" data-target="#addShareModal" data-dismiss="modal" ><i class="fas fa-plus"></i></button>
 						<ul id="subcatg" class="shareList" style="display:none">
 							
@@ -544,7 +645,7 @@
 
 				<%-- Modal header --%>
 				<div class="modal-header" style="background-color: #0070C1;">
-					<h4 class="modal-title" style="color: #fff; font-weight: bold;">개인 캘린더</h4>
+					<h4 class="modal-title" style="color: #fff; font-weight: bold;">개인 캘린더 추가</h4>
 					<button type="button" class="close myclose" data-dismiss="modal" style="color: #fff;">&times;</button>
 				</div>
 
@@ -585,6 +686,54 @@
 	</div>
 	<%-- 개인캘린더 모달창 끝 --%>
 	
+	<%-- 개인캘린더 수정 및 삭제 모달창 시작 --%>
+	<div class="modal fade" id="changePersonalModal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+
+				<%-- Modal header --%>
+				<div class="modal-header" style="background-color: #0070C1;">
+					<h4 class="modal-title" style="color: #fff; font-weight: bold;">개인캘린더 수정 및 삭제</h4>
+					<button type="button" class="close myclose" data-dismiss="modal" style="color: #fff;">&times;</button>
+				</div>
+
+				<%-- Modal body --%>
+				<div class="modal-body">
+					<div id="changePersonal">
+						<form name="changePersonalFrm">
+							<table id= "tblCalendar" class="w-90 mx-auto">
+								<tbody>
+									<tr>
+										<td style="width: 20%;" id="title">캘린더 이름&nbsp;</td>
+										<td style="width: 80%; text-align: left;">
+											<input type="hidden" id="calno" name="calno" value="" />
+											<input type="text" id="updateCalname" name="calname" class="form-control" value=""/>
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">색상&nbsp;</td>
+										<td style="width: 80%;">
+											<input type="color" id="updateColor" name="color" class="form-control form-control-color col-2" value="" />
+											<input type="hidden" id="changePOption" name="changeOption" value="" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</form>
+					</div>
+				</div>
+
+				<%-- Modal footer --%>
+				<div class="modal-footer">
+					<button type="button" class="btn" style="background-color: #0070C1; color: #fff;"  onclick="changePersonal(1)">수정</button>
+					<button type="button" class="btn" style="background-color: #c10000; color: #fff;"  onclick="changePersonal(2)">삭제</button>
+					<button type="button" class="btn btn-outline-secondary myclose" data-dismiss="modal" >닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<%-- 개인캘린더 수정 및 삭제 모달창 끝 --%>
+	
 	<%-- 공유캘린더 모달창 시작 --%>
 	<div class="modal fade" id="addShareModal">
 		<div class="modal-dialog modal-dialog-centered">
@@ -592,7 +741,7 @@
 
 				<%-- Modal header --%>
 				<div class="modal-header" style="background-color: #0070C1;">
-					<h4 class="modal-title" style="color: #fff; font-weight: bold;">공유 캘린더</h4>
+					<h4 class="modal-title" style="color: #fff; font-weight: bold;">공유 캘린더 추가</h4>
 					<button type="button" class="close myclose" data-dismiss="modal" style="color: #fff;">&times;</button>
 				</div>
 
@@ -636,7 +785,61 @@
 
 		</div>
 	</div>
-	<%-- 개인캘린더 모달창 끝 --%>
+	<%-- 공유캘린더 모달창 끝 --%>
+	
+	<%-- 공유캘린더 수정 및 삭제 모달창 시작 --%>
+	<div class="modal fade" id="changeShareModal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+
+				<%-- Modal header --%>
+				<div class="modal-header" style="background-color: #0070C1;">
+					<h4 class="modal-title" style="color: #fff; font-weight: bold;">공유캘린더 수정 및 삭제</h4>
+					<button type="button" class="close myclose" data-dismiss="modal" style="color: #fff;">&times;</button>
+				</div>
+
+				<%-- Modal body --%>
+				<div class="modal-body">
+					<div id="changeShare">
+						<form name="changeShareFrm">
+							<table id= "tblCalendar" class="w-90 mx-auto">
+								<tbody>
+									<tr>
+										<td style="width: 20%;" id="title">캘린더 이름&nbsp;</td>
+										<td style="width: 80%; text-align: left;">
+											<input type="hidden" id="calno" name="calno" value="" />
+											<input type="text" id="updateCalname" name="calname" class="form-control" value=""/>
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">색상&nbsp;</td>
+										<td style="width: 80%;">
+											<input type="color" id="updateColor" name="color" class="form-control form-control-color col-2" value="" />
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">공유대상&nbsp;</td>
+										<td style="width: 80%;">
+											<input type="text" id="updateShareEmp" name="shareEmp" class="form-control form-control-color" value="" />
+											<input type="hidden" id="changeSOption" name="changeOption" value="" />
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</form>
+					</div>
+				</div>
+
+				<%-- Modal footer --%>
+				<div class="modal-footer">
+					<button type="button" class="btn" style="background-color: #0070C1; color: #fff;"  onclick="changeShare(1)">수정</button>
+					<button type="button" class="btn" style="background-color: #c10000; color: #fff;"  onclick="changeShare(2)">삭제</button>
+					<button type="button" class="btn btn-outline-secondary myclose" data-dismiss="modal" >닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<%-- 공유캘린더 수정 및 삭제 모달창 끝 --%>
 	
 </div>
 

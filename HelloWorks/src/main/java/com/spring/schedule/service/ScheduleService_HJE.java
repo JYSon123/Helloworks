@@ -58,6 +58,33 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 		dao.addSchedule(paraMap);
 	}
 
+	// 개인 캘린더 수정하기
+	@Override
+	public void updatePersonal(Map<String, String> paraMap) {
+		dao.updatePersonal(paraMap);
+	}
+
+	// 개인 캘린더 삭제하기
+	@Override
+	public void deletePersonal(Map<String, String> paraMap) {
+		dao.deletePersonal(paraMap);
+	}
+
+
+	// 공유 캘린더 수정하기
+	@Override
+	public void updateShare(Map<String, String> paraMap) {
+		dao.updateShare(paraMap);
+		
+	}
+
+
+	// 공유 캘린더 삭제하기
+	@Override
+	public void deleteShare(Map<String, String> paraMap) {
+		dao.deleteShare(paraMap);
+	}
+
 
 	
 

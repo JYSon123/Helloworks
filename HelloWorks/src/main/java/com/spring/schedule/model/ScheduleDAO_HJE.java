@@ -57,6 +57,34 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 		
 	}
 
+	// 개인 캘린더 수정하기
+	@Override
+	public void updatePersonal(Map<String, String> paraMap) {
+		sqlsession2.update("hje.updatePersonal",paraMap);
+		
+	}
+
+	// 개인 캘린더 삭제하기
+	@Override
+	public void deletePersonal(Map<String, String> paraMap) {
+		sqlsession2.delete("hje.deletePersonal",paraMap);
+		
+	}
+
+	// 공유 캘린더 수정하기
+	@Override
+	public void updateShare(Map<String, String> paraMap) {
+		sqlsession2.update("hje.updateShare",paraMap);
+		
+	}
+
+	// 공유 캘린더 삭제하기
+	@Override
+	public void deleteShare(Map<String, String> paraMap) {
+		sqlsession2.delete("hje.deleteShare",paraMap);
+		
+	}
+
 
 
 	
