@@ -112,7 +112,7 @@
 	
 	#tblSearch {
 		width: 96%;
-		margin: 50px auto; 
+		margin: 20px auto; 
 		text-align: center;
 		border-collapse: collapse;
 		border-radius: 10px;
@@ -356,6 +356,7 @@
 			
 		});
   		
+  		// 자동완성 결과 클릭
 		$(document).on("click",".result",function(){
 			var word = $(this).text();
 			$("input#searchWord").val(word);	// 텍스트박스에 검색된 결과의 문자열을 입력해준다.
@@ -363,6 +364,15 @@
 			goSearch();
 		});
 		
+  		// 엑셀파일로 저장 버튼 클릭
+		$("button#btnExcel").click(function(){
+	         
+	         var frm = document.searchFrm;
+	         
+	         frm.method = "POST";
+	         frm.action = "<%= request.getContextPath()%>/excel/downloadExcelFile.hello2"; 
+	         frm.submit();
+	      });
 		
   		
   		
@@ -742,6 +752,11 @@
 		
 		<%-- 검색 결과 테이블로 출력 --%>
 		<%  if(searchSchList != null) { %>
+			<hr style="margin-top: 100px; height: 2px;"/>
+			
+			<%-- 검색결과 엑셀파일로 다운받기 --%>
+			<button type="button" class="btn btn-secondary btn-sm my-3" id="btnExcel" style="float: right; margin-right: 22px;">Excel파일로 저장</button>
+			
 			<table id="tblSearch">
 				<thead >
 					<tr>
@@ -795,6 +810,7 @@
 										<td style="width: 20%;" id="title">캘린더&nbsp;<span class="star">*</span></td>
 										<td style="width: 80%; text-align: left;">
 										<select id="fk_calno" name="fk_calno" style="width: 100%" class="form-control requiredInfo">
+								            <option selected>--- 캘린더를 선택해주세요 ---</option>
 											<c:forEach var="cal" items="${requestScope.calList}">
 								               <option value="${cal.calno}">${cal.calname}</option>
 								            </c:forEach>

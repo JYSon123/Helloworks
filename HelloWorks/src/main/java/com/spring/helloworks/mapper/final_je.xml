@@ -93,6 +93,8 @@
        <result property="title"    		column="title"       javaType="String" />
        <result property="startDate"    	column="startDate"   javaType="String" />
        <result property="endDate"       column="endDate"     javaType="String" />
+       <result property="calName"       column="calName"     javaType="String" />
+       <result property="shareEmp"      column="shareEmp"    javaType="String" />
        <result property="color"      	column="color"       javaType="String" />
        <result property="sno"      		column="sno"       	 javaType="String" />
        <result property="content"      	column="content"     javaType="String" />
@@ -101,7 +103,7 @@
     </resultMap>
 	<!-- 일정검사 -->
 	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, color, sno, content, location, status
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status
 		from tbl_calendar C JOIN tbl_schedule S
 		ON C.CALNO = S.FK_CALNO
 		where SHAREEMP like '%'|| #{empid} ||'%'
