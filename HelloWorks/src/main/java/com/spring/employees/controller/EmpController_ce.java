@@ -631,7 +631,7 @@ public class EmpController_ce {
         model.addAttribute("workbookName", subject);
         
         
-		return "excelDownloadView_LCE";
+		return "excelDownloadView";
 		
 	 }
 	 
