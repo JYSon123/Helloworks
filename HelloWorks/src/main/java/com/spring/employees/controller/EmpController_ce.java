@@ -250,13 +250,18 @@ public class EmpController_ce {
 				mav.setViewName("msg_LCE"); 
 			}
 		 else {
+			  List<DepartmentVO_ce> departmentList = service.getDepartmentList();
+		 
+			 mav.addObject("departmentList", departmentList);
 			 mav.setViewName("attendance/attendanceOnlyHR.tiles1"); 
+		 
 		 }
 		 // 인사부인 경우 페이지 정상 넘김
 		 return mav;
 	 }
 	 */
 	 
+	 /*
 	 //기능테스트용 
 	 // 출퇴근관리페이지 보여주기 (인사부만 접근가능)
 	 @RequestMapping(value="/emp/viewAttendOnlyHR.hello2")
@@ -269,7 +274,33 @@ public class EmpController_ce {
 		 
 		 return mav;
 	 }
-	 
+	 */
+	   
+     // 기능테스트용 
+	 // 출퇴근관리페이지 보여주기 (인사부만 접근가능 => ok, 로그인연결 => )
+	 @RequestMapping(value="/emp/viewAttendOnlyHR.hello2")
+	 public ModelAndView viewAttendOnlyHR(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		 if(!checkDepartment(request,"10")) { // 인사부가 아닌경우
+				String message = "권한이 없습니다.";
+				String loc = request.getContextPath() + "/emp/viewAttend.hello2";
+				
+				mav.addObject("message", message); 
+				mav.addObject("loc", loc);
+				mav.setViewName("msg_LCE"); 
+			}
+		 else {
+			  List<DepartmentVO_ce> departmentList = service.getDepartmentList();
+		 
+			 mav.addObject("departmentList", departmentList);
+			 mav.setViewName("attendance/attendanceOnlyHR.tiles1"); 
+		 
+		 }
+		 return mav;
+
+	 }
+	   
+	   
 	// 캘린더에 표시할 부서별 근태정보 받아오기 (ajax)
 	 @ResponseBody
 	 @RequestMapping(value="/emp/showDepCalendar.hello2", produces="text/plain;charset=UTF-8")
@@ -414,8 +445,7 @@ public class EmpController_ce {
 	 
 	 
 	// 부서별 사원들 근태현황 엑셀다운받기
-	 @ResponseBody
-	 @RequestMapping(value="/emp/downloadEmpExcelFile.hello2", produces="text/plain;charset=UTF-8")
+	 @RequestMapping(value="/emp/downloadEmpExcelFile.hello2", method = {RequestMethod.POST})
 	 public String downloadEmpExcelFile(HttpServletRequest request, Model model) {
 	 
 		String fk_empno = request.getParameter("empno");
@@ -431,17 +461,17 @@ public class EmpController_ce {
 		SXSSFWorkbook workbook = new SXSSFWorkbook();
 		
 		// 시트생성
-		String subject = "" + empname + "사원의 근태정보";
+		String subject = "" + empname + "("+ fk_empno + ")" +"사원의 근태정보";
 		SXSSFSheet sheet = workbook.createSheet(subject);
 		
 		// 시트 열 너비 설정 (7개의 열)
-		sheet.setColumnWidth(0, 2000);
+		sheet.setColumnWidth(0, 4000);
 		sheet.setColumnWidth(1, 4000);
-		sheet.setColumnWidth(2, 2000);
+		sheet.setColumnWidth(2, 4000);
 		sheet.setColumnWidth(3, 4000);
-		sheet.setColumnWidth(4, 3000);
+		sheet.setColumnWidth(4, 2000);
 		sheet.setColumnWidth(5, 2000);
-		sheet.setColumnWidth(6, 1500);
+		sheet.setColumnWidth(6, 2000);
 		
 		// 행의 위치를 나타내는 변수
 		int rowLocation = 0;
@@ -464,10 +494,10 @@ public class EmpController_ce {
 	    // CellStyle 배경색(ForegroundColor)만들기
         // setFillForegroundColor 메소드에 IndexedColors Enum인자를 사용한다.
         // setFillPattern은 해당 색을 어떤 패턴으로 입힐지를 정한다
-	    mergeRowStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex()); // IndexedColors.DARK_BLUE.getIndex() 는 색상(남색)의 인덱스값을 리턴시켜준다.
+	    mergeRowStyle.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex()); // IndexedColors.DARK_BLUE.getIndex() 는 색상(남색)의 인덱스값을 리턴시켜준다.
 	    mergeRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    
-	    headerStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex()); // IndexedColors.LIGHT_YELLOW.getIndex() 는 연한노랑의 인덱스값을 리턴시켜준다.
+	    headerStyle.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex()); // IndexedColors.LIGHT_YELLOW.getIndex() 는 연한노랑의 인덱스값을 리턴시켜준다.
 	    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    
 	    // Cell 폰트(Font) 설정하기
@@ -477,7 +507,7 @@ public class EmpController_ce {
 	    Font mergeRowFont = workbook.createFont(); // import org.apache.poi.ss.usermodel.Font; 으로 한다.
 	    mergeRowFont.setFontName("나눔고딕");
 	    mergeRowFont.setFontHeight((short)500);
-	    mergeRowFont.setColor(IndexedColors.WHITE.getIndex());
+	    mergeRowFont.setColor(IndexedColors.BLACK.getIndex());
 	    mergeRowFont.setBold(true);
 	    
 	    mergeRowStyle.setFont(mergeRowFont);
@@ -499,14 +529,14 @@ public class EmpController_ce {
 	    Row mergeRow = sheet.createRow(rowLocation); //엑셀에서 행의 시작은 0부터 시작된다.
 	    
 	    //병합할 행에 "우리회사 사원정보" 로 셀을 만들어 셀에 스타일을 주기  
-	    for(int i=0; i<8; i++) {
+	    for(int i=0; i<7; i++) {
 	    	Cell cell = mergeRow.createCell(i);
 	    	cell.setCellStyle(mergeRowStyle);
 	    	cell.setCellValue(subject);
 	    }
 	    
 	    // 셀 병합하기 
-	    sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0 , 7));
+	    sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0 , 6));
 	    
 	    // CellStyle 천단위 쉼표, 금액
         CellStyle moneyStyle = workbook.createCellStyle();
@@ -601,9 +631,12 @@ public class EmpController_ce {
         model.addAttribute("workbookName", subject);
         
         
-		return "excelDownloadView";
+		return "excelDownloadView_LCE";
 		
 	 }
+	 
+	 
+	 // 11월 21일 : 출퇴근관리 개인페이지에 account로그인이 안됨, 주말 출근시 계산 
 	 
 	 
 }

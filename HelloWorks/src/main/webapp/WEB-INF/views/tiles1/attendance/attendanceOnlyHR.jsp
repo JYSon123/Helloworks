@@ -300,12 +300,12 @@
 		else{
 			
 			var frm = document.searchFrm;
-			//frm.empno.value = empno;
-			//frm.empname.value= empname;
+			frm.empno.value = empno;
+			frm.empname.value= empname;
 			
-			//frm.method = "POST";
-			//frm.action = "<%= request.getContextPath()%>/emp/downloadEmpExcelFile.hello2";
-			//frm.submit();
+			frm.method = "POST";
+			frm.action = "<%= request.getContextPath()%>/emp/downloadEmpExcelFile.hello2";
+			frm.submit();
 			
 		}
 		
@@ -469,6 +469,8 @@
 						<select name="employee" id="deptselect3" style="width: 180px; font-size:15px;">
 			           			 <option selected value="0" >사원 선택</option>
 			        	</select> 사원
+			        	<input type="hidden" name="empno" />
+			        	<input type="hidden" name="empname" />
 						<button type="button" style="margin-left:15px; border:0px; width:150px; height: 40px; font-weight:500; border-radius: 5%; background-color: #eff4fc;" id="btnSearchEmp" onclick="downloadExcel()">Excel파일 다운로드</button>
 					</form>
 			    </div>

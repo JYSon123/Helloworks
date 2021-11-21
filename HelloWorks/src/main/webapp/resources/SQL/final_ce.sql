@@ -549,3 +549,12 @@ WHERE A.D NOT IN ('1', '7')
 select to_char (last_day ( to_date( '20211101', 'YYYYMMDD') ),'yyyymmdd') from dual
 
 select TO_DATE( to_char (last_day ( to_date( '20211101', 'YYYYMMDD') ),'yyyymmdd'), 'YYYYMMDD') from dual
+
+
+
+
+--11월 21일 엑셀용 근태현황
+select nowdate, fk_empno, intime, nvl(outtime,'퇴근미체크') as outtime , nvl(totaltime,0) as totaltime , status_latein, status_earlyout
+from tbl_attendance
+where fk_empno = '202111081004'
+order by nowdate
