@@ -85,7 +85,31 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 		
 	}
 
+	// 일정 검색
+	@Override
+	public List<Map<String, String>> searchSchedule(Map<String, String> paraMap) {
+		List<Map<String, String>> searchSchList = sqlsession2.selectList("hje.searchSchedule",paraMap);
+		return searchSchList;
+	}
 
+	// 자동완성
+	@Override
+	public List<String> autoSearchWord(Map<String, String> paraMap) {
+		List<String> wordList = sqlsession2.selectList("hje.autoSearchWord", paraMap);
+		return wordList;
+	}
+
+	// 일정 수정하기
+	@Override
+	public void updateSchedule(Map<String, String> paraMap) {
+		sqlsession2.update("hje.updateSchedule",paraMap);
+	}
+
+	// 일정 삭제하기
+	@Override
+	public void deleteSchedule(Map<String, String> paraMap) {
+		sqlsession2.delete("hje.deleteSchedule",paraMap);
+	}
 
 	
 	

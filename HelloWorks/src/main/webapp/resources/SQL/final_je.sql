@@ -83,8 +83,9 @@ create table tbl_schedule (
 ,enddate    varchar2(100) not null  -- 마감날짜
 ,status     number  default 0       -- 상태
 ,constraint PK_tbl_schedule_sno primary key(sno)
-,constraint FK_tbl_schedule_calno foreign key(fk_calno) references tbl_calendar(calno)
+,constraint FK_tbl_schedule_calno foreign key(fk_calno) references tbl_calendar(calno) on delete cascade;
 );
+
 
 create sequence snoSeq
 start with 1
@@ -105,11 +106,50 @@ desc tbl_calendar;
 select * from tbl_schedule;
 desc tbl_schedule;
 
+select *
+from user_constraints
+where table_name = 'TBL_SCHEDULE'
+
 select calname 
 from tbl_calendar
+
+update tbl_calendar set calname= '공유캘린더' , color= '#ffefcc', shareEmp='test,hje0121'
+		where calno= 2
+        rollback;
 
 select calname, color, fk_cno
 from tbl_calendar
 where shareemp like '%'|| 'test' ||'%'
         
+select TITLE, STARTDATE, ENDDATE, COLOR
+from tbl_calendar C JOIN tbl_schedule S
+ON C.CALNO = S.FK_CALNO
+where SHAREEMP like '%'|| 'hje0121' ||'%'
 
+update tbl_calendar set calname='정은캘린더' , color='#284B91'
+where calno='1'
+
+rollback;
+
+delete from tbl_calendar
+		where calno= #{calno}
+
+delete from tbl_calendar
+where calno=4 and fk_cno = 2
+
+rollback;
+
+select to_date(substr(startDate,0,10),'yyyy-mm-dd') as startDate, to_date(substr(endDate,0,10),'yyyy-mm-dd') as endDate
+from tbl_schedule
+where startDate <= sysdate;
+
+
+select title, startdate, enddate, color
+    from tbl_calendar C JOIN tbl_schedule S
+    ON C.CALNO = S.FK_CALNO
+    where SHAREEMP like '%'|| 'test' ||'%'
+and (to_date(substr(startDate,0,10),'yyyy-mm-dd') between '2021-11-18' and '2021-11-19'
+or to_date(substr(endDate,0,10),'yyyy-mm-dd') between '2021-11-18' and '2021-11-19')
+
+		
+			and title like '%'|| '캘린더' ||'%'

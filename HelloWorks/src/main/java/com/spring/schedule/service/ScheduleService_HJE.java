@@ -70,7 +70,6 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 		dao.deletePersonal(paraMap);
 	}
 
-
 	// 공유 캘린더 수정하기
 	@Override
 	public void updateShare(Map<String, String> paraMap) {
@@ -78,13 +77,38 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 		
 	}
 
-
 	// 공유 캘린더 삭제하기
 	@Override
 	public void deleteShare(Map<String, String> paraMap) {
 		dao.deleteShare(paraMap);
 	}
 
+
+	// 일정 검색
+	@Override
+	public List<Map<String, String>> searchSchedule(Map<String, String> paraMap) {
+		List<Map<String, String>> searchSchList = dao.searchSchedule(paraMap);
+		return searchSchList;
+	}
+
+	// 자동완성
+	@Override
+	public List<String> autoSearchWord(Map<String, String> paraMap) {
+		List<String> wordList = dao.autoSearchWord(paraMap);
+		return wordList;
+	}
+
+	// 일정 수정하기
+	@Override
+	public void updateSchedule(Map<String, String> paraMap) {
+		dao.updateSchedule(paraMap);
+	}
+
+	// 일정 삭제하기
+	@Override
+	public void deleteSchedule(Map<String, String> paraMap) {
+		dao.deleteSchedule(paraMap);
+	}
 
 	
 

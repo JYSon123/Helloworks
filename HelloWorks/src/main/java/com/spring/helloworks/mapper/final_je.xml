@@ -46,7 +46,7 @@
 	<!-- 일정 추가하기 -->
 	<insert id="addSchedule" parameterType="HashMap">
 		
-		insert into tbl_schedule (sno, fk_calno, title, startdate, enddate
+		insert into tbl_schedule (sno, fk_calno, title, startdate, enddate, status
 			<if test="content != ''">
 				, content
 			</if>
@@ -54,7 +54,7 @@
 				, location
 			</if>
 		)
-		values (snoSeq.nextval, #{fk_calno}, #{title}, #{startDate}, #{endDate}
+		values (snoSeq.nextval, #{fk_calno}, #{title}, #{startDate}, #{endDate}, 0
 			<if test="content != ''">
 				, #{content}
 			</if>
@@ -87,6 +87,57 @@
 		delete from tbl_calendar
 		where calno= #{calno} and fk_cno = 2
 	</delete>
+	
+	
+	<resultMap type="HashMap" id="searchSchduleMap">
+       <result property="title"    		column="title"       javaType="String" />
+       <result property="startDate"    	column="startDate"   javaType="String" />
+       <result property="endDate"       column="endDate"     javaType="String" />
+       <result property="color"      	column="color"       javaType="String" />
+       <result property="sno"      		column="sno"       	 javaType="String" />
+       <result property="content"      	column="content"     javaType="String" />
+       <result property="location"      column="location"    javaType="String" />
+       <result property="status"      	column="status"      javaType="String" />
+    </resultMap>
+	<!-- 일정검사 -->
+	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
+		select title, startDate, endDate, color, sno, content, location, status
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+		
+		<if test="searchType == 'term'">
+			and (to_date(substr(startDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate}
+			or to_date(substr(endDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate})
+		</if>
+		
+		<if test="searchType != 'term'">
+			and ${searchType} like '%'|| #{searchWord} ||'%'
+		</if>
+		
+	</select>
+	
+	<!-- 자동완성 -->	
+	<select id="autoSearchWord"  parameterType="HashMap" resultType="String">
+		select title
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%' and ${searchType} like '%'|| #{searchWord} ||'%'
+		order by endDate desc
+	</select>
+	
+	<!-- 일정 수정하기 -->
+	<update id="updateSchedule" parameterType="HashMap">
+		update tbl_schedule set title=#{title}, location=#{location}, content=#{content}, status=#{status}, startDate=#{startDate}, endDate=#{endDate}
+		where sno = #{sno}
+	</update>
+	
+	<!-- 일정 삭제하기 -->
+	<delete id="deleteSchedule" parameterType="HashMap">
+		delete from tbl_schedule 
+		where sno = #{sno}
+	</delete>
+	
 	
 	
 	

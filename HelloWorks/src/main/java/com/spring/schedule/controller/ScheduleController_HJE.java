@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.spring.helloworks.common.MyUtil_HJE;
 import com.spring.helloworks.model.EmpVO_KJH;
 import com.spring.schedule.model.CalendarVO_HJE;
-import com.spring.schedule.model.ScheduleVO_HJE;
 import com.spring.schedule.service.InterScheduleService_HJE;
 
 
@@ -49,26 +49,65 @@ public class ScheduleController_HJE {
    // 일정 페이지
    @RequestMapping(value="/schedule.hello2")
    public String requiredLogin_calendar(HttpServletRequest request, HttpServletResponse response) {
+
+	   getCurrentURL(request);
+	   
+	   Map<String,String> paraMap = new HashMap<>();
 	   
 	   HttpSession session = request.getSession();
 	   EmpVO_KJH loginEmp =  (EmpVO_KJH) session.getAttribute("loginEmp");
-	   String empid = loginEmp.getEmpid();
 	   
-	   if( empid == null) {
+	   if (loginEmp == null) {
+
+			String message = "로그인 후 이용가능합니다.";
+			String loc = request.getContextPath() + "/login.hello2";
+
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			return "tiles1/schedule/msg";
+		}
+	   else {
+		   String empid = loginEmp.getEmpid();
+		   paraMap.put("empid", empid);
 		   
-		   String message = "로그인 후 이용가능합니다.";
-		   String loc = request.getContextPath() + "/login.hello2";
+		   // 캘린더 리스트
+		   List<CalendarVO_HJE> calList = service.showCalendarList(empid);
+		   request.setAttribute("calList", calList);
 		   
+		   
+		   String searchType = request.getParameter("searchType");
+		   paraMap.put("searchType", searchType);
+		   
+		   if( "term".equals(searchType) ) {
+			   String startDate = request.getParameter("startDate");
+			   String endDate = request.getParameter("endDate");
+			   paraMap.put("startDate", startDate);
+			   paraMap.put("endDate", endDate);
+		   }
+		   else {
+			   
+			   String searchWord = request.getParameter("searchWord");
+			   paraMap.put("searchWord", searchWord);
+		   }
+		   
+		   request.setAttribute("paraMap", paraMap);
+		   ///////////////////////////////////////////////////////////////////
+		   // 검색이 없을 때 (전체 일정 출력)
+		   if (searchType == null) {
+			   List<Map<String,String>> schList = service.showSchedule(empid);
+			   request.setAttribute("schList", schList);
+		   }
+		   ///////////////////////////////////////////////////////////////////
+		   // 검색이 있을 때 (검색 내용 출력)
+		   else {
+			   List<Map<String,String>> searchSchList = service.searchSchedule(paraMap); 
+			   request.setAttribute("searchSchList", searchSchList);
+			   
+		   }
+		   //////////////////////////////////////////////////////////////////
+		   
+		   return "schedule/calendar.tiles1";
 	   }
-	   
-	   List<CalendarVO_HJE> calList = service.showCalendarList(empid);
-	   request.setAttribute("calList", calList);
-	   
-	   List<Map<String,String>> schList = service.showSchedule(empid);
-	   
-	   request.setAttribute("schList", schList);
-	   
-	   return "schedule/calendar.tiles1";
    }
       
    // 캘린더 추가
@@ -166,7 +205,7 @@ public class ScheduleController_HJE {
 	   String allDay = request.getParameter("allDay");
 	   if("true".equals(allDay)) {
 		   startTime = "00:00";
-		   endTime = "24:00";
+		   endTime = "23:59";
 	   }
 	   
 	   // 시작일시(날짜+시간)
@@ -189,7 +228,7 @@ public class ScheduleController_HJE {
 	   paraMap.put("content", content);	   
 	   paraMap.put("startDate", startDate);	   
 	   paraMap.put("endDate", endDate);	   
-	   paraMap.put("empid", empid);	   
+	   paraMap.put("empid", empid);	
 	   
 	   service.addSchedule(paraMap);
 	   	   
@@ -253,6 +292,123 @@ public class ScheduleController_HJE {
 	   return "redirect:/schedule.hello2";
    }
    
+   // 자동완성
+   @ResponseBody
+   @RequestMapping(value = "/autoSearchWord.hello2", method = {RequestMethod.GET}, produces = "text/plain;charset=UTF-8")
+	public String autoSearchWord(HttpServletRequest request) {
+   	
+   	String searchType = request.getParameter("searchType");
+   	String searchWord = request.getParameter("searchWord");
+   	String empid = request.getParameter("empid");
+   	
+   	Map<String,String> paraMap = new HashMap<>();
+   	paraMap.put("searchType", searchType);
+   	paraMap.put("searchWord", searchWord);
+   	paraMap.put("empid", empid);
+   	
+   	List<String> wordList = service.autoSearchWord(paraMap);
+   	
+   	JSONArray jsonArr = new JSONArray();	
+   	
+   	if (wordList != null) {
+   		
+   		for( String word : wordList ) {
+   			JSONObject jsonObj = new JSONObject();
+   			jsonObj.put("word", word);
+   			
+   			jsonArr.put(jsonObj);
+   		}
+   	}
+   	
+   	return jsonArr.toString();
+   }
+	   
+	   
    
+   // 일정 수정 및 삭제
+   @RequestMapping(value = "/changeSchedule.hello2", method= {RequestMethod.POST})
+   public String changeSchedule(HttpServletRequest request, HttpServletResponse response) {
+	   
+	   
+	   String sno = request.getParameter("sno");
+	   String title = request.getParameter("title");
+	   String location = request.getParameter("location");
+	   String content = request.getParameter("content");
+	   String status = request.getParameter("status");
+	   
+	   String startDay = request.getParameter("startDay");
+	   String startTime = request.getParameter("startTime");
+
+	   String endDay = request.getParameter("endDay");
+	   String endTime = request.getParameter("endTime");
+	   
+	   // 시간 : 하루종일
+	   String allDay = request.getParameter("allDay");
+	   if("true".equals(allDay)) {
+		   startTime = "00:00";
+		   endTime = "23:59";
+	   }
+	   
+	   // 시작일시(날짜+시간)
+	   String startDate = startDay + "T" + startTime+":00";
+	   
+	   // 마감일시(날짜+시간)
+	   String endDate = endDay + "T" + endTime+":00";
+	   
+	   // 알림관련
+	   String notice = request.getParameter("notice");
+	   String mnoticeTime = request.getParameter("mnoticeTime");
+	   String enoticeTime = request.getParameter("enoticeTime");
+	   
+	   String changeOption = request.getParameter("changeOption");
+	   
+	   Map<String,String> paraMap = new HashMap<>();
+
+	   paraMap.put("sno", sno);	   
+	   paraMap.put("title", title);	   
+	   paraMap.put("location", location);	   
+	   paraMap.put("content", content);	   
+	   paraMap.put("status", status);	
+	   paraMap.put("startDate", startDate);	   
+	   paraMap.put("endDate", endDate);	
+	   
+	   /*
+	   System.out.println("sno" + sno);
+	   System.out.println("title" + title);
+	   System.out.println("location" + location);
+	   System.out.println("content" + content);
+	   System.out.println("startDate" + startDate);
+	   System.out.println("endDate" + endDate);
+	   System.out.println("status" + status);
+	   System.out.println("notice" + notice);
+	   System.out.println("mnoticeTime" + mnoticeTime);
+	   System.out.println("enoticeTime" + enoticeTime);
+	   System.out.println("changeOption" + changeOption);
+	   */
+	   
+	   
+	   if( "1".equals(changeOption) ) {	// 수정
+		   
+		   service.updateSchedule(paraMap);
+	   }
+	   if( "2".equals(changeOption) ) { // 삭제
+		   
+		   service.deleteSchedule(paraMap);
+	   }
+	   
+	   HttpSession session = request.getSession();
+	   
+	   String goBackURL = (String) session.getAttribute("goBackURL");
+		
+	   return "redirect:"+goBackURL;
+   }
+   
+	////////////////////////////////////////////////////////////////////////////////
+	//  === 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 생성 ===    
+	public void getCurrentURL(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		session.setAttribute("goBackURL", MyUtil_HJE.getCurrentURL(request));
+	}
+	////////////////////////////////////////////////////////////////////////////////
    
 }

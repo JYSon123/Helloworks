@@ -2,11 +2,13 @@
     pageEncoding="UTF-8"%>
     
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %> 
 <%@page import="java.util.*"%>
     
 <% 
 	String ctxPath = request.getContextPath();
 	List<Map<String,String>> schList = (ArrayList<Map<String,String>>) request.getAttribute("schList");
+	List<Map<String,String>> searchSchList = (ArrayList<Map<String,String>>) request.getAttribute("searchSchList");
 %>  
   
 
@@ -22,6 +24,7 @@
 	#calendar {
 		max-width: 1100px;
 		margin: 0 auto;
+		z-index: 1;	/* 수직정렬: 어느 요소가 앞으로 올지 (1번째로 올라옴) */ 
 	}
 	
 	h1, h2, h3, h4, h5, h6 {
@@ -91,6 +94,42 @@
 		font-size: 13pt;
 	}
 	
+	div#displayList {
+		position: absolute;
+		background-color: #fff;
+		z-index: 2;	/* 수직정렬: 어느 요소가 앞으로 올지 (2번째로 올라옴) */ 
+		border: solid 1px gray;
+		border-bottom-left-radius: 10px;
+		border-bottom-right-radius: 10px;
+		width: 991px;
+		height: 150px; 
+		overflow: auto; 
+		margin-left: 75px; 
+		margin-top: -15px; 
+		border-top: 0px;
+		padding: 20px;
+	}
+	
+	#tblSearch {
+		width: 96%;
+		margin: 50px auto; 
+		text-align: center;
+		border-collapse: collapse;
+		border-radius: 10px;
+		border-style: hidden;
+		box-shadow: 0 0 0 2px #e6e6e6;
+	}
+	
+	#tblSearch th, #tblSearch td {
+		border: solid 1px #e6e6e6;
+		padding: 7px 0;
+	}
+	
+	a:hover { 
+		text-decoration:none;
+		cursor: pointer;		
+	}
+	
 </style>
 
 <script src='<%=request.getContextPath() %>/resources/lib/main.js'></script>
@@ -115,17 +154,35 @@
       locale: "ko",
       events: [
     	  <% 
-    	  	for( Map<String,String> map : schList) {
+    	  if(schList != null) {
+    	  		for( Map<String,String> map : schList) {
     	  		
     	  %>
-    	  		{
-    	  			title: "<%= map.get("title") %>",
-    	  			start: "<%= map.get("startdate") %>",
-    	  			end: "<%= map.get("enddate") %>",
-    	  			color: "<%= map.get("color") %>",
-    	  		},
+	    	  		{
+	    	  			title: "<%= map.get("title") %>",
+	    	  			start: "<%= map.get("startdate") %>",
+	    	  			end: "<%= map.get("enddate") %>",
+	    	  			color: "<%= map.get("color") %>",
+	    	  		},
     	  
     	  <% 
+	    	  	}
+    	  	}
+    	  %>
+    	  <% 
+    	  	if(searchSchList != null) {
+    	  		for( Map<String,String> map : searchSchList) {
+    	  		
+    	  %>
+	    	  		{
+	    	  			title: "<%= map.get("title") %>",
+	    	  			start: "<%= map.get("startDate") %>",
+	    	  			end: "<%= map.get("endDate") %>",
+	    	  			color: "<%= map.get("color") %>",
+	    	  		},
+    	  
+    	  <% 
+    	  		}
     	  	}
     	  %>
     	  {
@@ -188,22 +245,14 @@
   		showCalendarList();
   		
   		// 알림 체크박스 체크 시 select 태그 보이게
-  		$("input#message").change(function(){
+  		$("input[name=noticeChk]").change(function(){
   	        if($(this).is(":checked")){
-  	          	$("select#mnoticeTime").css("visibility","visible");
+  	          	$(this).parents().siblings('select').css("visibility","visible");
   	        }
   	        else{
-  	          	$("select#mnoticeTime").css("visibility","hidden");
+  	          	$(this).parents().siblings('select').css("visibility","hidden");
   	        }
   	    });
-  		$("input#email").change(function(){
-  	        if($(this).is(":checked")){
-  	          	$("select#enoticeTime").css("visibility","visible");
-  	        }
-  	        else{
-  	          	$("select#enoticeTime").css("visibility","hidden");
-  	        }
-  		});
   		
   		// 하루종일 선택 시, 시간 선택 못하게
   		$("input:checkbox[name='allDay']").change(function(){
@@ -215,6 +264,107 @@
   	        	$("input[type=time]").attr('disabled', false); 
   	        }
   		});
+  		
+  		// 검색 시, 검색조건 및 검색어 값 유지시키기
+		if( ${not empty requestScope.paraMap.searchType} ) {
+			$("select#searchType").val("${requestScope.paraMap.searchType}");
+			$("input#searchWord").val("${requestScope.paraMap.searchWord}");
+			$("input#startDate").val("${requestScope.paraMap.startDate}");
+			$("input#endDate").val("${requestScope.paraMap.endDate}");
+		}
+  		
+  		// 검색내용에 일치하는 내용이 없을 경우 alert 띄워주기
+  		<%
+  		if( searchSchList != null && searchSchList.size() == 0 ) {
+  		%>
+  			alert("검색어에 해당하는 일정이 존재하지 않습니다.");
+  		<%
+  		}
+  		%>
+  		
+  		// 엔터 입력시 검색하기
+  		$("input#searchWord").keyup(function(){
+  			if(event.keyCode == 13) { 
+				goSearch();
+			}
+  		});
+  		$("input#endDate").keyup(function(){
+  			if(event.keyCode == 13) { 
+  				goSearch();
+			}
+  		});
+  		
+  		
+  		$("div#displayList").hide();	// 처음엔 감추고, searchWord에 keyup일 경우 보이기
+
+		$("input#searchWord").keyup(function(){
+			
+			var wordLength = $(this).val().trim().length;
+			// 검색어 길이를 알아온다.
+			
+			if(wordLength == 0) {
+				$("div#displayList").hide();
+				// 검색어가 공백이거나 검색어 입력후 백스페이스키를 눌러서 검색어를 모두 지우면 검색된 내용이 안 나오도록 해야 한다.
+			}
+			else {
+				
+				$.ajax({
+					url:"<%=request.getContextPath()%>/autoSearchWord.hello2",
+					type:"GET",
+					data:{"searchType":$("select#searchType").val()
+						 ,"searchWord":$("input#searchWord").val()
+						 ,"empid":"${requestScope.paraMap.empid}"},
+					dataType:"JSON",
+					success:function(json){
+						
+						if(json.length > 0) {
+							//검색된 데이터가 있는 경우
+							
+							var html = "";
+							
+							$.each(json, function(index, item){
+								var word = item.word;
+								// word ==> JAVA script를 배워요
+								
+								var index = word.toLowerCase().indexOf($("input#searchWord").val().toLowerCase())
+								// word ==> java script를 배워요		java
+								// 검색어(jAvA)가 나오는 index ==> 1
+								
+								var len = $("input#searchWord").val().length;
+								// 검색어(jAvA)의 길이 len ==> 4
+								
+								var result = word.substr(0, index) + "<span style='color:blue; font-weight: bold;'>"+word.substr(index,len)+"</span>"+ word.substr(index+len);
+								
+								html += "<span style='cursor: pointer;' class='result' >"+result+"</span><br>";
+								
+							});
+							
+							var input_width = $("input#searchWord").css("width");	// 검색어 input태그 width 알아오기
+							
+							$("div#displayList").css({"width":input_width});	// 검색결과 div의 width 크기를 검색어 input 태그 width와 일치시키기
+							
+							$("div#displayList").html(html);
+							$("div#displayList").show();
+						}
+						
+					},
+					error: function(request, status, error){
+		                  alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+		            }
+				});
+			}
+			
+		});
+  		
+		$(document).on("click",".result",function(){
+			var word = $(this).text();
+			$("input#searchWord").val(word);	// 텍스트박스에 검색된 결과의 문자열을 입력해준다.
+			$("div#displayList").hide();
+			goSearch();
+		});
+		
+		
+  		
   		
   	}); // end of $(document).ready(function(){}
   	
@@ -389,7 +539,6 @@
 			return false;
 		}
   		
-			 
 
 		if(boolFlag) {
 			return;
@@ -406,15 +555,18 @@
 	// 개인캘린더 모달창 수정 및 삭제
 	function changePersonal(i){
 		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
-// 			alert("수정");
 			$("input#changePOption").val("1"); 
 		}
 		if (i==2) { // 삭제일 경우 changeOption의 value값을 2로 준다.
-// 			alert("삭제");
-			$("input#changePOption").val("2"); 
+			
+			var result = confirm("공유 캘린더를 정말로 삭제하시겠습니까?");
+			if(result == true) {
+				$("input#changePOption").val("2");
+			}
+			else {
+				$("#changePersonalModal").modal('hide');
+			}
 		}
-		
-// 		alert($("input#changeOption").val());
 		
 		var frm = document.changePersonalFrm;
 		
@@ -427,15 +579,19 @@
 	function changeShare(i){
 				
 		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
-// 			alert("수정");
 			$("input#changeSOption").val("1"); 
 		}
 		if (i==2) { // 삭제일 경우 changeOption의 value값을 2로 준다.
-// 			alert("삭제");
-			$("input#changeSOption").val("2"); 
+			
+			var result = confirm("공유 캘린더를 정말로 삭제하시겠습니까?");
+			if(result == true) {
+				$("input#changeSOption").val("2"); 
+			}
+			else {
+				$("#changeShareModal").modal('hide');
+			}
+			 
 		}
-		
-// 		alert($("input#changeSOption").val());
 		
 		var frm = document.changeShareFrm;
 		
@@ -447,30 +603,78 @@
 	// 검색
 	function goSearch(){
 		var frm = document.searchFrm;
-		frm.action="<%=request.getContextPath()%>/list.action";
+		frm.action="<%=request.getContextPath()%>/schedule.hello2";
 		frm.method="GET";
 		frm.submit();
 	}
 	
+	// 검색결과 테이블 클릭
+	function changeScheduleModal(index){
+		
+		var sno = $("td.searchSno").eq(index).text();
+		var title = $("td.searchTitle").eq(index).text();
+		var content = $("td.searchContent").eq(index).text();
+		var location = $("td.searchLocation").eq(index).text();
+		var startDay = $("td.searchStartDate").eq(index).text().substring(0,10);
+		var startTime = $("td.searchStartDate").eq(index).text().substring(11);
+		var endDay = $("td.searchEndDate").eq(index).text().substring(0,10);
+		var endTime = $("td.searchEndDate").eq(index).text().substring(11);
+		var status = $("td.searchStatus").eq(index).text();
+		
+		$("input#c_sno").val(sno);
+		$("input#c_title").val(title);
+		$("input#c_content").val(content);
+		$("input#c_location").val(location);
+		$("input#c_startDay").val(startDay);
+		$("input#c_startTime").val(startTime);
+		$("input#c_endDay").val(endDay);
+		$("input#c_endTime").val(endTime);
+		$("input#c_status").val(status); 
+		
+		$("#changeSchModal").modal();
+	}
 	
-	
-	
-	
-	
-	
-	
-	
+	// 일정 수정 및 삭제
+	function changeSch(i){
+		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
+			$("input#changeSchOption").val("1"); 
+		}
+		if (i==2) { // 삭제일 경우 changeOption의 value값을 2로 준다.
+			var result = confirm("일정을 정말로 삭제하시겠습니까?");
+			if(result == true) {
+				$("input#changeSchOption").val("2"); 
+			}
+			else {
+				$("#changeSchModal").modal('hide');
+			}
+		}
+		
+		var obj = $("[name=notice]");
+        var chkArray = new Array();
+ 		
+        // notice(message, email) 배열로 넘겨주기
+        $("input:checkbox[name=noticeChk]:checked").each(function() { 
+            chkArray.push(this.value);
+        });
+        $('#c_notice').val(chkArray);
+		
+		var frm = document.changeSchFrm;
+		
+		frm.action ="<%=ctxPath%>/changeSchedule.hello2";
+		frm.method = "POST";
+		frm.submit();
+	}
 	
 </script>
 
 
 <div>
 	<%-- 사이드바 시작 --%>
-	<nav class="w3-sidebar w3-collapse w3-white " style="margin-top: 20px; z-index: 0; width: 300px; background-color: #f5f5f5; overflow: hidden; height: 100%;" id="mySidebar">
+	<nav class="w3-sidebar w3-collapse w3-white " style="margin-top: 20px; z-index: 0; width: 300px; background-color: #f5f5f5; overflow: auto; height: 100%;" id="mySidebar">
 		<br>
 		<div class="w3-container" style="background-color: #f5f5f5; margin-top: 10px">
 			<a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu"><i class="fa fa-remove"></i></a> <br><br>
-			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray"><b>일정</b></span>
+			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray"><b><a href="<%= ctxPath %>/schedule.hello2">일정</a></b></span>
 		</div>
 		<div class="w3-bar-block" style="background-color: #f5f5f5; height: 100%"><br>
 			
@@ -511,11 +715,12 @@
 				<div class="input-group mb-3">
 					<div class="input-group-prepend">
 						<select class="form-control" id="searchType" name="searchType">
-							<option selected value="subject">제목</option>
+							<option value="title" selected>제목</option>
 							<option value="content">내용</option>
 							<option value="term">기간</option>
 						</select>
 					</div>
+					<input type="text" style="display:none" />
 					<input type="text" id="searchWord" name="searchWord" class="form-control" />
 					<input type="hidden" id="startDate" name="startDate" class="form-control" />
 					<input type="hidden" id="endDate" name="endDate" class="form-control" />
@@ -525,12 +730,46 @@
 						</button>
 					</div>
 				</div>
+				
+				<%-- 자동 완성 --%>
+				<div id="displayList"></div>
 
 			</form>
 		</div>
 		
 		<%-- 캘린더 --%>
 		<div id='calendar' style="width: 100%"></div>
+		
+		<%-- 검색 결과 테이블로 출력 --%>
+		<%  if(searchSchList != null) { %>
+			<table id="tblSearch">
+				<thead >
+					<tr>
+						<th width="20%">일정명</th>
+						<th width="33%">내용</th>
+						<th width="10%">장소</th>
+						<th width="15%">시작일</th>
+						<th width="15%">종료일</th>
+						<th width="7%">진행상황(%)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="sch" items="${requestScope.searchSchList}" varStatus="status">
+						<tr class="tblSearchList" onclick="changeScheduleModal(${status.index})">
+							<td class="searchSno" style="display: none;">${sch.sno }</td>
+							<td class="searchTitle">${sch.title}</td>
+							<td class="searchContent">${sch.content}</td>
+							<td class="searchLocation">${sch.location}</td>
+							<td class="searchStartDate">${fn:substring(sch.startDate,0,10)} ${fn:substring(sch.startDate,11,16)}</td>
+							<td class="searchEndDate">${fn:substring(sch.endDate,0,10)} ${fn:substring(sch.endDate,11,16)}</td>
+							<td class="searchStatus">${sch.status}</td>
+						</tr>
+					
+					</c:forEach>
+				</tbody>
+			</table>
+		<%  } %>
+		
 		
 	</div>
 	<%-- 메인 컨텐츠 끝 --%>
@@ -637,6 +876,110 @@
 		</div>
 	</div>
 	<%-- 일정추가 모달창 끝 --%>
+	
+	<%-- 일정 수정 및 삭제 모달창 시작 --%>
+	<div class="modal fade" id="changeSchModal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+
+				<%-- Modal header --%>
+				<div class="modal-header" style="background-color: #0070C1;">
+					<h4 class="modal-title" style="color: #fff; font-weight: bold;">일정 수정 및 삭제</h4>
+					<button type="button" class="close myclose" data-dismiss="modal" style="color: #fff;">&times;</button>
+				</div>
+
+				<%-- Modal body --%>
+				<div class="modal-body">
+					<div id="changeSch">
+						<form name="changeSchFrm"  oninput="x.value=parseInt(c_status.value)" >
+							<table id= "tblChangeSchedule" class="w-90 mx-auto">
+								<tbody>
+									<tr>
+										<td style="width: 20%;" id="title">일정 제목&nbsp;<span class="star">*</span></td>
+										<td style="width: 80%;">
+											<input type="hidden" id="c_sno" name="sno" class="form-control" value="" />
+											<input type="text" id="c_title" name="title" class="form-control" value="" />
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">시작&nbsp;<span class="star">*</span></td>
+										<td style="width: 99%; margin-left: 1px;" class="row">
+											<input type="date" id="c_startDay" name="startDay" class="form-control col-7" value="" />
+											<input type="time" id="c_startTime" name="startTime" class="form-control col-5" value="" />
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">종료&nbsp;<span class="star">*</span></td>
+										<td style="width: 99%; margin-left: 1px;" class="row">
+											<input type="date" id="c_endDay" name="endDay" class="form-control col-7" value="" />
+											<input type="time" id="c_endTime" name="endTime" class="form-control col-5" value="" />
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 100%; padding-left: 68%;" colspan="2">
+											<label class="mt-2" for="message"><input type="checkbox" name="allDay" value="true"/>하루종일</label>
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">장소&nbsp;</td>
+										<td style="width: 80%;">
+											<input type="text" id="c_location" name="location" class="form-control" value="" />
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">진행상황&nbsp;</td>
+										<td style="width: 99%; margin-left: 1px;" class="row">
+											<input type="hidden" id="changeSchOption" name="changeOption" class="form-control" value="" />
+											<input type="range" id="c_status" name="status" style="width: 85%;" min="0" max="100" step="5" value=""/>
+											<output name="x" for="c_status" style="font-weight: bold; margin-left: 28px;" class="w-15 pt-2"></output>
+										</td>
+									</tr>
+									<tr>
+										<td style="width: 20%;" id="title">내용&nbsp;</td>
+										<td style="width: 80%;"><textarea id="c_content" name="content" rows="4" cols="80"  class="form-control" value=""> </textarea></td>
+									</tr>
+									<tr>
+										<td rowspan="2" style="width: 20%;" id="title" >알림&nbsp;</td>
+										<td style="width: 80%; margin-left: 1px;" class="row">
+											<label class="mt-2 col-5" for="message"><input type="checkbox" id="c_message" name="noticeChk" value="message"/> 문자</label>
+											<select id="c_mnoticeTime" name="mnoticeTime" class="form-control col-7" style="visibility: hidden;">
+<!-- 												<option value="0" selected>== 시간선택 ==</option> -->
+												<option value="1" selected>30분 전</option>
+												<option value="2">1시간 전</option>
+												<option value="3">하루 전</option>
+											</select>
+										</td>
+									</tr>
+									<tr>					
+										<td style="width: 80%; margin-left: 1px;" class="row">
+											<label class="mt-2 col-5" for="email"><input type="checkbox" id="c_email" name="noticeChk" value="email" /> 이메일</label>
+											<input type="hidden" name="notice" id="c_notice" value=""/>
+											<select id="c_enoticeTime" name="enoticeTime" class="form-control col-7" style="visibility: hidden;">
+<!-- 												<option value="0" selected>== 시간선택 ==</option> -->
+												<option value="1" selected>30분 전</option>
+												<option value="2">1시간 전</option>
+												<option value="3">하루 전</option>
+											</select>
+										</td>
+									</tr>
+					
+								</tbody>
+							</table>
+						</form>
+					</div>
+				</div>
+
+				<%-- Modal footer --%>
+				<div class="modal-footer">
+					<button type="button" class="btn" style="background-color: #0070C1; color: #fff;"  onclick="changeSch(1)">수정</button>
+					<button type="button" class="btn" style="background-color: #c10000; color: #fff;"  onclick="changeSch(2)">삭제</button>
+					<button type="button" class="btn btn-outline-secondary myclose" data-dismiss="modal" >닫기</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<%-- 일정 수정 및 삭제 모달창 끝 --%>
 	
 	<%-- 개인캘린더 모달창 시작 --%>
 	<div class="modal fade" id="addPersonalModal">
@@ -842,4 +1185,5 @@
 	<%-- 공유캘린더 수정 및 삭제 모달창 끝 --%>
 	
 </div>
+
 

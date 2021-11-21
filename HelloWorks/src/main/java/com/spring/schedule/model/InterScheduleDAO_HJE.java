@@ -31,5 +31,16 @@ public interface InterScheduleDAO_HJE {
 	// 공유 캘린더 삭제하기
 	void deleteShare(Map<String, String> paraMap);
 
+	// 일정 검색 
+	List<Map<String, String>> searchSchedule(Map<String, String> paraMap);
+
+	// 자동완성
+	List<String> autoSearchWord(Map<String, String> paraMap);
+
+	// 일정 수정하기
+	void updateSchedule(Map<String, String> paraMap);
+
+	// 일정 삭제하기
+	void deleteSchedule(Map<String, String> paraMap);
 	
 }
