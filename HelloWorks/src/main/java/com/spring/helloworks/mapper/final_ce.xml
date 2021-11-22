@@ -6,5 +6,210 @@
 <!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!!) ==== -->
 <mapper namespace="leece">
 	
+	<!-- 당일기록조회해오기 -->
+	<select id="getRecordExist" parameterType="HashMap" resultType="int">
+		select count(*)
+		from
+		(
+		    select A.fk_empno, empid, nowdate, intime, outtime, totaltime, status_latein, status_earlyout
+		    from tbl_attendance A
+		    join tbl_employee E
+		    on A.fk_empno = E.empno
+		)T
+		where fk_empno = #{empno} and nowdate = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+	
+	<!-- 아이디로 사원번호 가져오기  -->
+	<select id="getEmpVO_KJH" parameterType="String" resultType="com.spring.helloworks.model.EmpVO_KJH">
+		select empno, empname, empid, emppw, email, ranking, fk_deptnum, empstatus, empsalary, to_char( hiredate,'yy/mm/dd') as hiredate, otpkey
+		from tbl_employee
+		where empno = #{fk_empno}
+	</select>
+	
+	<!-- 출퇴근 테이블에서 당일 레코드 가져오기  -->
+	<select id="getattendancevo" parameterType="String" resultType="com.spring.employees.model.AttendanceVO_ce">
+		select nowdate, fk_empno, intime, outtime, totaltime, status_latein, status_earlyout
+		from tbl_attendance
+		where fk_empno = #{fk_empno} and nowdate = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+	
+	<!-- 지각유무확인  -->
+	<select id="checklate" parameterType="HashMap" resultType="int">
+		select sign( to_date( #{onlytime}, 'hh24:mi:ss' ) - to_date( '09:00:00', 'hh24:mi:ss') ) as status_latein
+		from dual
+	</select>
+	
+	<!-- 출퇴근테이블에 insert -->
+	<insert id="intimeInsert" parameterType="HashMap">
+		insert into tbl_attendance(nowdate, fk_empno, intime, outtime, totaltime, status_latein, status_earlyout)
+		values( to_char(sysdate,'yyyy-mm-dd'), #{fk_empno}, #{onlytime}, null, null, #{status_latein} , default )
+	</insert>
+	
+	<!-- 출퇴근테이블에 update -->
+	<update id="outtimeUpdate" parameterType="HashMap">
+		update tbl_attendance set outtime = #{onlytime}, status_earlyout = #{status_earlyout}
+		, totaltime = round( ( to_date( #{onlytime}, 'hh24:mi:ss' ) - to_date( intime, 'hh24:mi:ss') ) * 24, 1)
+		where nowdate = to_char(sysdate,'yyyy-mm-dd') and fk_empno = #{fk_empno}
+	</update>
+	
+	<!-- 야근테이블에 insert -->
+	<insert id="nightshiftInsert" parameterType="HashMap">
+		insert into tbl_nightshift(nowdate, fk_empno, outtime, addtime)
+		values( to_char(sysdate,'yyyy-mm-dd'), #{fk_empno}, #{onlytime}, #{addTime} )
+	</insert>
+	
+	<!-- 해당년도의 출근한 횟수 구해오기 -->
+	<select id="getAttendanceCnt" parameterType="String" resultType="int" >
+		select count(*) from tbl_attendance
+		where to_char(sysdate,'yyyy') = substr(nowdate, 1,4) and fk_empno = #{fk_empno}
+	</select>
+	
+	<!-- 해당년도의 평일수 구해오기 -->
+	<select id="getWeekday" parameterType="HashMap" resultType="int">
+	
+	<if test='sameYear.equals("false")'>
+		SELECT COUNT(1) CNT
+	   	FROM (SELECT TO_CHAR(SDT + LEVEL - 1, 'YYYYMMDD') DT
+	              , TO_CHAR(SDT + LEVEL - 1, 'D') D
+	           FROM (SELECT TO_DATE(  '20'|| substr(sysdate, 1,2) || '0131', 'YYYYMMDD') SDT
+	                      , TO_DATE(  '20' || replace( sysdate ,'/',''), 'YYYYMMDD') EDT
+	                   FROM DUAL)
+	         CONNECT BY LEVEL <![CDATA[<=]]>  EDT - SDT + 1
+	         ) A
+		WHERE A.D NOT IN ('1', '7')
+	</if>
+	
+	<if test='sameYear.equals("true")'>
+		SELECT COUNT(1) CNT
+	   	FROM (SELECT TO_CHAR(SDT + LEVEL - 1, 'YYYYMMDD') DT
+	              , TO_CHAR(SDT + LEVEL - 1, 'D') D
+	           FROM (SELECT TO_DATE( '20' || replace(#{hiredate},'/','') , 'YYYYMMDD') SDT
+	                      , TO_DATE( '20' || replace(sysdate ,'/','') , 'YYYYMMDD') EDT
+	                   FROM DUAL)
+	         CONNECT BY LEVEL <![CDATA[<=]]>  EDT - SDT + 1
+	         ) A
+		WHERE A.D NOT IN ('1', '7')
+	</if>
+	
+	</select>
+	
+	<!-- 해당년도의 지각횟수 구해오기 -->
+	<select id="getLateStatus" parameterType="String" resultType="int">
+		select nvl( sum(status_latein), 0) as status_lateincnt from tbl_attendance
+		where to_char(sysdate,'yyyy') = substr(nowdate, 1,4) and fk_empno = #{fk_empno}
+	</select>
+	
+	<!-- 해당년도의 조기퇴근횟수 구해오기 -->
+	<select id="getEarlyStaus" parameterType="String" resultType="int" >
+	 	select nvl( sum(status_earlyout), 0) as status_earlyoutcnt from tbl_attendance
+		where to_char(sysdate,'yyyy') = substr(nowdate, 1,4) and fk_empno = #{fk_empno}
+	</select>
+	
+	<!-- 해당년도의 퇴근미체크 횟수 가져오기 -->
+	<select id="getouttimeNull" parameterType="String" resultType="int">
+		select count(*) from tbl_attendance
+		where to_char(sysdate,'yyyy') = substr(nowdate, 1,4) and fk_empno = #{fk_empno} and outtime is null
+	</select>
+	
+	<!-- 캘린더에 표시할 근태정보(한달치) 받아오기  -->
+	<select id="getAttendanceList" parameterType="String" resultType ="com.spring.employees.model.AttendanceVO_ce">
+		select nowdate, intime, outtime, totaltime
+		from tbl_attendance
+		where fk_empno = #{fk_empno} 
+	</select>
+	
+	
+	<!-- 부서정보 가져오기   -->
+	<select id="getDepartmentList" resultType ="com.spring.employees.model.DepartmentVO_ce">
+		select deptnum, deptname, nvl( fk_empno, '0') as fk_empno
+		from tbl_department
+	</select>
+	
+	
+	<!-- 캘린더에 표시할 부서별 근태정보 받아오기   -->
+	<select id="getDepattendanceList" parameterType="String" resultType ="com.spring.employees.model.AttendanceVO_ce">
+		select  empname, deptnum, fk_empno, nowdate, intime, outtime, totaltime, status_latein, status_earlyout
+		from
+		(
+		    select fk_empno, empname, fk_deptnum as deptnum , nowdate, intime, nvl( outtime , '퇴근미체크') as outtime , nvl( totaltime , 0 ) as totaltime, status_latein, status_earlyout
+		    from tbl_attendance A
+		    join tbl_employee E
+		    on e.empno = a.fk_empno
+		) T
+		where deptnum = #{deptnum}
+	</select>
+	
+	
+	<!-- 부서별 사원번호 가져오기   -->
+	<select id="getDepEmpList" parameterType="String" resultType="com.spring.helloworks.model.EmpVO_KJH">
+		select empno, empname, empid, ranking, fk_deptnum, empstatus, hiredate
+		from tbl_employee
+		where fk_deptnum = #{deptnum}
+	</select>
+	
+	
+	<!-- 부서별 사원근태정보 가져오기   -->
+	<select id="getDepEmpAttendReport" parameterType="HashMap" resultType="com.spring.employees.model.AttendanceVO_ce">
+		select nvl(sum(status_latein),0) as sumlate , nvl(sum(status_earlyout), 0) as sumearly , nvl(sum(totaltime),0) as sumtotal  ,count(empname) as sumworkday
+		from
+		(
+		    select fk_empno, empname, fk_deptnum as deptnum , nowdate, intime, nvl( outtime , '퇴근미체크') as outtime , nvl( totaltime , 0 ) as totaltime, status_latein, status_earlyout
+		    from tbl_attendance A
+		    join tbl_employee E
+		    on e.empno = a.fk_empno
+		) T
+		where #{searchDate} = substr(nowdate, 1,7) and fk_empno = #{fk_empno}
+	</select>
+	
+	
+	<!-- 해당월의 평일수 구해오기  -->
+	<select id="getWeekdaymonth" parameterType="HashMap" resultType="int">
+		<if test='same.equals("false")'>
+			SELECT COUNT(1) CNT
+			   FROM (SELECT TO_CHAR(SDT + LEVEL - 1, 'YYYYMMDD') DT
+			              , TO_CHAR(SDT + LEVEL - 1, 'D') D
+			           FROM (SELECT TO_DATE( #{searchDay}, 'YYYYMMDD') SDT
+			                      , TO_DATE(  to_char( last_day( to_date( #{searchDay}, 'YYYYMMDD') ),'yyyymmdd'), 'YYYYMMDD') EDT
+			                   FROM DUAL)
+			         CONNECT BY LEVEL <![CDATA[<=]]> EDT - SDT + 1
+			         ) A
+			WHERE A.D NOT IN ('1', '7')
+		</if>
+		
+		<if test='same.equals("true")'>
+			SELECT COUNT(1) CNT
+			   FROM (SELECT TO_CHAR(SDT + LEVEL - 1, 'YYYYMMDD') DT
+			              , TO_CHAR(SDT + LEVEL - 1, 'D') D
+			           FROM (SELECT TO_DATE( replace(#{hiredate},'/','') , 'YYYYMMDD') SDT
+			                      , TO_DATE( to_char( last_day( to_date( #{searchDay}, 'YYYYMMDD') ),'yyyymmdd'), 'YYYYMMDD') EDT
+			                   FROM DUAL)
+			         CONNECT BY LEVEL <![CDATA[<=]]> EDT - SDT + 1
+			         ) A
+			WHERE A.D NOT IN ('1', '7')
+		</if>
+	
+	</select>
+	
+	
+	<!-- 해당월의 퇴근미체크 구해오기  -->
+	<select id="getouttimeNull_month" parameterType="HashMap" resultType="int">
+		select count(*) 
+			from
+			(
+			    select fk_empno, empname, fk_deptnum as deptnum , nowdate, intime, outtime , nvl( totaltime , 0 ) as totaltime, status_latein, status_earlyout
+			    from tbl_attendance A
+			    join tbl_employee E
+			    on e.empno = a.fk_empno
+			) T
+			where  #{searchDate} = substr(nowdate, 1,7) and fk_empno=#{fk_empno} and outtime is null
+	</select>
+	
+	<!-- 출퇴근 테이블에서 엑셀용 근태현황 가져오기  -->
+	<select id="excelattendancevo" parameterType="String" resultType="com.spring.employees.model.AttendanceVO_ce">
+		select nowdate, fk_empno, intime, nvl(outtime,'퇴근미체크') as outtime , nvl(totaltime,0) as totaltime , status_latein, status_earlyout
+		from tbl_attendance
+		where fk_empno = #{fk_empno}
+		order by nowdate
+	</select>
 	
 </mapper>
