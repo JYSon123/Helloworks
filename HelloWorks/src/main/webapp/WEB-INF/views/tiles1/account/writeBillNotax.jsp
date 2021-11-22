@@ -210,10 +210,9 @@
 			
 			var total_price = n_price * amount;
 			
-			$(this).parent().next().find('input').val(Math.round(total_price / 1.1));
-			$(this).parent().next().next().find('input').val(total_price - Math.round(total_price / 1.1));
+			$(this).parent().next().find('input').val(total_price);
 							
-			getTotal(); // 총 공급가액과 총 세액 계산해서 넣어야 함
+			getTotal(); // 총 공급가액 계산해서 넣어야 함
 										
 		});
 		
@@ -229,10 +228,9 @@
 				
 				var total_price = Number($(this).val()) * Number($(this).parent().next().find('input').val());
 				
-				$(this).parent().next().next().find('input').val(Math.round(total_price / 1.1));
-				$(this).parent().next().next().next().find('input').val(total_price - Math.round(total_price / 1.1));
+				$(this).parent().next().next().find('input').val(total_price);
 				
-				getTotal(); // 총 공급가액과 총 세액 계산해서 넣어야 함
+				getTotal(); // 총 공급가액 계산해서 넣어야 함
 				
 			}
 						
@@ -247,54 +245,26 @@
 			
 			if(oneprice != "") {
 				
-				oneprice = Number(oneprice);
 				var amount = Number($(this).parent().parent().find('.sellamount').val());
 				
-				var total = amount * oneprice;
-				
-				$(this).parent().next().find('input').val(total - Number($(this).val()));
+				$(this).parent().parent().find('.selloneprice').val(Number($(this).val())/amount);
 				
 			}
 			
 			getTotal();
 						
 		});
-		
-		/////////////////////////////////////////////////////////////////////////////
-		
-		// 세액 변경
-		$("input.selltax").blur(function() {
 			
-			var oneprice = $(this).parent().parent().find('.selloneprice').val();
-			
-			if(oneprice != "") {
-				
-				oneprice = Number(oneprice);
-				
-				var amount = Number($(this).parent().parent().find('.sellamount').val());
-				
-				var total = amount * oneprice;
-				
-				$(this).parent().prev().find('input').val(total - Number($(this).val()));
-				
-			}
-			
-			getTotal();
-			
-		});
-	
 	})//--------------------------------------------------------------------------------------------
 	
 	// Function Declaration
 	
-	// 총 공급가액과 총 세액, 합계금액 계산
+	// 총 공급가액과 합계금액 계산
 	function getTotal() {
 		
 		var total = 0;
-		var total_tax = 0;
 		
 		var arr_selltotalprice = $("input.selltotalprice");
-		var arr_selltax = $("input.selltax");
 		
 		arr_selltotalprice.each(function(index, item) {
 									
@@ -304,20 +274,10 @@
 				total += sellprice
 			
 		});
-		
-		arr_selltax.each(function(index, item) {
-			
-			var taxprice = Number($(item).val());
-															
-			if(taxprice != "")
-				total_tax += taxprice;
-			
-		});
-		
+				
 		$("input[name=totalprice]").val(total);
-		$("input[name=taxprice]").val(total_tax);
 		
-		$("input#total").val(total + total_tax);
+		$("input#total").val(total);
 		
 	}
 	
@@ -328,9 +288,8 @@
 		
 		var frm = document.billFrm;
 		
-		// 총 공급가액과 총 세액이 모두 없으면 아무것도 입력하지 않은 것!
-		if((frm.totalprice.value.trim() == "" || frm.totalprice.value == "0") 
-				&& (frm.taxprice.value.trim() == "" || frm.totalprice.value == "0")) {
+		// 총 공급가액이 모두 없으면 아무것도 입력하지 않은 것!
+		if(frm.totalprice.value.trim() == "" || frm.totalprice.value == "0") {
 			alert("내용을 입력하세요.");
 			return;
 		}
@@ -338,8 +297,7 @@
 		// 공급가액과 세액이 모두 0일 경우 해당 행의 내용물 비워주기
 		$("input.selltotalprice").each(function(index, item) {
 			
-			if(($(this).val() == "0" || $(this).val() == "") 
-					&& ($(this).parent().next().find('input').val() == "0" || $(this).parent().next().find('input').val() == "")) {					
+			if($(this).val() == "0" || $(this).val() == "") {					
 				$(this).parent().parent().find('input').val("");				
 			}	
 			
@@ -368,7 +326,7 @@
 		
 		$("input.selltotalprice").each(function(index, item) {
 			
-			if($(this).val() != "" || $(this).parent().next().find('input').val() != "") {				
+			if($(this).val() != "") {				
 				var date = $(this).parent().parent().find(".selldate").val().trim();
 				
 				if(date == "") {
@@ -394,7 +352,7 @@
 		
 		$("input.selltotalprice").each(function(index, item) {
 			
-			if($(this).val() != "" || $(this).parent().next().find('input').val() != "") {				
+			if($(this).val() != "") {				
 				var sellprod = $(this).parent().parent().find(".sellprod").val().trim();
 				
 				if(sellprod == "") {
@@ -420,7 +378,7 @@
 		
 		$("input.selltotalprice").each(function(index, item) {
 			
-			if($(this).val() != "" || $(this).parent().next().find('input').val() != "") {				
+			if($(this).val() != "") {				
 				var sellamount = $(this).parent().parent().find(".sellamount").val().trim();
 				
 				if(sellamount == "")
@@ -438,7 +396,7 @@
 
 		$("input.selltotalprice").each(function(index, item) {
 			
-			if($(this).val() != "" || $(this).parent().next().find('input').val() != "") {				
+			if($(this).val() != "") {				
 				var selloneprice = $(this).parent().parent().find(".selloneprice").val().trim();
 				
 				if(selloneprice == "") {
@@ -465,7 +423,7 @@
 
 		$("input.selltotalprice").each(function(index, item) {
 			
-			if($(this).val() != "" || $(this).parent().next().find('input').val() != "") {				
+			if($(this).val() != "") {				
 				
 				var selltotalprice = $(this).parent().parent().find(".selltotalprice").val().trim();
 				
@@ -478,27 +436,8 @@
 		});
 		
 		frm.selltotalprice.value = arrSelltotalprice.join(",");
-		
-		// 9. 세액
-		var arrSelltax = [];
-
-		$("input.selltotalprice").each(function(index, item) {
-			
-			if($(this).val() != "" || $(this).parent().next().find('input').val() != "") {				
 				
-				var selltax = $(this).parent().parent().find(".selltax").val().trim();
-				
-				if(selltax == "")
-					selltax = "0";	
-				
-				arrSelltax.push(selltax);
-			}
-						
-		});
-		
-		frm.selltax.value = arrSelltax.join(",");
-		
-		frm.action = "<%=request.getContextPath()%>/account/insertBillTax.hello2";
+		frm.action = "<%=request.getContextPath()%>/account/insertBillNoTax.hello2";
 		frm.method = "POST";		
 		frm.submit();
 		
@@ -517,7 +456,7 @@
     
     <div class="container" style="margin-top: 70px;">
     	    		
-   		<h4>세금계산서 작성</h4>
+   		<h4>계산서 작성</h4>
    		
    		<hr>
    		
@@ -526,7 +465,7 @@
 			<table class="mytbl">
 				
 				<tr>
-					<td rowspan="2" colspan="9" style="width: 53.1%;"><h2>전자세금계산서</h2><span>(공급자보관용)</span></td>
+					<td rowspan="2" colspan="9" style="width: 53.1%;"><h2>전자계산서</h2><span>(공급자보관용)</span></td>
 					<td colspan="1" style="width: 20%;">책번호</td>
 					<td colspan="1" style="width: 20%; text-align: right;">권</td>
 					<td colspan="2" style="text-align: right;">호</td>					
@@ -593,14 +532,12 @@
 				<tr>
 					<td style="width: 15.35%;">작성일</td>
 					<td style="width: 34.65%;">공급가액</td>
-					<td style="width: 34.65%;">세액</td>
 					<td>비고</td>
 				</tr>
 				
 				<tr>
 					<td style="width: 15.35%;"><input type="text" class="datepicker" name="regdate" class="form-control" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 34.65%;"><input type="text" name="totalprice" class="form-control" readonly/></td>
-					<td style="width: 34.65%;"><input type="text" name="taxprice" class="form-control" readonly/></td>
 					<td></td>
 				</tr>
 				
@@ -615,7 +552,6 @@
 					<td style="width: 8%;">수량</td>
 					<td style="width: 10%;">단가</td>
 					<td style="width: 20%;">공급가액</td>
-					<td style="width: 14.65%;">세액</td>
 					<td>비고</td>
 				</tr>
 				
@@ -626,7 +562,6 @@
 					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -637,7 +572,6 @@
 					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -648,7 +582,6 @@
 					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -659,7 +592,6 @@
 					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -670,7 +602,16 @@
 					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td></td>
+				</tr>
+				
+				<tr>
+					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
+					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
+					<td style="width: 5%;"></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -681,7 +622,6 @@
 					<td style="width: 8%;"><input type="text" name="sellamount"/></td>
 					<td style="width: 10%;"><input type="text" name="selloneprice"/></td>
 					<td style="width: 20%;"><input type="text" name="selltotalprice"/></td>
-					<td style="width: 14.65%;"><input type="text" name="selltax"/></td>
 					<td></td>
 				</tr>
 				

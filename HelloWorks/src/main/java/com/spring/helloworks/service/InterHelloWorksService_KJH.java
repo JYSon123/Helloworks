@@ -47,6 +47,36 @@ public interface InterHelloWorksService_KJH {
 	// 거래처 DELETE
 	int deleteCustomer(String customer_id);
 
+	// 사업자등록번호 존재 여부 조회
+	int verifyId(String compid);
+
+	// 거래처 목록 SELECT
+	List<CustomerVO_KJH> getCustomerListNoPaging();
+
+	// 세금계산서 시퀀스 채번
+	String getBillTaxSeq();
+
+	// 세금계산서 INSERT
+	int insertBillTax(Map<String, Object> paraMap);
+
+	// 계산서 시퀀스 채번
+	String getBillNoTaxSeq();
+
+	// 계산서 INSERT
+	int insertBillNoTax(Map<String, Object> paraMap);
+
+	// 거래명세서 시퀀스 채번
+	String getTransactionSeq();
+
+	// 거래명세서 INSERT
+	int insertTransaction(Map<String, Object> paraMap);
+
+	// 총 작성문서 수 알아오기
+	int getTotalDocument(Map<String, String> paraMap);
+
+	// 작성문서 SELECT
+	List<Map<String, String>> getDocumentList(Map<String, String> paraMap);
+
 	
 	
 }

@@ -179,6 +179,162 @@ public class HelloWorksDAO_KJH implements InterHelloWorksDAO_KJH {
 		return n;
 		
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 사업자등록번호 존재 여부 조회
+	@Override
+	public int verifyId(String compid) {
+		
+		int isExist = sqlsession2.selectOne("jihee.verifyId", compid);
+		
+		return isExist;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 목록 SELECT
+	@Override
+	public List<CustomerVO_KJH> getCustomerListNoPaging() {
+
+		List<CustomerVO_KJH> cvoList = sqlsession2.selectList("jihee.getCustomerListNoPaging");
+				
+		return cvoList;
+		
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 세금계산서 시퀀스 채번
+	@Override
+	public String getBillTaxSeq() {
+
+		String billtax_seq = sqlsession2.selectOne("jihee.getBillTaxSeq");
+		
+		return billtax_seq;
+		
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 세금계산서 INSERT
+	@Override
+	public int insertBillTax(BilltaxVO_KJH btvo) {
+		
+		int n = sqlsession2.insert("jihee.insertBillTax", btvo);
+		
+		return n;
+		
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 세금계산서상세 INSERT
+	@Override
+	public int insertBillTaxDetail(BilltaxDetailVO_KJH dvo) {
+
+		int n = sqlsession2.insert("jihee.insertBillTaxDetail", dvo);
+		
+		return n;
+		
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 계산서 시퀀스 채번
+	@Override
+	public String getBillNoTaxSeq() {
+
+		String billnotax_seq = sqlsession2.selectOne("jihee.getBillNoTaxSeq");
+		
+		return billnotax_seq;
+				
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 계산서 INSERT
+	@Override
+	public int insertBillNoTax(BillnotaxVO_KJH bntvo) {
+
+		int n = sqlsession2.insert("jihee.insertBillNoTax", bntvo);
+		
+		return n;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 계산서상세 INSERT
+	@Override
+	public int insertBillNoTaxDetail(BillnotaxDetailVO_KJH ndvo) {
+
+		int n = sqlsession2.insert("jihee.insertBillNoTaxDetail", ndvo);
+		
+		return n;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래명세서 시퀀스 채번
+	@Override
+	public String getTransactionSeq() {
+
+		String transaction_seq = sqlsession2.selectOne("jihee.getTransactionSeq");
+		
+		return transaction_seq;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래명세서 INSERT
+	@Override
+	public int insertTransaction(TransactionVO_KJH tvo) {
+
+		int n = sqlsession2.insert("jihee.insertTransaction", tvo);
+		
+		return n;
+		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래명세서상세 INSERT
+	@Override
+	public int insertTransactionDetail(TransactionDetailVO_KJH tdvo) {
+
+		int n = sqlsession2.insert("jihee.insertTransactionDetail", tdvo);
+		
+		return n;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 총 작성문서 수 알아오기
+	@Override
+	public int getTotalDocument(Map<String, String> paraMap) {
+		
+		int n = sqlsession2.selectOne("jihee.getTotalDocument", paraMap);
+		
+		return n;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 작성문서 SELECT
+	@Override
+	public List<Map<String, String>> getDocumentList(Map<String, String> paraMap) {
+		
+		List<Map<String, String>> docList = sqlsession2.selectList("jihee.getDocumentList", paraMap);
+		
+		return docList;
+		
+	}
 	
 	
 	

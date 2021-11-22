@@ -7,17 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.spring.helloworks.common_KJH.*;
-import com.spring.helloworks.model.CustomerVO_KJH;
-import com.spring.helloworks.model.EmpVO_KJH;
-import com.spring.helloworks.model.MycompanyVO_KJH;
+import com.spring.helloworks.model.*;
 import com.spring.helloworks.service.InterHelloWorksService_KJH;
 
 @Component
@@ -686,15 +687,15 @@ public class HelloWorksController_KJH {
 			String searchType = request.getParameter("searchType");
 			String searchWord = request.getParameter("searchWord");
 			String str_currentShowPageNo = request.getParameter("currentShowPageNo");
-			
-			if(searchType == null || (!"subject".equals(searchType) && !"name".equals(searchType))) {			
+						
+			if(searchType == null || (!"customer_id".equals(searchType) && !"customer_comp".equals(searchType) && !"customer_name".equals(searchType))) {			
 				searchType = "";			
 			}
 			
 			if(searchWord == null || "".equals(searchWord) || searchWord.trim().isEmpty()) {			
 				searchWord = "";			
 			}
-					
+			
 			Map<String, String> paraMap = new HashMap<> ();
 
 			paraMap.put("searchType", searchType);
@@ -749,21 +750,30 @@ public class HelloWorksController_KJH {
 			
 			int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
 			
-			String pageBar = "<ul style='list-style: none;' class='px-0'>";
+			String pageBar = "";
 			
-			String url = "/account/manageCustomer.hello2";
+			String url = request.getContextPath() + "/account/manageCustomer.hello2";
 			
 			if(pageNo != 1) {
-				pageBar += "<li style='display: inline-block; width: 70px; font-size: 12pt;'><a href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=1'>[맨처음]</a></li>";			
-				pageBar += "<li style='display: inline-block; width: 50px; font-size: 12pt;'><a href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + (pageNo - 1) + "'>[이전]</a></li>";
+				pageBar += "<li class='page-item'>"
+			 			+ "<a class='page-link' href='" + url + "?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=1'>[맨처음]</a>"
+			 			+ "</li>";
+		
+				pageBar += "<li class='page-item'>"
+			 			+ "<a class='page-link' href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + (pageNo - 1) + "'>[이전]</a>"
+			 			+ "</li>";				
 			}
 							
 			while(!(loop > blockSize || pageNo > totalPage)) {
 				
 				if(pageNo == currentShowPageNo) 
-					pageBar += "<li style='display: inline-block; width: 30px; font-size: 12pt; border: solid 1px blue; color: navy; padding: 2px 4px;'>" + pageNo + "</li>";
+					pageBar += "<li class='page-item active'>"
+					     	+ "<a class='page-link' href='#'>" + pageNo + "</a>"
+					     	+ "</li>";
 				else
-					pageBar += "<li style='display: inline-block; width: 30px; font-size: 12pt;'><a href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + pageNo + "'>" + pageNo + "</a></li>";
+					pageBar += "<li class='page-item'>"
+			 				+ "<a class='page-link' href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + pageNo + "'>" + pageNo + "</a>"
+			 				+ "</li>";
 				
 				loop++;
 				pageNo++;
@@ -772,13 +782,16 @@ public class HelloWorksController_KJH {
 			
 			// +++ [다음][마지막] 만들기 +++
 			
-			if(pageNo <= totalPage) {			
-				pageBar += "<li style='display: inline-block; width: 50px; font-size: 12pt;'><a href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + (pageNo) + "'>[다음]</a></li>";
-				pageBar += "<li style='display: inline-block; width: 70px; font-size: 12pt;'><a href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + totalPage + "'>[마지막]</a></li>";			
+			if(pageNo <= totalPage) {
+				pageBar += "<li class='page-item'>"
+				 		+ "<a class='page-link' href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + (pageNo) + "'>[다음]</a>"
+				 		+ "</li>";
+			
+				pageBar += "<li class='page-item'>"
+			 			+ "<a class='page-link' href='" + url +"?searchType=" + searchType + "&searchWord=" + searchWord + "&currentShowPageNo=" + totalPage + "'>[마지막]</a>"
+			 			+ "</li>";			
 			}
-			
-			pageBar += "</ul>";
-			
+						
 			mav.addObject("pageBar", pageBar);
 			
 			mav.addObject("cvoList", cvoList);
@@ -824,6 +837,40 @@ public class HelloWorksController_KJH {
 		
 		return mav;
 		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@ResponseBody
+	@RequestMapping(value="/account/verifyId.hello2", method= {RequestMethod.POST}, produces="text/plain;charset=UTF-8")
+	public String requiredLogin_verifyId(HttpServletRequest request, HttpServletResponse response) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			String compid = request.getParameter("compid");
+						
+			int isExist = service.verifyId(compid);
+			
+			JSONObject jsonObj = new JSONObject();
+			
+			jsonObj.put("isExist", isExist);
+			
+			return jsonObj.toString();
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "msg_KJH";			
+		}
+				
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -1054,15 +1101,15 @@ public class HelloWorksController_KJH {
         	
         	StringBuilder sb = new StringBuilder();
         	        	
-        	sb.append("<div style='width: 80%; padding: 0px auto; border: solid 2px #003399; border-radius: 20px; word-break: break-all;'>");
+        	sb.append("<div style='width: 70%; padding: 0px auto; border: solid 4px #003399; border-radius: 20px; word-break: break-all;'>");
         	
-        	sb.append("<img src='http://127.0.0.1:9090/helloworks/resources/images/maillogo.png' style='border-radius: 20px 20px 0 0; width: 100%;'>");
+        	sb.append("<div style='text-align: center; background-color: white; border-radius: 20px 20px 0 0; width: 100%; padding: 40px auto;'><br><br><img src='http://127.0.0.1:9090/helloworks/resources/images/maillogo.png' style='margin 10px auto; width: 60%;'><br><br><br></div>");
         	
         	sb.append("<div style='width: 100%; background-color: #e6eeff; border-radius: 0 0 20px 20px; padding: 20px 0;'>");
         	
         	sb.append("<p style='width: 100%; text-align: center;'>" + content + "</p>");
         	        	
-        	sb.append("<br><br><p style='width: 100%; text-align: center; color: #002b80; font-size: 15pt;'><strong>helloworks</strong>와 함께해주셔서 감사합니다.</p>");
+        	sb.append("<br><br><br><br><p style='width: 100%; text-align: center; color: #002b80; font-size: 15pt;'><strong>helloworks</strong>와 함께해주셔서 감사합니다.</p>");
         	
         	sb.append("</div>");
         	
@@ -1134,12 +1181,531 @@ public class HelloWorksController_KJH {
 		return mav;
 		
 	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	
+	@ResponseBody
+	@RequestMapping(value="/account/searchCustomer.hello2", produces="text/plain;charset=UTF-8")
+	public String requiredLogin_searchCustomer(HttpServletRequest request, HttpServletResponse response) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			List<CustomerVO_KJH> cvoList = service.getCustomerListNoPaging();
+			
+			JSONObject jsonObj = new JSONObject();
+			
+			jsonObj.put("cvoList", cvoList);
+			
+			return jsonObj.toString();
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "msg_KJH";			
+		}
+				
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	
+	@RequestMapping(value="/account/insertBillTax.hello2", method= {RequestMethod.POST})
+	public ModelAndView requiredLogin_insertBillTax_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav, BilltaxVO_KJH btvo) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{						
+			
+			// 세금계산서 시퀀스 채번
+			String billtax_seq = service.getBillTaxSeq();
+			
+			btvo.setBilltax_seq(billtax_seq);
+			
+			HttpSession session = request.getSession();
+			
+			MycompanyVO_KJH comp = (MycompanyVO_KJH)session.getAttribute("comp");
+			
+			EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+			
+			btvo.setMycompany_id(comp.getMycompany_id());
+			btvo.setMycompany_comp(comp.getMycompany_comp());
+			btvo.setMycompany_name(comp.getMycompany_name());
+			btvo.setMycompany_addr(comp.getMycompany_addr());
+			
+			btvo.setEmpid(loginEmp.getEmpid());
+			btvo.setEmpname(loginEmp.getEmpname());
+			
+			// 세금계산서 상세 객체 생성
+			BilltaxDetailVO_KJH dvo = new BilltaxDetailVO_KJH();
+			
+			dvo.setFk_billtax_seq(billtax_seq);
+			dvo.setSelldate(request.getParameter("selldate"));
+			dvo.setSellprod(request.getParameter("sellprod"));
+			dvo.setSellamount(request.getParameter("sellamount"));
+			dvo.setSelloneprice(request.getParameter("selloneprice"));
+			dvo.setSelltotalprice(request.getParameter("selltotalprice"));
+			dvo.setSelltax(request.getParameter("selltax"));
+			
+			Map<String, Object> paraMap = new HashMap<> ();
+			
+			paraMap.put("btvo", btvo);
+			paraMap.put("dvo", dvo);
+			
+			int result = service.insertBillTax(paraMap);
+			
+			if(result != 0) {
+				String message = "전자세금계산서 작성이 완료되었습니다.";
+				String loc = request.getContextPath() + "/account/writeBillTax.hello2"; // ★ 수정해야함! 작성완료문서 페이지로 이동되게끔!
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");	
+			}
+			
+			else {
+				String message = "전자세금계산서 작성에 실패하였습니다.";
+				String loc = request.getContextPath() + "/account/writeBillTax.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");	
+			}
+			
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}	
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	
+	@RequestMapping(value="/account/writeBillNotax.hello2")
+	public ModelAndView requiredLogin_writeBillNotax_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{						
+			mav.setViewName("account/writeBillNotax.tiles1");				
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	
+	@RequestMapping(value="/account/insertBillNoTax.hello2", method= {RequestMethod.POST})
+	public ModelAndView requiredLogin_insertBillNoTax_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav, BillnotaxVO_KJH bntvo) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{						
+			
+			// 계산서 시퀀스 채번
+			String billnotax_seq = service.getBillNoTaxSeq();
+			
+			bntvo.setBillnotax_seq(billnotax_seq);
+			
+			HttpSession session = request.getSession();
+			
+			MycompanyVO_KJH comp = (MycompanyVO_KJH)session.getAttribute("comp");
+			
+			EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+			
+			bntvo.setMycompany_id(comp.getMycompany_id());
+			bntvo.setMycompany_comp(comp.getMycompany_comp());
+			bntvo.setMycompany_name(comp.getMycompany_name());
+			bntvo.setMycompany_addr(comp.getMycompany_addr());
+			
+			bntvo.setEmpid(loginEmp.getEmpid());
+			bntvo.setEmpname(loginEmp.getEmpname());
+			
+			// 계산서 상세 객체 생성
+			BillnotaxDetailVO_KJH ndvo = new BillnotaxDetailVO_KJH();
+			
+			ndvo.setFk_billnotax_seq(billnotax_seq);
+			ndvo.setSelldate(request.getParameter("selldate"));
+			ndvo.setSellprod(request.getParameter("sellprod"));
+			ndvo.setSellamount(request.getParameter("sellamount"));
+			ndvo.setSelloneprice(request.getParameter("selloneprice"));
+			ndvo.setSelltotalprice(request.getParameter("selltotalprice"));
+			
+			Map<String, Object> paraMap = new HashMap<> ();
+			
+			paraMap.put("bntvo", bntvo);
+			paraMap.put("ndvo", ndvo);
+			
+			int result = service.insertBillNoTax(paraMap);
+			
+			if(result != 0) {
+				String message = "전자계산서 작성이 완료되었습니다.";
+				String loc = request.getContextPath() + "/account/writeBillNotax.hello2"; // ★ 수정해야함! 작성완료문서 페이지로 이동되게끔!
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");	
+			}
+			
+			else {
+				String message = "전자계산서 작성에 실패하였습니다.";
+				String loc = request.getContextPath() + "/account/writeBillNotax.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");	
+			}
+			
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}	
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	
+	@RequestMapping(value="/account/writeTransaction.hello2")
+	public ModelAndView requiredLogin_writeTransaction_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{						
+			mav.setViewName("account/writeTransaction.tiles1");				
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	
+	@RequestMapping(value="/account/insertTransaction.hello2", method= {RequestMethod.POST})
+	public ModelAndView requiredLogin_insertTransaction_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav, TransactionVO_KJH tvo) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{						
+			
+			// 거래명세서 시퀀스 채번
+			String transaction_seq = service.getTransactionSeq();
+			
+			tvo.setTransaction_seq(transaction_seq);
+			System.out.println(tvo.getTransaction_seq());
+			HttpSession session = request.getSession();
+			
+			MycompanyVO_KJH comp = (MycompanyVO_KJH)session.getAttribute("comp");
+			
+			EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+			
+			tvo.setMycompany_id(comp.getMycompany_id());
+			tvo.setMycompany_comp(comp.getMycompany_comp());
+			tvo.setMycompany_name(comp.getMycompany_name());
+			tvo.setMycompany_addr(comp.getMycompany_addr());
+			
+			tvo.setEmpid(loginEmp.getEmpid());
+			tvo.setEmpname(loginEmp.getEmpname());
+			
+			// 거레명세서 상세 객체 생성
+			TransactionDetailVO_KJH tdvo = new TransactionDetailVO_KJH();
+			
+			tdvo.setFk_transaction_seq(transaction_seq);
+			tdvo.setSelldate(request.getParameter("selldate"));
+			tdvo.setSellprod(request.getParameter("sellprod"));
+			tdvo.setSellamount(request.getParameter("sellamount"));
+			tdvo.setSelloneprice(request.getParameter("selloneprice"));
+			tdvo.setSelltotalprice(request.getParameter("selltotalprice"));
+			System.out.println(tdvo.getFk_transaction_seq());
+			Map<String, Object> paraMap = new HashMap<> ();
+			
+			paraMap.put("tvo", tvo);
+			paraMap.put("tdvo", tdvo);
+			
+			int result = service.insertTransaction(paraMap);
+			
+			if(result != 0) {
+				String message = "거래명세서 작성이 완료되었습니다.";
+				String loc = request.getContextPath() + "/account/writeTransaction.hello2"; // ★ 수정해야함! 작성완료문서 페이지로 이동되게끔!
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");	
+			}
+			
+			else {
+				String message = "거래명세서 작성에 실패하였습니다.";
+				String loc = request.getContextPath() + "/account/writeTransaction.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");	
+			}
+			
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}	
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/account/listBill.hello2")
+	public ModelAndView requiredLogin_listBill(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{
+			
+			Map<String, String> paraMap = new HashMap<> ();
+			
+			// 탭기능(default 세금계산서로 설정, 파라미터로 사용하자!)
+			String tabName = request.getParameter("tabName");
+			
+			if(!"tbl_billtax".equalsIgnoreCase(tabName) 
+					&& !"tbl_billnotax".equalsIgnoreCase(tabName) 
+					&& !"tbl_transaction".equalsIgnoreCase(tabName)) {
+				
+				tabName = "tbl_billtax";
+				
+			}
+			
+			paraMap.put("tabName", tabName);
+									
+			// 기간검색기능
+			String startDate = request.getParameter("startDate"); // 2021-11-20
+			String lastDate = request.getParameter("lastDate");
+			
+			if(startDate != null && lastDate != null && !"".equals(startDate) && !"".equals(lastDate)) {
+				
+				String[] startDateArr = startDate.split("-");
+				
+				startDate = "";
+				
+				for(String piece : startDateArr) {
+					startDate += piece; // 20211120
+				}
+				
+				String[] lastDateArr = lastDate.split("-");
+				
+				lastDate = "";
+				
+				for(String piece : lastDateArr) {
+					lastDate += piece;
+				}
+				
+				try {
+					Integer.parseInt(startDate);
+					Integer.parseInt(lastDate);
+					
+					if(startDate.length() == 8 && lastDate.length() == 8) {
+						paraMap.put("startDate", startDate);
+						paraMap.put("lastDate", lastDate);
+					}					
+										
+				} catch (NumberFormatException e) {
+					
+				}
+				
+			}
+			
+			// 검색기능
+			String searchType = request.getParameter("searchType");
+			String searchWord = request.getParameter("searchWord");
+			String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+						
+			if(searchType == null || (!"customer_id".equals(searchType) && !"customer_comp".equals(searchType) && !"customer_name".equals(searchType))) {			
+				searchType = "";
+			}
+			
+			if(searchWord == null || "".equals(searchWord) || searchWord.trim().isEmpty()) {			
+				searchWord = "";			
+			}
+			System.out.println(searchType + "," + searchWord);
+			paraMap.put("searchType", searchType);
+			paraMap.put("searchWord", searchWord);
+			
+			// 페이징처리
+			int totalCount = 0; 		// 총 작성문서 수	
+			int sizePerPage = 10; 		// 한 페이지당 보여줄 작성문서 건수
+			int currentShowPageNo = 0; 	// 현재 보여주는 페이지 번호로, 초기치는 1페이지로 설정함	
+			int totalPage = 0; 			// 총 페이지 수(웹브러우저상에서 보여줄 총 페이지 갯수, 페이지바)(totalCount/sizePerPage 올림)
+			
+			int startRno = 0; 			// 시작 행번호
+			int endRno = 0; 			// 끝  행번호
+			
+			totalCount = service.getTotalDocument(paraMap);
+			
+			totalPage = (int)Math.ceil((double)totalCount/sizePerPage);
+			
+			if(str_currentShowPageNo == null) // 작성완료문서 초기화면
+				currentShowPageNo = 1;
+			
+			
+			else {
+				
+				try {
+					currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
+					
+					if(currentShowPageNo < 1 || currentShowPageNo > totalPage) {
+						currentShowPageNo = 1; // 숫자는 숫자인데 1보다 작은 숫자를 입력했거나 totalPage보다 클 경우
+					}
+					
+				} catch (NumberFormatException e) {
+					currentShowPageNo = 1; // str_currentShowPageNo가 ""거나 문자로 장난쳤을 경우 1페이지로!
+				}
+				
+			}
+			
+			startRno = ((currentShowPageNo - 1) * sizePerPage) + 1;
+			endRno = startRno + sizePerPage - 1;
+			
+			paraMap.put("startRno", String.valueOf(startRno));
+			paraMap.put("endRno", String.valueOf(endRno));
+			
+			// 시퀀스명
+			if("tbl_billtax".equalsIgnoreCase(tabName))
+				paraMap.put("seq", "billtax_seq");
+			
+			else if("tbl_billnotax".equalsIgnoreCase(tabName))
+				paraMap.put("seq", "billnotax_seq");
+			
+			else
+				paraMap.put("seq", "transaction_seq");
+			
+			List<Map<String, String>> docList = service.getDocumentList(paraMap);
+			
+			int blockSize = 10;
+			
+			int loop = 1;
+			
+			int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
+			
+			String pageBar = "";
+			
+			String url = request.getContextPath() + "/account/listBill.hello2?tabName=" + tabName + "&startDate=" + startDate + "&lastDate=" + lastDate + "&searchType=" + searchType + "&searchWord=" + searchWord;
+			
+			if(pageNo != 1) {
+				pageBar += "<li class='page-item'>"
+			 			+ "<a class='page-link' href='" + url + "&currentShowPageNo=1'>[맨처음]</a>"
+			 			+ "</li>";
+		
+				pageBar += "<li class='page-item'>"
+			 			+ "<a class='page-link' href='" + url + "&currentShowPageNo=" + (pageNo - 1) + "'>[이전]</a>"
+			 			+ "</li>";				
+			}
+							
+			while(!(loop > blockSize || pageNo > totalPage)) {
+				
+				if(pageNo == currentShowPageNo) 
+					pageBar += "<li class='page-item active'>"
+					     	+ "<a class='page-link' href='#'>" + pageNo + "</a>"
+					     	+ "</li>";
+				else
+					pageBar += "<li class='page-item'>"
+			 				+ "<a class='page-link' href='" + url + "&currentShowPageNo=" + pageNo + "'>" + pageNo + "</a>"
+			 				+ "</li>";
+				
+				loop++;
+				pageNo++;
+				
+			}// end of while-------------------------
+			
+			// +++ [다음][마지막] 만들기 +++
+			
+			if(pageNo <= totalPage) {
+				pageBar += "<li class='page-item'>"
+				 		+ "<a class='page-link' href='" + url + "&currentShowPageNo=" + (pageNo) + "'>[다음]</a>"
+				 		+ "</li>";
+			
+				pageBar += "<li class='page-item'>"
+			 			+ "<a class='page-link' href='" + url + "&currentShowPageNo=" + totalPage + "'>[마지막]</a>"
+			 			+ "</li>";			
+			}			
+
+			mav.addObject("paraMap", paraMap);
+			
+			mav.addObject("pageBar", pageBar);
+			
+			mav.addObject("docList", docList);
+			
+			mav.setViewName("account/listBill.tiles1");	
+			
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
 	
 	
 	

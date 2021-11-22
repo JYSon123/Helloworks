@@ -146,4 +146,119 @@
 		
 	</delete>
 	
+	<!-- 특정 거래처 존재하는지 확인 -->
+	<select id="verifyId" parameterType="String" resultType="int">
+		
+		select count(customer_id)
+		from tbl_customer
+		where customer_id = #{compid}
+		
+	</select>
+	
+	<!-- 거래처 목록 SELECT -->
+	<select id="getCustomerListNoPaging" resultType="com.spring.helloworks.model.CustomerVO_KJH">
+		select customer_id, nvl(customer_comp, ' ') AS customer_comp, nvl(customer_name, ' ') AS customer_name, nvl(customer_addr, ' ') AS customer_addr
+		from tbl_customer
+		order by customer_id
+	</select>
+	
+	<!-- 세금계산서 시퀀스 채번 -->
+	<select id="getBillTaxSeq" resultType="String">
+		select billtax_seq.nextval
+		from dual
+	</select>
+	
+	<!-- 세금계산서 INSERT -->
+	<insert id="insertBillTax" parameterType="com.spring.helloworks.model.BilltaxVO_KJH">
+		insert into tbl_billtax(billtax_seq, customer_id, customer_comp, customer_name, customer_addr, regdate, totalprice, taxprice, payment, empid, empname, mycompany_id, mycompany_comp, mycompany_name, mycompany_addr)
+		values(#{billtax_seq}, #{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{regdate}, #{totalprice}, #{taxprice}, #{payment}, #{empid}, #{empname}, #{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr})
+	</insert>
+	
+	<!-- 세금계산서상세 INSERT -->
+	<insert id="insertBillTaxDetail" parameterType="com.spring.helloworks.model.BilltaxDetailVO_KJH">
+		insert into tbl_billtax_detail(billtax_detail_seq, fk_billtax_seq, selldate, sellprod, sellamount, selloneprice, selltotalprice, selltax)
+		values(billtax_detail_seq.nextval, #{fk_billtax_seq}, #{selldate}, #{sellprod}, #{sellamount}, #{selloneprice}, #{selltotalprice}, #{selltax})
+	</insert>
+	
+	<!-- 계산서 시퀀스 채번 -->
+	<select id="getBillNoTaxSeq" resultType="String">
+		select billnotax_seq.nextval
+		from dual
+	</select>
+	
+	<!-- 계산서 INSERT -->
+	<insert id="insertBillNoTax" parameterType="com.spring.helloworks.model.BillnotaxVO_KJH">
+		insert into tbl_billnotax(billnotax_seq, customer_id, customer_comp, customer_name, customer_addr, regdate, totalprice, payment, empid, empname, mycompany_id, mycompany_comp, mycompany_name, mycompany_addr)
+		values(#{billnotax_seq}, #{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{regdate}, #{totalprice}, #{payment}, #{empid}, #{empname}, #{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr})
+	</insert>
+	
+	<!-- 계산서상세 INSERT -->
+	<insert id="insertBillNoTaxDetail" parameterType="com.spring.helloworks.model.BillnotaxDetailVO_KJH">
+		insert into tbl_billnotax_detail(billnotax_detail_seq, fk_billnotax_seq, selldate, sellprod, sellamount, selloneprice, selltotalprice)
+		values(billnotax_detail_seq.nextval, #{fk_billnotax_seq}, #{selldate}, #{sellprod}, #{sellamount}, #{selloneprice}, #{selltotalprice})
+	</insert>
+	
+	<!-- 거래명세서 시퀀스 채번 -->
+	<select id="getTransactionSeq" resultType="String">
+		select transaction_seq.nextval
+		from dual	
+	</select>
+	
+	<!-- 거래명세서 INSERT -->
+	<insert id="insertTransaction" parameterType="com.spring.helloworks.model.TransactionVO_KJH">
+		insert into tbl_transaction(transaction_seq, customer_id, customer_comp, customer_name, customer_addr, regdate, totalprice, billtax_yn, empid, empname, mycompany_id, mycompany_comp, mycompany_name, mycompany_addr)
+		values(#{transaction_seq}, #{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{regdate}, #{totalprice}, #{billtax_yn}, #{empid}, #{empname}, #{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr})
+	</insert>
+	
+	<!-- 거래명세서상세 INSERT -->
+	<insert id="insertTransactionDetail" parameterType="com.spring.helloworks.model.TransactionDetailVO_KJH">
+		insert into tbl_transaction_detail(transaction_detail_seq, fk_transaction_seq, selldate, sellprod, sellamount, selloneprice, selltotalprice)
+		values(transaction_detail_seq.nextval, #{fk_transaction_seq}, #{selldate}, #{sellprod}, #{sellamount}, #{selloneprice}, #{selltotalprice})
+	</insert>
+	
+	<!-- 총 작성문서 수 알아오기 -->
+	<select id="getTotalDocument" parameterType="HashMap" resultType="int">
+		select count(*)
+		from ${tabName}
+		where 1 = 1
+		<if test="startDate neq null and lastDate neq null">
+			and to_char(regdate, 'yyyymmdd') between #{startDate} and #{lastDate}
+		</if>
+		<if test="searchType != '' and searchWord != ''">
+			and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+		</if> 
+	</select>
+	
+	<resultMap type="HashMap" id="docMap">
+		<result property="seq" column="seq" javaType="String"/>
+		<result property="regdate" column="regdate" javaType="String"/>
+		<result property="customer_id" column="customer_id" javaType="String"/>
+		<result property="customer_comp" column="customer_comp" javaType="String"/>
+		<result property="customer_name" column="customer_name" javaType="String"/>
+		<result property="empname" column="empname" javaType="String"/>
+		<result property="totalprice" column="totalprice" javaType="String"/>
+		<result property="status" column="status" javaType="String"/>
+	</resultMap>
+	
+	<!-- 작성문서 SELECT -->
+	<select id="getDocumentList" parameterType="HashMap" resultMap="docMap">
+		select seq, regdate, customer_id, customer_comp, customer_name, empname, totalprice, status
+		from
+		(
+		    select row_number() over(order by ${seq} desc) AS rno
+		         , ${seq} AS seq, to_char(regdate, 'yyyy-mm-dd') AS regdate
+		         , customer_id, customer_comp, customer_name, empname, totalprice, status
+		    from ${tabName}
+		    where 1 = 1
+		    <if test="startDate neq null and lastDate neq null">
+		          and to_char(regdate, 'yyyymmdd') between #{startDate} and #{lastDate}
+		    </if>
+			<if test="searchType != '' and searchWord != ''">     
+		          and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+          	</if>
+		) V
+		where rno between #{startRno} and #{endRno}
+		order by rno
+	</select>
+	
 </mapper>
