@@ -1,16 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- ==== #29. mapper 기본설정 ==== -->
+<!-- ==== mapper 기본설정 ==== -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 
-<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!!) ==== -->
+<!-- ==== 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!!) ==== -->
 <mapper namespace="hje">
 	
+	<!-- DB연결 테스트용 (이순신, 엄정화 select) -->
 	<select id="getName" resultType="String" >
 		select name
 		from tbl_test
 	</select>
+	
+	
+	<!-- 캘린더 추가하기 -->
+	<insert id="addCalendar" parameterType="HashMap">
+		insert into tbl_calendar (calno, fk_cno, calname, color, shareEmp)
+		values(calnoSeq.nextval, #{fk_cno}, #{calname}, #{color}, #{shareEmp})
+	</insert>
+	
+	
+	<!-- 개인 캘린더 리스트 받아오기 -->
+	<select id="showCalendarList" resultType="com.spring.schedule.model.CalendarVO_HJE" parameterType="String">
+		select calno, calname, color, fk_cno, shareemp
+		from tbl_calendar
+		where shareemp like '%'|| #{empid} ||'%'
+	</select>
+	
+	
+	<resultMap type="HashMap" id="schduleMap">
+       <result property="title"    		column="title"       javaType="String" />
+       <result property="startdate"    	column="startdate"   javaType="String" />
+       <result property="enddate"       column="enddate"     javaType="String" />
+       <result property="color"      	column="color"       javaType="String" />
+    </resultMap>
+	<!-- 일정 출력하기 -->
+	<select id="showSchedule"  resultMap="schduleMap"  parameterType="String">
+		select title, startdate, enddate, color
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+	</select>
+	
+	<!-- 일정 추가하기 -->
+	<insert id="addSchedule" parameterType="HashMap">
+		
+		insert into tbl_schedule (sno, fk_calno, title, startdate, enddate, status
+			<if test="content != ''">
+				, content
+			</if>
+			<if test="location != ''">
+				, location
+			</if>
+		)
+		values (snoSeq.nextval, #{fk_calno}, #{title}, #{startDate}, #{endDate}, 0
+			<if test="content != ''">
+				, #{content}
+			</if>
+			<if test="location != ''">
+				, #{location}
+			</if>
+		)
+	</insert>
+	
+	<!-- 개인 캘린더 수정하기 -->
+	<update id="updatePersonal" parameterType="HashMap">
+		update tbl_calendar set calname= #{calname} , color= #{color}
+		where calno= #{calno} and fk_cno = 1 
+	</update>
+	
+	<!-- 개인 캘린더 삭제하기 -->	
+	<delete id="deletePersonal" parameterType="HashMap">
+		delete from tbl_calendar
+		where calno= #{calno} and fk_cno = 1
+	</delete>
+	
+	<!-- 공유 캘린더 수정하기 -->
+	<update id="updateShare" parameterType="HashMap">
+		update tbl_calendar set calname= #{calname} , color= #{color}, shareEmp=#{shareEmp}
+		where calno= #{calno} and fk_cno = 2 
+	</update>
+	
+	<!-- 공유 캘린더 삭제하기 -->	
+	<delete id="deleteShare" parameterType="HashMap">
+		delete from tbl_calendar
+		where calno= #{calno} and fk_cno = 2
+	</delete>
+	
+	
+	<resultMap type="HashMap" id="searchSchduleMap">
+       <result property="title"    		column="title"       javaType="String" />
+       <result property="startDate"    	column="startDate"   javaType="String" />
+       <result property="endDate"       column="endDate"     javaType="String" />
+       <result property="calName"       column="calName"     javaType="String" />
+       <result property="shareEmp"      column="shareEmp"    javaType="String" />
+       <result property="color"      	column="color"       javaType="String" />
+       <result property="sno"      		column="sno"       	 javaType="String" />
+       <result property="content"      	column="content"     javaType="String" />
+       <result property="location"      column="location"    javaType="String" />
+       <result property="status"      	column="status"      javaType="String" />
+    </resultMap>
+	<!-- 일정검사 -->
+	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+		
+		<if test="searchType == 'term'">
+			and (to_date(substr(startDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate}
+			or to_date(substr(endDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate})
+		</if>
+		
+		<if test="searchType != 'term'">
+			and ${searchType} like '%'|| #{searchWord} ||'%'
+		</if>
+		
+	</select>
+	
+	<!-- 자동완성 -->	
+	<select id="autoSearchWord"  parameterType="HashMap" resultType="String">
+		select title
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%' and ${searchType} like '%'|| #{searchWord} ||'%'
+		order by endDate desc
+	</select>
+	
+	<!-- 일정 수정하기 -->
+	<update id="updateSchedule" parameterType="HashMap">
+		update tbl_schedule set title=#{title}, location=#{location}, content=#{content}, status=#{status}, startDate=#{startDate}, endDate=#{endDate}
+		where sno = #{sno}
+	</update>
+	
+	<!-- 일정 삭제하기 -->
+	<delete id="deleteSchedule" parameterType="HashMap">
+		delete from tbl_schedule 
+		where sno = #{sno}
+	</delete>
+	
+	
 	
 	
 </mapper>

@@ -44,4 +44,14 @@
 		</if>	
 	</insert>	
 	
+	
+	<!-- 페이징 처리 x 검색어 x 전체 글목록 보여주기(수정 예정) -->
+	<select id="boardListNoSearch" resultType="com.spring.employees.model.BoardVO">
+		select seq, fk_empno, name, subject
+		     , readCount, to_char(regDate, 'yy-mm-dd hh24:mi') as regDate
+		from tbl_board
+		where status = 1
+		order by seq desc
+	</select>
+	
 </mapper>
