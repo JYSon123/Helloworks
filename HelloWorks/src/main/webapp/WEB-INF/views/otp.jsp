@@ -46,6 +46,8 @@
 	
 	$(document).ready(function() {
 		
+		$("input#usercode").focus();
+		
 		$("input#usercode").bind("keyup", function(event) {
 			if(event.keyCode == 13) {
 				otpSubmit();
