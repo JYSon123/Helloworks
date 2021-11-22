@@ -16,8 +16,18 @@
 		<if test = 'status == 1'>
 			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, breakstart, breakend, breakkind)
 			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default, to_date(#{breakstart},'YYYY/MM/DD'), to_date(#{breakend},'YYYY/MM/DD'), #{breakkind})
-
-
+		</if>
+	</insert>
+	
+  <!-- 작성한 문서를 테이블에 insert 시켜주는 메소드 (file이 있을때) -->
+	<insert id="addEndFile" parameterType="HashMap">
+		<if test = 'status != 1'>
+			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, fileName, orgFilename, fileSize)
+			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default, #{fileName}, #{orgFilename}, #{fileSize})
+		</if>
+		<if test = 'status == 1'>
+			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, breakstart, breakend, breakkind, fileName, orgFilename, fileSize)
+			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default, to_date(#{breakstart},'YYYY/MM/DD'), to_date(#{breakend},'YYYY/MM/DD'), #{breakkind}, #{fileName}, #{orgFilename}, #{fileSize})
 		</if>
 	</insert>
 	
@@ -97,9 +107,9 @@
 	
 	</select>
 	
-
+	<!-- 한 파일을 자세히보기 -->
 	<select id="viewDocument" parameterType="HashMap" resultType="com.spring.employees.model.DocumentVO_jy">
-		select doument_seq, status, result, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, filename
+		select doument_seq, status, result, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, filename, to_char(breakstart,'YYYY-MM-DD') AS breakstart, to_char(breakend,'YYYY-MM-DD') AS breakend, breakkind , fileName, orgFilename, fileSize
 		from tbl_document
 		where doument_seq = #{doument_seq}
 	</select>
@@ -112,6 +122,72 @@
 		where fk_empno = #{fk_empno}
 	</select>
 	
+	
+	 <update id="changeResult" parameterType="HashMap">
+	      update tbl_document set result = #{result}
+	      where doument_seq = #{doument_seq}
+     </update>
+     
+
+
+	<insert id="insertCalendar" parameterType="HashMap" >
+		insert into tbl_breakcalendar values(#{fk_empno}, #{title}, to_date(#{start1},'YYYY/MM/DD') , (to_date(#{end1},'YYYY/MM/DD')+(INTERVAL '1' DAY)))
+	</insert>
+	
+	
+	 <select id="myDocumentListSearchWithPaging" parameterType="HashMap" resultType="com.spring.employees.model.DocumentVO_jy">
+	    
+	    <if test='searchType == "" and searchWord == ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	  	<if test='searchType != "" and searchWord != ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType} and result = ${searchWord} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	  	<if test='searchType != "" and searchWord == ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	    <if test='searchType == "" and searchWord != ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where result = ${searchWord} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	
+	</select>
+	
+	   
+   <delete id="delDocumentEnd" parameterType="HashMap">
+   		delete from tbl_document
+    	where doument_seq = #{doument_seq}
+   </delete>
 	
 		
 </mapper>

@@ -23,6 +23,21 @@ public interface InterEmpService_jy {
 	// 캘린더에 연차를 표시해주는 메소드
 	List<BreakCalendarVO_jy> viewBreak(Map<String, String> paraMap);
 	
+	// 문서의 result를 바꿔주는 함수
+	int changeResult(Map<String, String> paraMap);
+	
+	// 캘린더에 새롭게 승인된 연차를 표시해주는 메소드
+	int insertCalendar(Map<String, String> paraMap2);
+	
+	// 파일이 있는 경우 기안하기를 완료해주기
+	int documentaddend_file(Map<String, String> paraMap);
+	
+	 // 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한 것, 로그인한 사람것)
+	List<DocumentVO_jy> myDocumentListSearchWithPaging(Map<String, String> paraMap);
+	
+	// 기안문서를 삭제해주는 메소드
+	int delDocumentEnd(Map<String, String> paraMap);
+	
 	
 
 	

@@ -58,6 +58,9 @@ update tbl_employee set fk_deptnum = 10
 where empid = 'test';
 commit;
 
+insert into 
+
+
 
 create sequence empnoSeq
 start with 1
@@ -122,6 +125,16 @@ create table tbl_document
 -- Table TBL_DOCUMENT이(가) 생성되었습니다.
 
 
+update tbl_document set result = '0'
+	      where doument_seq = '2021111718'
+commit;
+
+rollback;
+
+    
+
+
+
 alter table tbl_document add breakstart date;
 
 alter table tbl_document add breakend date;
@@ -147,8 +160,6 @@ nocycle
 nocache;
 -- Sequence DOCUMENTSEQ이(가) 생성되었습니다.
 
-insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status)
-values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), 202111081004, '10',  '테스트', '글쓰기제목','글쓰기내용', sysdate, 1);  
 
 
 rollback;
@@ -268,7 +279,8 @@ from tbl_document
 where doument_seq = 202111095;
 
 
-
+select *
+from tbl_breakcalendar
 
 create table tbl_breakcalendar(
   fk_empno      varchar2(200)   not null  -- 사원번호
@@ -278,8 +290,10 @@ create table tbl_breakcalendar(
 ,constraint FK_tbl_breakcalendar_fk_empno foreign key(fk_empno) references tbl_employee(empno)
 );
 
-INSERT INTO tbl_breakcalendar values('202111081004','반차',to_date('2021/11/22','YYYY/MM/DD'), to_date('2021/11/23','YYYY/MM/DD'));
+INSERT INTO tbl_breakcalendar values('202111081004','반차',to_date('2021-11-22','YYYY/MM/DD'), to_date('2021-11-23','YYYY/MM/DD'));
+
 commit;
+rollback;
 
 INSERT INTO tbl_breakcalendar values('202111081004','연차',to_date('2021/11/29','YYYY/MM/DD'), to_date('2021/11/30','YYYY/MM/DD'));
 commit;
@@ -287,16 +301,61 @@ commit;
 INSERT INTO tbl_breakcalendar values('202111081004','포상휴가',to_date('2021/12/10','YYYY/MM/DD'), to_date('2021/12/15','YYYY/MM/DD'));
 commit;
 
+INSERT INTO tbl_breakcalendar values('202111081004','테스트용',to_date('2021/11/23','YYYY/MM/DD'), to_date('2021/11/23','YYYY/MM/DD'));
+
+
+INSERT INTO tbl_breakcalendar values('202111081004','테스트용2',to_date('2021/11/23','YYYY/MM/DD'), to_date('2021/11/25','YYYY/MM/DD'));
+commit;
+
+
+INSERT INTO tbl_breakcalendar values('202111081004','날짜 테스트중2222',to_date('2021-12-10','YYYY/MM/DD') , (to_date('2021-12-15','YYYY/MM/DD')+ (INTERVAL '1' DAY)) );
+
+    delete from tbl_breakcalendar
+    where title = '2';
+    commit;
+    
+    
+select *
+from tbl_breakcalendar
+
+
+rollback;
+
+select *
+from tbl_breakcalendar
+rollback;
+
+
+select SYSDATE + (INTERVAL '1' DAY)        --1일 더하기
+from dual
+
 
 select  title, to_char(start1,'YYYY-MM-DD') AS start1 ,  to_char(end1,'YYYY-MM-DD') AS end1
 from tbl_breakcalendar
 where fk_empno = '202111081004';
 
 
+select doument_seq, status, result, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, filename, to_char(breakstart,'YYYY-MM-DD') AS breakstart, to_char(breakend,'YYYY-MM-DD') AS breakend,breakkind 
+from tbl_document
+where doument_seq = '2021111617'
 
 
 
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
 
 
-
-
+select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+                where status = '1' and result = '2' and fK_empno = '202111081004'
+			) V
+where rno between 1 and 2

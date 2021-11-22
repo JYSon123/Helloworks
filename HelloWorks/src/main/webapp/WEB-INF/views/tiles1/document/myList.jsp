@@ -50,7 +50,7 @@
 
 	      var frm = document.searchFrm;
 	      frm.method = "GET";
-	      frm.action = "<%= request.getContextPath()%>/documentlist.hello2";
+	      frm.action = "<%= request.getContextPath()%>/myDocumentlist.hello2";
 	      frm.submit();
 	      
 	   }// end of function change(){}-------------------
@@ -72,7 +72,7 @@
       frm.searchWord.value = "${requestScope.paraMap.searchWord}";
       
       frm.method = "GET";
-      frm.action = "<%= ctxPath%>/viewDocument.hello2";
+      frm.action = "<%= ctxPath%>/viewMyDocument.hello2";
       frm.submit();
       
    }// end of function goView(seq){}------------------
@@ -117,7 +117,7 @@
  <div style="display: flex;">
 <div style="margin: auto; padding-left: 3%;">
 
-   <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;">문서목록(관리자용, 모든문서 조회가능)</h2>
+   <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;">${sessionScope.loginEmp.empname}님의 기안 목록</h2>
    <div style="height: 800px;">
    <table style="width: 1250px;" class="table table-bordered">
       <thead>

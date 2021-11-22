@@ -1,5 +1,7 @@
 package com.spring.employees.model;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class DocumentVO_jy {
 
 	
@@ -21,7 +23,10 @@ public class DocumentVO_jy {
     private String breakstart;
     private String breakend;
     
-
+    
+    private MultipartFile attach; // 파일 저장을 위해서
+    
+    
     public DocumentVO_jy() {}
  
     
@@ -205,6 +210,19 @@ public class DocumentVO_jy {
 	public void setBreakend(String breakend) {
 		this.breakend = breakend;
 	}
+
+
+
+	public MultipartFile getAttach() {
+		return attach;
+	}
+
+
+
+	public void setAttach(MultipartFile attach) {
+		this.attach = attach;
+	}
+	
 	
 	
 	

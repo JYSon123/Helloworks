@@ -25,6 +25,16 @@ public class EmpService_jy implements InterEmpService_jy {
 		
 		return documentaddend;
 	}
+	
+	// 파일이 있는 경우 기안하기를 완료해주기
+	@Override
+	public int documentaddend_file(Map<String, String> paraMap) {
+		
+		int documentaddend_file = dao.documentaddend_file(paraMap);
+		
+		return documentaddend_file;
+	}
+	
 
 	
 	// 총 게시물 건수(totalCount)를 알아오는 메소드
@@ -63,6 +73,47 @@ public class EmpService_jy implements InterEmpService_jy {
 		
 		return breakCalendarList;
 	}
+
+	
+	// 문서의 result를 바꿔주는 함수
+	@Override
+	public int changeResult(Map<String, String> paraMap) {
+		
+		int n = dao.changeResult(paraMap);
+		
+		return n;
+	}
+
+	
+	// 캘린더에 새롭게 승인된 연차를 표시해주는 메소드
+	@Override
+	public int insertCalendar(Map<String, String> paraMap2) {
+		
+		int m = dao.insertCalendar(paraMap2);
+		
+		return m;
+	}
+	
+	// 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한 것, 로그인한 사람것)
+	@Override
+	public List<DocumentVO_jy> myDocumentListSearchWithPaging(Map<String, String> paraMap) {
+			
+		List<DocumentVO_jy> documentList = dao.myDocumentListSearchWithPaging(paraMap);
+		
+		return documentList;
+	}
+	
+	// 기안문서를 삭제해주는 메소드
+	@Override
+	public int delDocumentEnd(Map<String, String> paraMap) {
+		
+		int n = dao.delDocumentEnd(paraMap);
+		
+		return n;
+	}
+
+	
+
 
 	
 

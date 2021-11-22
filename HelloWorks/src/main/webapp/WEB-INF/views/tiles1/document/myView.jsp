@@ -52,7 +52,7 @@
 
 	      var frm = document.searchFrm;
 	      frm.method = "GET";
-	      frm.action = "<%= request.getContextPath()%>/documentvo.hello2";
+	      frm.action = "<%= request.getContextPath()%>/myDocumentlist.hello2";
 	      frm.submit();
 	      
 	   }// end of function change(){}-------------------
@@ -74,7 +74,7 @@
       frm.searchWord.value = "${requestScope.paraMap.searchWord}";
       
       frm.method = "GET";
-      frm.action = "<%= ctxPath%>/viewDocument.hello2";
+      frm.action = "<%= ctxPath%>/viewMyDocument.hello2";
       frm.submit();
       
    }// end of function goView(seq){}------------------
@@ -102,6 +102,23 @@
 	   }// end of function goView(seq){}------------------
 	  
    
+  function delete1() {
+		   
+		   var returnValue = confirm('정말 삭제하시겠습니까?');
+
+		   if(returnValue == true){
+			    var frm = document.delFrm;
+			    frm.doument_seq.value = "${documentvo.doument_seq}";
+				frm.method = "POST";
+				frm.action = "<%= ctxPath%>/delDocumentEnd.hello2";
+				frm.submit();
+			   
+		   }
+		   
+		   
+		   
+	   }   
+	   
 </script>   
 
 
@@ -152,8 +169,8 @@
 	<%-- <c:if test="${not empty requestScope.boardvo}"> --%>
 		<table style="width: 1024px" class="table table-bordered" >
 			<tr>
-				<th style="width: 15%; background-color:#e6f5ff;">문서번호</th>
-				<th style="width: 70%;">${documentvo.doument_seq}</th>
+				<th style="width: 15%; background-color:#e6f5ff;">문서번호 </th>
+				<th style="width: 70%;">${documentvo.doument_seq} <c:if test="${documentvo.result == 0}"> <button onclick="delete1()" type="button" class="btn btn-outline-danger btn-sm mr-3 ml-1 mb-1" >삭제</button></c:if></th>
 				<td align="center" style="font-weight: bolder; font-size: 17px; background-color:#e6f5ff ; ">결과</td>
 			</tr>
 			
@@ -247,7 +264,7 @@
 				<td colspan="2"> <fmt:formatNumber value="${requestScope.documentvo.fileSize}" pattern="#,###" /></td>
 			</tr>
 			
-			<c:if test="${sessionScope.loginEmp.empno == 202111081004 && documentvo.result == 0}">
+			<%-- <c:if test="${sessionScope.loginEmp.empno == 202111081004 && documentvo.result == 0}">
 				<tr> 	
 					<th style="background-color:#e6f5ff; vertical-align: middle"  >결재하기</th>
 					<td style="vertical-align: middle">
@@ -256,11 +273,11 @@
 					     	<option value="2">반려</option>
 					     </select>
 					     <button onclick="result()" type="button" class="btn btn-info btn-sm mr-3 ml-1 mb-1" >변경</button>
-						<%-- <button type="button" class="btn btn-info btn-sm mr-3 ml-1 mb-1" onclick="javascript:location.href='<%= request.getContextPath()%>/changeResult.hello2?doument_seq=${documentvo.doument_seq}'">변경</button> --%>
+						<button type="button" class="btn btn-info btn-sm mr-3 ml-1 mb-1" onclick="javascript:location.href='<%= request.getContextPath()%>/changeResult.hello2?doument_seq=${documentvo.doument_seq}'">변경</button>
 					</td>
 				</tr>
 			
-		</c:if>
+		</c:if> --%>
 			
 		</table>
 		
@@ -294,6 +311,10 @@
 			<input type="hidden" name="breakkind"/>
 			<input type="hidden" name="breakstart"/>
 			<input type="hidden" name="breakend"/>
+		</form>
+		
+		<form name="delFrm">
+			<input type="hidden" name="doument_seq" value=""/>
 		</form>
 		
    </div>  <!-- 여기까지 내용물을 넣으면 된다. -->

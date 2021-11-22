@@ -34,6 +34,32 @@
             return;
          }
          
+         var documentKind = $("select#documentKind").val();
+         
+         if(documentKind == "0") {
+            alert("문서 종류를 설정해주세요!");
+            return;
+         }
+         
+         var documentKind = $("select#documentKind").val();
+         if(documentKind == "1" ) {
+            
+        	 var breakstart = $("input#breakstart").val();
+        	 var breakend = $("input#breakend").val();
+        	 
+        	 if(breakstart == ""){
+        		 alert("시작 날짜를 설정해주세요!");
+        		 return;
+        	 }
+        	 
+        	 if(breakend == ""){
+        		 alert("끝나는 날짜를 설정해주세요!");
+        		 return;
+        	 }
+           
+         }
+         
+         
          // 폼(form)을 전송(submit)
          var frm = document.addFrm;
          frm.method = "POST";
@@ -61,7 +87,6 @@
 		   
 	   }
 	   
-	   
    }
    
    
@@ -82,8 +107,8 @@
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
 	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
-	  <a href="#채팅"    class="w3-bar-item w3-button">기안목록 (평사원)</a>
-	  <a href="#채팅"    class="w3-bar-item w3-button">휴가관리 (모든직원)</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
+	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록 (평사원)</a>
+	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
 	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
   	</div>
   </div>  
@@ -115,7 +140,7 @@
          <tr>
             <th style="width: 15%; background-color: #e6f5ff " >문서종류</th>
             <td>
-			     <select onchange="form1(value)" name="documentKind" style="width: 15%; height: 30px;">
+			     <select onchange="form1(value)" name="documentKind" id="documentKind"  style="width: 15%; height: 30px;">
 			     	<option value="0">선택</option>
 			     	<option value="1">연차</option>
 			     	<option value="2">지출결의서</option>
@@ -133,11 +158,11 @@
 			     </select>
 			     
 			     <span style="margin-left: 14px;">사용날짜 : </span>
-			     <input name="breakstart" style="height: 30px; " type="date" />
+			     <input name="breakstart" id="breakstart" style="height: 30px; " type="date" />
 			     
 			     <span style="margin-left: 3px; font-weight: bolder;">-</span>
 			     
-			     <input name="breakend" style="height: 30px; " type="date" />
+			     <input name="breakend" id="breakend" style="height: 30px; " type="date" />
 			     
 			     </span>
             </td>

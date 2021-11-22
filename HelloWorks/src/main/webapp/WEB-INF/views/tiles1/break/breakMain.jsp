@@ -10,21 +10,21 @@
 
 
 <!-- 좌측 고정 상세메뉴 시작 -->
-<nav class="w3-sidebar w3-collapse w3-white " style="margin-top:-30px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
+<nav class="w3-sidebar w3-collapse w3-white " style="margin-top:-55px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
   <div class="w3-container" style="background-color:#f5f5f5; margin-top:10px" >
     <a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu">
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#3399ff"><b>DOCUMENT</b></span>
+    <span style="font-size:21pt; margin:100px 0 30px 40px ; font-weight:bolder; color:#3399ff"><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
 	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
-	  <a href="#채팅"    class="w3-bar-item w3-button">기안목록 (평사원)</a>
-	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">휴가관리 (모든직원)</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
+	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록 (평사원)</a>
+	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
 	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
   	</div>
   </div>  
@@ -91,8 +91,6 @@
 	                     event_braek.start = item.start; // start : "2021-11-15"
 	                     event_braek.end = item.end;
 	                     events.push(event_braek); // 리스트에 객체 넣기 
-	                   	 
-	                    console.log(event_braek);
 	                     
 	                  }); // end of $.each---------- 
 	                  
@@ -124,23 +122,23 @@
 <style>
 
   body {
-    margin: 40px 10px;
-    padding: 0 0 1000px 0;
+    margin:  0;
+    padding: 0;
     font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
     font-size: 14px;
   }
 
   #calendar {
-    max-width: 1100px;
+    max-width: 1500px;
     margin: 0 auto;
-    width: 800px;
+    width: 1050px;
   }
 
 </style>
 </head>
 <body>
 
-	<div class="row" id='calendar' style="margin: 110px 10px 0px 700px;"></div>
+	<div class="row" id='calendar' style="margin: 110px 30px 0px 700px;"></div>
 
 </body>
 </html>
