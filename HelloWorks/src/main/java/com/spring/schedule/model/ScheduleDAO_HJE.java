@@ -111,6 +111,13 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 		sqlsession2.delete("hje.deleteSchedule",paraMap);
 	}
 
+	// 대상인원에 해당하는 직원찾기
+	@Override
+	public List<Map<String, String>> searchShareEmp(String employee) {
+		List<Map<String, String>> empList = sqlsession2.selectList("hje.searchShareEmp",employee);
+		return empList;
+	}
+
 	
 	
 }

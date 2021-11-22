@@ -140,6 +140,19 @@
 		where sno = #{sno}
 	</delete>
 	
+	<!-- 대상인원에 해당하는 직원 찾기 -->
+	<resultMap type="HashMap" id="shareEmpMap">
+       <result property="empname"   column="empname"       javaType="String" />
+       <result property="empid"		column="empid"   javaType="String" />
+       <result property="deptname"  column="deptname"     javaType="String" />
+    </resultMap>
+	<select id="searchShareEmp" resultMap="shareEmpMap" parameterType="String">
+		select empname, empid, deptname
+		from tbl_employee E JOIN tbl_department D
+		on E.fk_deptnum = D.deptnum
+		where empname like '%'|| #{employee}||'%'
+	</select>
+	
 	
 	
 	

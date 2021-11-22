@@ -376,6 +376,8 @@
 		
   		
   		
+  		
+  		
   	}); // end of $(document).ready(function(){}
   	
 	// Function Declaration
@@ -674,6 +676,8 @@
 		frm.method = "POST";
 		frm.submit();
 	}
+	
+	
 	
 </script>
 
@@ -1107,31 +1111,9 @@
 				<%-- Modal body --%>
 				<div class="modal-body">
 					<div id="addShare">
-						<form name="shareFrm">
-							<table id= "tblCalendar" class="w-90 mx-auto">
-								<tbody>
-									<tr>
-										<td style="width: 20%;" id="title">캘린더 이름&nbsp;</td>
-										<td style="width: 80%; text-align: left;">
-											<input type="text" id="s_calname" name="calname" class="form-control" />
-										</td>
-									</tr>
-									<tr>
-										<td style="width: 20%;" id="title">색상&nbsp;</td>
-										<td style="width: 80%;">
-											<input type="color" id="s_color" name="color" class="form-control form-control-color col-2" value="#e0f2ff" />
-										</td>
-									</tr>
-									<tr>
-										<td style="width: 20%;" id="title">공유대상&nbsp;</td>
-										<td style="width: 80%;">
-											<input type="text" id="s_shareEmp" name="shareEmp" class="form-control form-control-color" />
-											<input type="hidden" id="loginuserid" name="loginuserid" value="${sessionScope.loginuser.empid }" />
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</form>
+						
+						<iframe style="border: none; width: 100%; height: 350px;" src="<%= request.getContextPath()%>/modal/addShareSchedule.hello2"> </iframe>
+						
 					</div>
 				</div>
 

@@ -110,6 +110,13 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 		dao.deleteSchedule(paraMap);
 	}
 
+
+	@Override
+	public List<Map<String, String>> searchShareEmp(String employee) {
+		List<Map<String, String>> empList = dao.searchShareEmp(employee);
+		return empList;
+	}
+
 	
 
 	

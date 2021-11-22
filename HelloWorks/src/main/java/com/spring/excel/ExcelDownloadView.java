@@ -16,7 +16,7 @@ import org.springframework.web.servlet.view.AbstractView;
 AbstractView 를 이용하여 파일다운로드를 구현한다.
  즉, AbstractView 를 상속받아 파일다운로드를 처리해주는 뷰로 사용될 클래스를 만들어 준다. 
 */
-public class ExcelDownloadView_HJE extends AbstractView {
+public class ExcelDownloadView extends AbstractView {
  
  @Override
  protected void renderMergedOutputModel(   Map<String, Object> model, 

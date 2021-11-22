@@ -47,6 +47,9 @@ public interface InterScheduleService_HJE {
 	// 일정 삭제하기
 	void deleteSchedule(Map<String, String> paraMap);
 
+	// 대상인원에 해당하는 직원찾기
+	List<Map<String, String>> searchShareEmp(String employee);
+
 	
 
 

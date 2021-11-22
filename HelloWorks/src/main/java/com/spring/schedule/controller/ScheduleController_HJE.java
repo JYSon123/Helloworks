@@ -568,7 +568,7 @@ public class ScheduleController_HJE {
 	
 			// 해당 행의 여섯째 열 셀 생성
 			headerCell = headerRow.createCell(5);
-			headerCell.setCellValue("진행상황");
+			headerCell.setCellValue("진행상황(%)");
 			headerCell.setCellStyle(headerStyle);
 	
 			// 해당 행의 일곱번째 열 셀 생성
@@ -635,6 +635,45 @@ public class ScheduleController_HJE {
 			// viewResolver 0순위로 기술된 bean의 id값이다.
 		}
 	}
+	
+	// 공유인원찾기
+	@ResponseBody
+	@RequestMapping(value = "/searchShareEmp.hello2", method = {RequestMethod.GET }, produces = "text/plain;charset=UTF-8")
+	public String searchShareEmp(HttpServletRequest request) {
+
+		String employee = request.getParameter("employee"); 
+
+		List<Map<String,String>> empList = service.searchShareEmp(employee);
+
+		JSONArray jsonArr = new JSONArray();
+
+		if (empList.size() > 0) {
+
+			for (Map<String,String> map : empList) {
+
+				JSONObject jsonObj = new JSONObject();
+
+				jsonObj.put("empname", map.get("empname"));
+				jsonObj.put("empid", map.get("empid"));
+				jsonObj.put("deptname", map.get("deptname"));
+
+				jsonArr.put(jsonObj);
+
+			}
+
+		}
+
+		return jsonArr.toString();
+	}
+	
+	
+	// 공유캘린더 추가( iframe을 사용한 모달창 )
+	@RequestMapping(value = "/modal/addShareSchedule.hello2") 
+	public String addShareSchedule () {
+		
+		return "tiles1/schedule/addShareCalendar";
+	}
+	
    
 	////////////////////////////////////////////////////////////////////////////////
 	// === 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 생성 ===
