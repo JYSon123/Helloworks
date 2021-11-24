@@ -29,6 +29,10 @@
 <%--  ===== 스피너를 사용하기 위해  jquery-ui 사용하기 ===== --%>
 <link rel="stylesheet" type="text/css" href="<%= ctxPath%>/resources/jquery-ui-1.11.4.custom/jquery-ui.css" />
 <script type="text/javascript" src="<%= ctxPath%>/resources/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 
 <%-- *** ajax로 파일을 업로드할때 가장 널리 사용하는 방법 ==> ajaxForm *** --%>
 <script type="text/javascript" src="<%= ctxPath%>/resources/js/jquery.form.min.js"></script>
@@ -47,11 +51,18 @@
 	.ui-autocomplete {
 		position: absolute;
 		top: 150px;
-		left: 75px;
+		left: 90px;
 		cursor: default;
-		background-color: white;
+		background-color: #fff;
 		color: #0070C1;
+		width: 320px;
+		z-index: 30;
 	}
+	.ui-menu .ui-menu-item a.ui-state-hover,
+	.ui-menu .ui-menu-item a.ui-state-active {
+        color: #fff;
+		background-color: #0070C1;
+}
 	#extraArea {
 		margin: 15px 0;
 	}
@@ -61,8 +72,23 @@
 		color: white;
 		border-radius: 5px;
 		padding: 6px;
-		margin: 10px 2px;
+		margin-top: 60px;
 		
+	}
+	#title {
+		font-weight: bold;
+		vertical-align: top; 
+		padding-top: 7px;
+		font-size: 14px;
+	} 
+	table {
+		border-collapse: separate;
+  		border-spacing: 0 10px;
+	}
+	.star {
+		color: #b4c5e4;
+		font-weight: bold;
+		font-size: 13pt;
 	}
 	
 
@@ -70,6 +96,8 @@
 
 <script type="text/javascript">
 	
+	var allEmpid = "";
+	var flagcalNameDuplicate = true;
 	$(document).ready(function(){
 		
 		// 공유대상입력
@@ -102,12 +130,7 @@
 	  						},
 	  						focus: function(event, ui){ 
 	  							return false;
-	  						},
-	  				        open: function(event, ui) {
-	  				            $(this).autocomplete("widget").css({
-	  				                "width": "700px"
-	  				            });
-	  				        }
+	  						}
 	  						
 	  					});
   					}
@@ -121,6 +144,16 @@
   			});
   			
   		});
+		
+		
+		// 공유 캘린더 엔터 입력 시
+  		$("input#s_calname").bind("keyup", function(event) {
+			if(event.keyCode == 13) { 
+				addShare();
+			}
+		});
+		
+		
 		
 	});
 	
@@ -136,8 +169,55 @@
 		else {
 			shareEmp += value+",";
 			$div.append($span);
+			$div.append("<br><br>");
+			
+			// 아이디를 input태그 value에 저장
+			var empid = value.substring(value.indexOf("(")+1,value.indexOf("/"))
+			
+			allEmpid += ","+empid;
 		}
+// 		console.log("allEmpid : "+allEmpid);
 		$("input#s_shareEmp").val("");
+	}
+	
+	// 공유 캘린더 추가하기
+	function addShare() {
+		
+		$("input#allShareEmp").val(allEmpid);
+		
+		// 캘린더 이름 유효성 검사
+		if( $("input#s_calname").val().trim() == "" ) {
+			
+			alert("캘린더 이름을 입력해주세요!");
+			return;
+		}
+		
+		// 공유인원 유효성 검사
+		if( $("input#allShareEmp").val().trim() == "" ) {
+			
+			alert("캘린더를 공유할 인원을 입력해주세요!");
+			return;
+		}
+
+		window.parent.calnameDuplicateCheck();
+		
+		if(flagcalNameDuplicate == false) { 
+			var frm = document.shareFrm;
+			
+			frm.action ="<%=ctxPath%>/addCalendar.hello2";
+			frm.method = "POST";
+			frm.submit();
+			
+			// 부모창의  closeModal 함수 호출해서 모달창 닫기
+			window.parent.closeModal();
+		}
+		else {
+			alert("이미 존재하는 캘린더 명입니다. 다시 입력해주세요.");
+			$("input#s_calname").val("");
+			$("input#s_calname").focus();
+		}
+		
+		
 	}
 	
 	
@@ -147,8 +227,8 @@
 
 <body>
 	
-	<form name="shareFrm">
-		<table id= "tblCalendar" class="w-90 mx-auto">
+	<form name="shareFrm" class="container">
+		<table id= "tblCalendar" class="w-80 mx-auto">
 			<tbody>
 				<tr>
 					<td style="width: 20%;" id="title">캘린더 이름&nbsp;</td>
@@ -165,13 +245,22 @@
 				<tr>
 					<td style="width: 20%;" id="title">공유대상&nbsp;</td>
 					<td style="width: 80%;">
-						<input type="text" id="s_shareEmp" name="shareEmp" class="form-control form-control-color" />
-						<div id="extraArea" style=""></div>
+						<input type="text" id="s_shareEmp" class="form-control form-control-color" />
+						<input type="hidden" id="allShareEmp" name="shareEmp" />
+						
+						<div id="extraArea"></div>
 						<input type="hidden" id="loginuserid" name="loginuserid" value="${sessionScope.loginuser.empid }" />
 					</td>
 				</tr>
 			</tbody>
 		</table>
 	</form>
+	<hr>
+	<div style="float:right;">
+		<button type="button" class="btn myclose" data-dismiss="modal" style="background-color: #c10000; color: #fff;">Close</button>
+		<button type="button" class="btn" style="background-color: #0070C1; color: #fff;" onclick="addShare()" >Add</button>
+	</div>
+	
+	
 </body>
 </html>

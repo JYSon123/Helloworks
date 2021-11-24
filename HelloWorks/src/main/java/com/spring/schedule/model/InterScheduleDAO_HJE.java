@@ -2,6 +2,8 @@ package com.spring.schedule.model;
 
 import java.util.*;
 
+import com.spring.helloworks.model.EmpVO_KJH;
+
 public interface InterScheduleDAO_HJE {
 	
 	// DB연결 테스트용 (이순신 select)
@@ -45,5 +47,21 @@ public interface InterScheduleDAO_HJE {
 
 	// 대상인원에 해당하는 직원찾기
 	List<Map<String, String>> searchShareEmp(String employee);
+	
+	// 검색결과에 대한 총 일정 건수
+	int getTotalCount(Map<String, String> paraMap);
+	
+	// 페이징 처리한 일정
+	List<Map<String, String>> searchPagingSchedule(Map<String, String> paraMap);
+
+	// 이메일을 보낼 일정리스트 받아오기
+	List<Map<String, String>> getEmailSchList();
+
+	// 공유대상에 포함된 직원의 이메일 알아오기
+	List<EmpVO_KJH> getShareEmpEmail(Map<String, String[]> paraMap);
+
+	// 캘린더명 중복체크
+	int calnameDuplicateCheck(Map<String, String> paraMap);
+	
 	
 }

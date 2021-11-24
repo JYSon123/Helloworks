@@ -50,6 +50,18 @@ public interface InterScheduleService_HJE {
 	// 대상인원에 해당하는 직원찾기
 	List<Map<String, String>> searchShareEmp(String employee);
 
+	// 검색결과에 대한 총 일정 건수
+	int getTotalCount(Map<String, String> paraMap);
+
+	// 페이징 처리한 일정
+	List<Map<String, String>> searchPagingSchedule(Map<String, String> paraMap);
+	
+	// 스프링스케줄러로 알림메일 보내기
+	void reservationEmailSending() throws Exception;
+
+	// 캘린더명 중복체크
+	int calnameDuplicateCheck(Map<String, String> paraMap);
+
 	
 
 

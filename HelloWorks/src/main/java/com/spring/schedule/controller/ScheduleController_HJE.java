@@ -1,7 +1,10 @@
 package com.spring.schedule.controller;
 
+import java.io.IOException;
 import java.util.*;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -91,32 +94,129 @@ public class ScheduleController_HJE {
 		   
 		   String searchType = request.getParameter("searchType");
 		   paraMap.put("searchType", searchType);
+		   String startDate = "";
+		   String endDate = "";
+		   String searchWord = "";
 		   
 		   if( "term".equals(searchType) ) {
-			   String startDate = request.getParameter("startDate");
-			   String endDate = request.getParameter("endDate");
-			   paraMap.put("startDate", startDate);
-			   paraMap.put("endDate", endDate);
+			   startDate = request.getParameter("startDate");
+			   endDate = request.getParameter("endDate");
 		   }
 		   else {
-			   
-			   String searchWord = request.getParameter("searchWord");
-			   paraMap.put("searchWord", searchWord);
+			   searchWord = request.getParameter("searchWord");
 		   }
+		   paraMap.put("startDate", startDate);
+		   paraMap.put("endDate", endDate);
+		   paraMap.put("searchWord", searchWord);
 		   
 		   request.setAttribute("paraMap", paraMap);
 		   ///////////////////////////////////////////////////////////////////
 		   // 검색이 없을 때 (전체 일정 출력)
-		   if (searchType == null) {
+		   if (searchType == null ) {
 			   List<Map<String,String>> schList = service.showSchedule(empid);
 			   request.setAttribute("schList", schList);
 		   }
-		   ///////////////////////////////////////////////////////////////////
-		   // 검색이 있을 때 (검색 내용 출력)
+		   //////////////////////////////////////////////////////////////////
+		   // 페이징처리
 		   else {
-			   List<Map<String,String>> searchSchList = service.searchSchedule(paraMap); 
-			   request.setAttribute("searchSchList", searchSchList);
+			    
+			    // fullCalendar 출력, 엑셀다운을 위한 페이징처리하지 않은 검색결과
+			    List<Map<String,String>> searchSchList = service.searchSchedule(paraMap); 
+			    request.setAttribute("searchSchList", searchSchList);
 			   
+			    String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+			   
+				// 먼저 총 게시물 건수(totalCount)를 구해와야 한다.
+				// 총 게시물 건수(totalCount)는 검색조건이 있을 때와 없을 때로 나뉘어진다.
+				int totalCount = 0;			// 총 게시물 건수
+				int sizePerPage = 5;		// 한 페이징 당 보여줄 게시물 건수
+				int currentShowPageNo = 0; 	// 현재 보여주는 페이지 번호로서, 초기치로는 1페이지
+				int totalPage = 0;			// 총 페이지수(웹브라우저상에서 보여줄 총 페이지 개수, 페이지바)
+				
+				int startRno = 0;			// 시작 행번호
+				int endRno = 0;				// 끝 행번호
+				
+				// 총 게시물건수 구해오기(totalCount)
+				totalCount = service.getTotalCount(paraMap);
+				
+				// 만약에 총 페이지 게시물 건수(totalCount)가 127개 이라면
+				// 총 페이지수 (totalPage)는 13개가 되어야 한다.
+				totalPage = (int) Math.ceil((double) totalCount/sizePerPage);	// (double)127/10 ==> 12.7 ==> Math.ceil(12.7) ==> 13.0 ==> (int)13.0	==> 13
+				
+				if(str_currentShowPageNo == null) {
+					// 게시판에 보여주는 초기화면
+					currentShowPageNo = 1;
+				}
+				else {
+					try {
+						currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
+						
+						if(currentShowPageNo <1 || currentShowPageNo > totalPage) {
+							currentShowPageNo = 1;
+						}
+					} catch (NumberFormatException e) {
+						currentShowPageNo = 1;
+					}
+				}
+						
+				startRno = ((currentShowPageNo - 1)*sizePerPage) +1;
+				endRno = startRno + sizePerPage - 1;
+				
+				paraMap.put("startRno", String.valueOf(startRno) );
+				paraMap.put("endRno", String.valueOf(endRno));
+							
+				///////////////////////////////////////////////////////////////////
+				// 검색이 있을 때 (검색 내용 출력)
+				if (searchType != null) {
+					List<Map<String,String>> pagingSchList = service.searchPagingSchedule(paraMap); 
+					request.setAttribute("pagingSchList", pagingSchList);
+				
+				}
+				//////////////////////////////////////////////////////////////////
+				
+				int blockSize = 5;
+				// blockSize 는 1개 블럭(토막)당 보여지는 페이지번호의 개수 이다.
+				
+				int loop = 1;
+			    //  loop는 1부터 증가하여 1개 블럭을 이루는 페이지번호의 개수[ 지금은 10개(== blockSize) ] 까지만 증가하는 용도이다.
+			    
+				int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
+							
+				String pageBar = "<ul style='list-style: none;' class='pagination justify-content-center'>";
+				String url = "schedule.hello2";
+				// /schedule.hello2?searchType=title&searchWord=안녕&startDate=&endDate=
+				
+				// === [맨처음][이전] 만들기  === //
+				if(pageNo != 1) {
+					pageBar += "<li class='page-item' style='display:inline-block; '><a class='page-link' href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&startDate="+startDate+"&endDate="+endDate+"&currentShowPageNo=1'>&laquo;&laquo;</a></li>";
+					pageBar += "<li class='page-item' style='display:inline-block;'><a class='page-link' href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&startDate="+startDate+"&endDate="+endDate+"&currentShowPageNo="+(pageNo-1)+"'>&laquo;</a></li>";
+				}
+				
+				while( !(loop > blockSize || pageNo > totalPage) ) {
+					// loop는 10번(blockSize) 반복이므로 loop가 10보다 크면 빠져나간다.
+					// pageNo가 총페이지 수보다 크면 빠져나간다.
+					
+					if(pageNo == currentShowPageNo) {
+						// 내가 클릭한 페이지(currentShowPageNo)가 현재 있는 pageNo와 같다면 페이지 이동이 필요 없음
+			            pageBar += "<li class='page-item active' style='display:inline-block; '><a class='page-link' href='#'>"+pageNo+"</a></li>";
+			         }
+	
+					else {
+						pageBar += "<li class='page-item' style='display:inline-block;'><a class='page-link' href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&startDate="+startDate+"&endDate="+endDate+"&currentShowPageNo="+pageNo+"'>"+pageNo+"</a></li>";
+					}
+					loop ++;
+					pageNo ++ ;
+				} // end of while
+				
+				// === [다음][마지막] 만들기 ===
+				if (pageNo <= totalPage) {
+					pageBar += "<li class='page-item'><a class='page-link' href='"+url+"?searchType="+ searchType + "&searchWord=" + searchWord +"&startDate="+startDate+"&endDate="+endDate+ "&currentShowPageNo=" + pageNo + "'>&raquo;</a></li>";
+					pageBar += "<li class='page-item'><a class='page-link' href='"+url+"?searchType="+ searchType + "&searchWord=" + searchWord +"&startDate="+startDate+"&endDate="+endDate+ "&currentShowPageNo=" + totalPage + "'>&raquo;&raquo;</a></li>";
+				}
+	
+				pageBar += "</ul>";
+				
+				request.setAttribute("pageBar", pageBar);
 		   }
 		   //////////////////////////////////////////////////////////////////
 		   
@@ -143,7 +243,7 @@ public class ScheduleController_HJE {
 		   fk_cno = "1";
 	   } 
 	   else {
-		   shareEmp = empid + "," + shareEmp;
+		   shareEmp = empid + shareEmp;
 		   fk_cno = "2";
 	   }
 	   
@@ -154,8 +254,8 @@ public class ScheduleController_HJE {
 	   paraMap.put("color", color);
 	   paraMap.put("shareEmp", shareEmp);
 	   paraMap.put("fk_cno", fk_cno);
-	   
-	   int n = service.addCalendar(paraMap);
+	   	   
+//	   int n = service.addCalendar(paraMap);
 	   
 	   mav.setViewName("redirect:/schedule.hello2");
 	   
@@ -242,6 +342,7 @@ public class ScheduleController_HJE {
 	   paraMap.put("content", content);	   
 	   paraMap.put("startDate", startDate);	   
 	   paraMap.put("endDate", endDate);	   
+	   paraMap.put("notice", notice);	   
 	   paraMap.put("empid", empid);	
 	   
 	   service.addSchedule(paraMap);
@@ -343,64 +444,80 @@ public class ScheduleController_HJE {
    @RequestMapping(value = "/changeSchedule.hello2", method= {RequestMethod.POST})
    public String changeSchedule(HttpServletRequest request, HttpServletResponse response) {
 	   
-	   
-	   String sno = request.getParameter("sno");
-	   String title = request.getParameter("title");
-	   String location = request.getParameter("location");
-	   String content = request.getParameter("content");
-	   String status = request.getParameter("status");
-	   
-	   String startDay = request.getParameter("startDay");
-	   String startTime = request.getParameter("startTime");
-
-	   String endDay = request.getParameter("endDay");
-	   String endTime = request.getParameter("endTime");
-	   
-	   // 시간 : 하루종일
-	   String allDay = request.getParameter("allDay");
-	   if("true".equals(allDay)) {
-		   startTime = "00:00";
-		   endTime = "23:59";
-	   }
-	   
-	   // 시작일시(날짜+시간)
-	   String startDate = startDay + "T" + startTime+":00";
-	   
-	   // 마감일시(날짜+시간)
-	   String endDate = endDay + "T" + endTime+":00";
-	   
-	   // 알림관련
-	   String notice = request.getParameter("notice");
-	   String mnoticeTime = request.getParameter("mnoticeTime");
-	   String enoticeTime = request.getParameter("enoticeTime");
-	   
-	   String changeOption = request.getParameter("changeOption");
-	   
-	   Map<String,String> paraMap = new HashMap<>();
-
-	   paraMap.put("sno", sno);	   
-	   paraMap.put("title", title);	   
-	   paraMap.put("location", location);	   
-	   paraMap.put("content", content);	   
-	   paraMap.put("status", status);	
-	   paraMap.put("startDate", startDate);	   
-	   paraMap.put("endDate", endDate);	
-	   
-	   
-	   if( "1".equals(changeOption) ) {	// 수정
-		   
-		   service.updateSchedule(paraMap);
-	   }
-	   if( "2".equals(changeOption) ) { // 삭제
-		   
-		   service.deleteSchedule(paraMap);
-	   }
-	   
 	   HttpSession session = request.getSession();
 	   
+	   EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
+	   
 	   String goBackURL = (String) session.getAttribute("goBackURL");
-		
-	   return "redirect:"+goBackURL;
+	   
+	   if(loginEmp.getRanking() < 2) {
+			// 대리(2)와 사원(1)은 일정변경 불가능
+			
+			String message = "일정 수정 및 삭제 권한이 존재하지 않습니다.";
+			String loc = request.getContextPath()+goBackURL;
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "tiles1/schedule/msg";
+	   }
+	   
+	   else {
+		   
+		   String sno = request.getParameter("sno");
+		   String title = request.getParameter("title");
+		   String location = request.getParameter("location");
+		   String content = request.getParameter("content");
+		   String status = request.getParameter("status");
+		   
+		   String startDay = request.getParameter("startDay");
+		   String startTime = request.getParameter("startTime");
+		   
+		   String endDay = request.getParameter("endDay");
+		   String endTime = request.getParameter("endTime");
+		   
+		   // 시간 : 하루종일
+		   String allDay = request.getParameter("allDay");
+		   if("true".equals(allDay)) {
+			   startTime = "00:00";
+			   endTime = "23:59";
+		   }
+		   
+		   // 시작일시(날짜+시간)
+		   String startDate = startDay + "T" + startTime+":00";
+		   
+		   // 마감일시(날짜+시간)
+		   String endDate = endDay + "T" + endTime+":00";
+		   
+		   // 알림관련
+		   String notice = request.getParameter("notice");
+		   
+		   String changeOption = request.getParameter("changeOption");
+		   
+		   Map<String,String> paraMap = new HashMap<>();
+		   
+		   paraMap.put("sno", sno);	   
+		   paraMap.put("title", title);	   
+		   paraMap.put("location", location);	   
+		   paraMap.put("content", content);	   
+		   paraMap.put("status", status);	
+		   paraMap.put("startDate", startDate);	   
+		   paraMap.put("endDate", endDate);	
+		   paraMap.put("notice", notice);	
+		   
+		   
+		   if( "1".equals(changeOption) ) {	// 수정
+			   
+			   service.updateSchedule(paraMap);
+		   }
+		   if( "2".equals(changeOption) ) { // 삭제
+			   
+			   service.deleteSchedule(paraMap);
+		   }
+		   
+		   return "redirect:"+goBackURL;
+	   }
+	   
     }
 
    
@@ -443,6 +560,11 @@ public class ScheduleController_HJE {
 			}
 
 			request.setAttribute("paraMap", paraMap);
+			
+
+//			int totalCount = service.getTotalCount(paraMap);
+//			paraMap.put("startRno", "1" );
+//			paraMap.put("endRno", String.valueOf(totalCount));
 			
 			List<Map<String, String>> searchSchList = service.searchSchedule(paraMap);
 		
@@ -672,6 +794,40 @@ public class ScheduleController_HJE {
 	public String addShareSchedule () {
 		
 		return "tiles1/schedule/addShareCalendar";
+	}
+	
+	// 캘린더명 중복검사 확인
+	@ResponseBody
+	@RequestMapping(value = "/calnameDuplicateCheck.hello2", method = {RequestMethod.POST})
+	public String calnameDuplicateCheck (HttpServletRequest request) {
+			
+		HttpSession session = request.getSession();
+		EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
+		String empid = loginEmp.getEmpid();
+		
+		String calname = request.getParameter("calname");
+		
+		Map<String,String> paraMap = new HashMap<>();
+		paraMap.put("empid", empid);
+		paraMap.put("calname", calname);
+
+		int count = service.calnameDuplicateCheck(paraMap);
+		
+		Boolean isExists = true;
+		if(count>0) {
+			isExists = true;
+		}
+		else {
+			isExists = false;
+		}
+		
+		System.out.println("count: "+ count);
+		System.out.println("isExists: "+ isExists);
+		
+		JSONObject jsonObj = new JSONObject();	//{}
+		jsonObj.put("isExists", isExists);		//{"isExists":true} 또는 {"isExists":false}
+
+		return jsonObj.toString();
 	}
 	
    

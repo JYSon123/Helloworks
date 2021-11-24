@@ -1,11 +1,17 @@
 package com.spring.schedule.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.spring.helloworks.common.GoogleMail_HJE;
+import com.spring.helloworks.model.EmpVO_KJH;
 import com.spring.schedule.model.CalendarVO_HJE;
 import com.spring.schedule.model.InterScheduleDAO_HJE;
 import com.spring.schedule.model.ScheduleVO_HJE;
@@ -16,6 +22,9 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 	
 	@Autowired
 	private InterScheduleDAO_HJE dao; // 의존객체 주입
+	
+	@Autowired
+    private GoogleMail_HJE mail;
 	
 	
 	// DB연결 테스트용 (이순신 select)
@@ -117,8 +126,79 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 		return empList;
 	}
 
-	
 
+	// 검색결과에 대한 총 일정 건수
+	@Override
+	public int getTotalCount(Map<String, String> paraMap) {
+		int count = dao.getTotalCount(paraMap);
+		return count;
+	}
+
+	// 페이징 처리한 일정
+	@Override
+	public List<Map<String, String>> searchPagingSchedule(Map<String, String> paraMap) {
+		List<Map<String, String>> pagingSchList = dao.searchPagingSchedule(paraMap);
+		return pagingSchList;
+	}
+
+	
+	// 
+	@Override
+//	@Scheduled(cron="0 * * * * *")
+	@Scheduled(cron="0 0 12 * * *")
+	public void reservationEmailSending() throws Exception {
+		// !!! <주의> !!!
+		// 스케줄러로 사용되어지는 메소드는 반드시 파라미터는 없어야 한다.!!!!!
+
+		// == 현재 시각을 나타내기 ==
+		Calendar currentDate = Calendar.getInstance(); // 현재날짜와 시간을 얻어온다.
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String currentTime = dateFormat.format(currentDate.getTime());
+
+		System.out.println("현재시각 => " + currentTime);
+		
+		// ==== e메일을 발송할 회원 대상 알아오기
+		List<Map<String,String>> emailSchList = dao.getEmailSchList();
+		
+		// *** e 메일 발송하기 *** //
+		if( emailSchList != null && emailSchList.size() > 0 ) {
+			
+			for(int i =0; i<emailSchList.size(); i++) {
+				
+				// 공유대상에 포함된 직원의 이메일 알아오기
+				
+				String shareemp = emailSchList.get(i).get("shareemp");
+				
+//				if( shareemp != null && !"".equals(shareemp) ) {}
+				String[] shareempArr = shareemp.split(",");
+				
+				Map<String, String[]> paraMap = new HashMap<>();
+				paraMap.put("shareempArr", shareempArr);
+				
+				List<EmpVO_KJH> shareEmpEmailList = dao.getShareEmpEmail(paraMap);
+				
+				for(EmpVO_KJH evo : shareEmpEmailList) {
+					
+					String emailContents = "이메일테스트중";
+					mail.sendmail_Reservation(evo.getEmail(), emailContents);
+				}
+				
+				
+//				String emailContents = "사용자ID: " + reservationList.get(i).get("USERID")+"<br/> 예약자명: "+reservationList.get(i).get("NAME") + "님의 방문 예약일은 <span style='color: red;'>"+reservationList.get(i).get("RESERVATIONDATE")+"</span>";
+				
+			} // end of for
+			
+		}
+		
+		
+	}
+
+	// 캘린더명 중복체크
+	@Override
+	public int calnameDuplicateCheck(Map<String, String> paraMap) {
+		int count = dao.calnameDuplicateCheck(paraMap);
+		return count;
+	}
 	
 	
 }

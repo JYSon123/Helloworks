@@ -10,11 +10,12 @@ public class ScheduleVO_HJE {
 	private String startDate;	// 시작날짜
 	private String endDate;		// 마감날짜
 	private String status;		// 상태
+	private String notice;		// 상태
 	
 	public ScheduleVO_HJE() {};
 	
 	public ScheduleVO_HJE(String sno, String fk_calno, String title, String content, String location, String startDate,
-			String endDate, String status) {
+			String endDate, String status, String notice) {
 		super();
 		this.sno = sno;
 		this.fk_calno = fk_calno;
@@ -24,6 +25,7 @@ public class ScheduleVO_HJE {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.status = status;
+		this.notice = notice;
 	}
 
 	public String getSno() {
@@ -89,5 +91,14 @@ public class ScheduleVO_HJE {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public String getNotice() {
+		return notice;
+	}
+
+	public void setNotice(String notice) {
+		this.notice = notice;
+	}
+	
 	
 }

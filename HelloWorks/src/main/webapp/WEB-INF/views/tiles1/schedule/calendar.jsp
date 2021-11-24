@@ -197,9 +197,11 @@
     calendar.render();
   });
 	
-  
+  	var flagcalNameDuplicate = true;
   	$(document).ready(function(){
 
+  		flagcalNameDuplicate = true;
+  		
   		// 검색타입이 날짜로 변경되었을 때 input타입 변경
   		$("select#searchType").change(function(){
 	  		if ( $("select#searchType option:selected").val() == "term" ) {
@@ -229,7 +231,7 @@
             }
         });
   		 	
-  		// 엔터 입력 시
+  		// 개인, 공유 캘린더 엔터 입력 시
   		$("input#p_calname").bind("keyup", function(event) {
 			if(event.keyCode == 13) { 
 				addPersonal();
@@ -273,11 +275,13 @@
 			$("input#endDate").val("${requestScope.paraMap.endDate}");
 		}
   		
-  		// 검색내용에 일치하는 내용이 없을 경우 alert 띄워주기
+  		// 검색내용에 일치하는 내용이 없을 경우 alert 띄워주고, 일정 메인페이지로 이동
   		<%
   		if( searchSchList != null && searchSchList.size() == 0 ) {
   		%>
   			alert("검색어에 해당하는 일정이 존재하지 않습니다.");
+  			$("input#searchWord").val("");
+  			location.href="<%=request.getContextPath()%>/schedule.hello2";
   		<%
   		}
   		%>
@@ -375,10 +379,15 @@
 	      });
 		
   		
-  		
-  		
-  		
   	}); // end of $(document).ready(function(){}
+  	
+  	// iframe으로 불러온 공유 캘린더 모달창 닫고 새로고침하기
+  	window.closeModal = function(){
+  		// 공유모달창 닫기
+  	    $('#addShareModal').modal('hide');
+  		// 현재창새로고침
+  		window.location.reload();
+  	};
   	
 	// Function Declaration
 	function w3_open() {
@@ -402,36 +411,48 @@
 			return;
 		}
 		
-		var frm = document.personalFrm;
+		calnameDuplicateCheck();
 		
-		frm.action ="<%=ctxPath%>/addCalendar.hello2";
-		frm.method = "POST";
-		frm.submit();
+		if(flagcalNameDuplicate == false) { 
+			var frm = document.personalFrm;
+			
+			frm.action ="<%=ctxPath%>/addCalendar.hello2";
+			frm.method = "POST";
+			frm.submit();
+		}
+		else {
+			alert("이미 존재하는 캘린더 명입니다. 다시 입력해주세요.");
+			$("input#s_calname").val("");
+			$("input#s_calname").focus();
+		}
 		
 	}
 	
-	// 공유 캘린더 추가하기
-	function addShare() {
+	
+	// 캘린더 이름 중복체크
+	function calnameDuplicateCheck(){
 		
-		// 캘린더 이름 유효성 검사
-		if( $("input#s_calname").val().trim() == "" ) {
-			
-			alert("캘린더 이름을 입력해주세요!");
-			return;
-		}
-		
-		// 공유인원 유효성 검사
-		if( $("input#s_shareEmp").val().trim() == "" ) {
-			
-			alert("캘린더를 공유할 인원을 입력해주세요!");
-			return;
-		}
-		
-		var frm = document.shareFrm;
-		
-		frm.action ="<%=ctxPath%>/addCalendar.hello2";
-		frm.method = "POST";
-		frm.submit();
+		$.ajax({
+			url: "<%= ctxPath%>/calnameDuplicateCheck.hello2",
+			type: "post",
+			data: {"calname":$("input#p_calname").val()},
+			dataType: "json",
+			success: function(json) {
+				
+				if(json.isExists) {
+					// true, 입력한 email이 이미 사용 중이라면
+					flagcalNameDuplicate = true;
+				
+				}
+				else {
+					flagcalNameDuplicate = false;
+				}
+				
+			},
+			error: function(request, status, error){
+                   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+                   }
+		}); 
 		
 	}
 
@@ -679,18 +700,20 @@
 	
 	
 	
+	
+	
 </script>
 
 
 <div>
 	<%-- 사이드바 시작 --%>
-	<nav class="w3-sidebar w3-collapse w3-white " style="margin-top: 20px; z-index: 0; width: 300px; background-color: #f5f5f5; overflow: auto; height: 100%;" id="mySidebar">
+	<nav class="w3-sidebar w3-collapse w3-white " style="margin-top: 20px; z-index: 0; width: 300px; background-color: #f5f5f5; overflow: auto; height: 100%; margin-bottom: 100px;" id="mySidebar">
 		<br>
 		<div class="w3-container" style="background-color: #f5f5f5; margin-top: 10px">
 			<a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu"><i class="fa fa-remove"></i></a> <br><br>
 			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray"><b><a href="<%= ctxPath %>/schedule.hello2">일정</a></b></span>
 		</div>
-		<div class="w3-bar-block" style="background-color: #f5f5f5; height: 100%"><br>
+		<div class="w3-bar-block" style="background-color: #f5f5f5; height: 100%; margin-bottom: 65px;"><br>
 			
 			<%-- 일정추가 모달창 버튼 --%>
 			<button type="button" id="addSch" class="btn" data-toggle="modal" data-target="#addSchModal" data-dismiss="modal" >일정 추가</button>
@@ -709,7 +732,7 @@
 					<li id="catg">
 						<i class="fas fa-caret-right"></i> &nbsp; <span id="upNdown"  style="cursor:pointer;">공유 캘린더</span>
 						<button type="button" style="float: right;" class="btn" data-toggle="modal" data-target="#addShareModal" data-dismiss="modal" ><i class="fas fa-plus"></i></button>
-						<ul id="subcatg" class="shareList" style="display:none">
+						<ul id="subcatg" class="shareList" style="display:none;" >
 							
 						</ul>
 					</li>
@@ -755,7 +778,7 @@
 		<div id='calendar' style="width: 100%"></div>
 		
 		<%-- 검색 결과 테이블로 출력 --%>
-		<%  if(searchSchList != null) { %>
+		<%  if(searchSchList != null && searchSchList.size()>0) { %>
 			<hr style="margin-top: 100px; height: 2px;"/>
 			
 			<%-- 검색결과 엑셀파일로 다운받기 --%>
@@ -773,7 +796,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach var="sch" items="${requestScope.searchSchList}" varStatus="status">
+					<c:forEach var="sch" items="${requestScope.pagingSchList}" varStatus="status">
 						<tr class="tblSearchList" onclick="changeScheduleModal(${status.index})">
 							<td class="searchSno" style="display: none;">${sch.sno }</td>
 							<td class="searchTitle">${sch.title}</td>
@@ -787,6 +810,10 @@
 					</c:forEach>
 				</tbody>
 			</table>
+			
+			<nav style="width: 80%; border: solid 0px gray; margin: 50px auto;">
+				${requestScope.pageBar }
+			</nav>
 		<%  } %>
 		
 		
@@ -856,27 +883,24 @@
 										<td style="width: 80%;"><textarea id="content" name="content" rows="4" cols="80"  class="form-control"> </textarea></td>
 									</tr>
 									<tr>
-										<td rowspan="2" style="width: 20%;" id="title" >알림&nbsp;</td>
+										<td style="width: 20%;" id="title" >알림&nbsp;</td>
+<!-- 									<td rowspan="2" style="width: 20%;" id="title" >알림&nbsp;</td> -->
+										<!-- 
 										<td style="width: 80%; margin-left: 1px;" class="row">
 											<label class="mt-2 col-5" for="message"><input type="checkbox" id="message" name="noticeChk" value="message"/> 문자</label>
 											<select id="mnoticeTime" name="mnoticeTime" class="form-control col-7" style="visibility: hidden;">
-<!-- 												<option value="0" selected>== 시간선택 ==</option> -->
+												<option value="0" selected>== 시간선택 ==</option>
 												<option value="1" selected>30분 전</option>
 												<option value="2">1시간 전</option>
 												<option value="3">하루 전</option>
 											</select>
 										</td>
 									</tr>
-									<tr>					
+									<tr>
+										 -->				
 										<td style="width: 80%; margin-left: 1px;" class="row">
 											<label class="mt-2 col-5" for="email"><input type="checkbox" id="email" name="noticeChk" value="email" /> 이메일</label>
-											<input type="hidden" name="notice" id="notice" value=""/>
-											<select id="enoticeTime" name="enoticeTime" class="form-control col-7" style="visibility: hidden;">
-<!-- 												<option value="0" selected>== 시간선택 ==</option> -->
-												<option value="1" selected>30분 전</option>
-												<option value="2">1시간 전</option>
-												<option value="3">하루 전</option>
-											</select>
+											<input type="hidden" name="notice" id="c_notice" value=""/>
 										</td>
 									</tr>
 					
@@ -959,27 +983,24 @@
 										<td style="width: 80%;"><textarea id="c_content" name="content" rows="4" cols="80"  class="form-control" value=""> </textarea></td>
 									</tr>
 									<tr>
-										<td rowspan="2" style="width: 20%;" id="title" >알림&nbsp;</td>
+										<td style="width: 20%;" id="title" >알림&nbsp;</td>
+<!-- 									<td rowspan="2" style="width: 20%;" id="title" >알림&nbsp;</td> -->
+<!-- 
 										<td style="width: 80%; margin-left: 1px;" class="row">
 											<label class="mt-2 col-5" for="message"><input type="checkbox" id="c_message" name="noticeChk" value="message"/> 문자</label>
 											<select id="c_mnoticeTime" name="mnoticeTime" class="form-control col-7" style="visibility: hidden;">
-<!-- 												<option value="0" selected>== 시간선택 ==</option> -->
+												<option value="0" selected>== 시간선택 ==</option>
 												<option value="1" selected>30분 전</option>
 												<option value="2">1시간 전</option>
 												<option value="3">하루 전</option>
 											</select>
 										</td>
 									</tr>
-									<tr>					
+									<tr>
+										 -->				
 										<td style="width: 80%; margin-left: 1px;" class="row">
 											<label class="mt-2 col-5" for="email"><input type="checkbox" id="c_email" name="noticeChk" value="email" /> 이메일</label>
 											<input type="hidden" name="notice" id="c_notice" value=""/>
-											<select id="c_enoticeTime" name="enoticeTime" class="form-control col-7" style="visibility: hidden;">
-<!-- 												<option value="0" selected>== 시간선택 ==</option> -->
-												<option value="1" selected>30분 전</option>
-												<option value="2">1시간 전</option>
-												<option value="3">하루 전</option>
-											</select>
 										</td>
 									</tr>
 					
@@ -1112,16 +1133,18 @@
 				<div class="modal-body">
 					<div id="addShare">
 						
-						<iframe style="border: none; width: 100%; height: 350px;" src="<%= request.getContextPath()%>/modal/addShareSchedule.hello2"> </iframe>
+						<iframe style="border: none; width: 100%; height: auto; min-height: 245px;" src="<%= request.getContextPath()%>/modal/addShareSchedule.hello2"> </iframe>
 						
 					</div>
 				</div>
 
 				<%-- Modal footer --%>
+				<!-- 
 				<div class="modal-footer">
 					<button type="button" class="btn myclose" data-dismiss="modal" style="background-color: #c10000; color: #fff;">Close</button>
 					<button type="button" class="btn" style="background-color: #0070C1; color: #fff;" onclick="addShare()" >Add</button>
 				</div>
+				 -->
 			</div>
 
 		</div>
