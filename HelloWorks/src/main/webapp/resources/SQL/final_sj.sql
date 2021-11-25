@@ -218,5 +218,18 @@ rollback;
 select *
 from tbl_board;
 
+select count(*)
+from tbl_board
+where status = 1
+and lower('글제목') like '%'||lower('테스트')||'%';
+
+select *
+from tbl_board;
+
+select *
+from tbl_comment;
+
+
+
 
 

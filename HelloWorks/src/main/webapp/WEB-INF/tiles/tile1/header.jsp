@@ -57,7 +57,7 @@
 
 
 <!-- 상단 고정 네비게이션 시작 -->
-<div class="w3-top" style="border-bottom: 1px solid #e6e6e6;">
+<div class="w3-top" style="border-bottom: 1px solid #e6e6e6; z-index:2;">
   <div class="w3-bar w3-white w3-padding">
     <a class="navbar-brand w3-left mt-2" href="<%= ctxPath %>/index.hello2" >
     	<img src="<%= ctxPath %>/resources/images/logo.jpg" alt="HELLOWORKS_logo" width="153" height="43"/>

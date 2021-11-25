@@ -14,6 +14,12 @@ public class BoardVO {
     private String regDate;       // 글쓴시간
     private String status;        // 글삭제여부   1:사용가능한 글,  0:삭제된글
    
+    // 아래는 select용. insert용이 아님 생성자 안에 파라미터로 넣을 필요 없다
+    private String previousseq;      // 이전글번호
+    private String previoussubject;  // 이전글제목
+    private String nextseq;          // 다음글번호
+    private String nextsubject;      // 다음글제목
+    
     // 댓글쓰기
     private String commentCount;  // 댓글의 개수
 
@@ -191,6 +197,38 @@ public class BoardVO {
 	
 	public void setFileSize(String fileSize) {
 		this.fileSize = fileSize;
+	}
+
+	public String getPreviousseq() {
+		return previousseq;
+	}
+
+	public void setPreviousseq(String previousseq) {
+		this.previousseq = previousseq;
+	}
+
+	public String getPrevioussubject() {
+		return previoussubject;
+	}
+
+	public void setPrevioussubject(String previoussubject) {
+		this.previoussubject = previoussubject;
+	}
+
+	public String getNextseq() {
+		return nextseq;
+	}
+
+	public void setNextseq(String nextseq) {
+		this.nextseq = nextseq;
+	}
+
+	public String getNextsubject() {
+		return nextsubject;
+	}
+
+	public void setNextsubject(String nextsubject) {
+		this.nextsubject = nextsubject;
 	}
 	
 	
