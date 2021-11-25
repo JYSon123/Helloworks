@@ -166,7 +166,7 @@
     </a>
 	<br><br>
 	
-	<button type="button" onclick="location.href='<%= ctxPath %>/add.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
+	<button type="button" onclick="location.href='<%= ctxPath %>/boardAdd.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
 				<b>글쓰기</b></button>
 	<br>
   </div>
@@ -233,7 +233,7 @@
 				
 				<th>파일첨부</th>
 				<td>
-					<input type="file" name="attach" /> 
+					<input type="file" name="attach"/> 
 				</td>
 			</tr>
 			
