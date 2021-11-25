@@ -1,7 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
+<% String ctxPath = request.getContextPath(); %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <style type="text/css">
 	
@@ -39,6 +41,15 @@
 	
 	$(document).ready(function() {
 		
+		$("input[name=payment]").each(function(index, item) {
+			
+			if($(this).val() == "${doc.payment}") {
+				$(this).prop("checked", true);
+				$(this).next().addClass('checkedPayment');
+			}
+			
+		});
+				
 		var searchFlag = false;
 		
 		$("input[name=payment]").bind('click', function() {
@@ -156,36 +167,6 @@
 			
 		});
 		
-		var now = new Date();
-		
-		var year = now.getFullYear();
-		
-		var min = year + "-01-01";
-		
-		// === jQuery UI 의 datepicker === //
-      	$("input.datepicker").datepicker({
-                 dateFormat: 'yy-mm-dd'  //Input Display Format 변경
-                ,showOtherMonths: true   //빈 공간에 현재월의 앞뒤월의 날짜를 표시
-                ,showMonthAfterYear:true //년도 먼저 나오고, 뒤에 월 표시
-                ,changeYear: true        //콤보박스에서 년 선택 가능
-                ,changeMonth: true       //콤보박스에서 월 선택 가능                
-                ,showOn: "both"          //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
-                ,buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif" //버튼 이미지 경로
-                ,buttonImageOnly: true   //기본 버튼의 회색 부분을 없애고, 이미지만 보이게 함
-                ,buttonText: "선택"       //버튼에 마우스 갖다 댔을 때 표시되는 텍스트                
-                ,yearSuffix: "년"         //달력의 년도 부분 뒤에 붙는 텍스트
-                ,monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'] //달력의 월 부분 텍스트
-                ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip 텍스트
-                ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 부분 텍스트
-                ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 부분 Tooltip 텍스트
-              	,minDate: min //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
-                ,maxDate: "today" //최대 선택일자(+1D:하루후, +1M:한달후, +1Y:일년후)                
-        });                    
-            
-        //초기값을 오늘 날짜로 설정
-        $('.datepicker').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, +1M:한달후, +1Y:일년후) 
-      	$('.selldate').datepicker('setDate', '');
-        
 		///////////////////////////////////////////////////////////////////////////
 		
 		// 단가입력
@@ -498,12 +479,84 @@
 		
 		frm.selltax.value = arrSelltax.join(",");
 		
-		frm.action = "<%=request.getContextPath()%>/account/insertBillTax.hello2";
+		frm.action = "<%=request.getContextPath()%>/account/updateBillTax.hello2";
 		frm.method = "POST";		
 		frm.submit();
 		
 	}
 	
+	function goPermission() {
+		
+		var frm = document.submitFrm;
+		
+		frm.state.value = "1";
+		frm.action = "<%=ctxPath%>/account/updateStatus.hello2";
+		
+		frm.submit();
+		
+	}
+	
+	function goHometax() {
+		
+		var frm = document.submitFrm;
+		
+		frm.state.value = "2";
+		frm.action = "<%=ctxPath%>/account/updateStatus.hello2";
+		
+		frm.submit();
+		
+	}
+	
+	function startModify() {
+		
+		$("[name=billFrm]").find("input").each(function(index, item) {
+			
+			$(this).prop("disabled", false);
+			
+		});
+				
+		$("button#search").prop("disabled", false);
+		
+		$("div#buttonBox").show();
+		
+		var now = new Date();
+		
+		var year = now.getFullYear();
+		
+		var min = year + "-01-01";
+		
+		// === jQuery UI 의 datepicker === //
+      	$("input.datepicker").datepicker({
+                 dateFormat: 'yy-mm-dd'  //Input Display Format 변경
+                ,showOtherMonths: true   //빈 공간에 현재월의 앞뒤월의 날짜를 표시
+                ,showMonthAfterYear:true //년도 먼저 나오고, 뒤에 월 표시
+                ,changeYear: true        //콤보박스에서 년 선택 가능
+                ,changeMonth: true       //콤보박스에서 월 선택 가능                
+                ,showOn: "both"          //button:버튼을 표시하고,버튼을 눌러야만 달력 표시 ^ both:버튼을 표시하고,버튼을 누르거나 input을 클릭하면 달력 표시  
+                ,buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif" //버튼 이미지 경로
+                ,buttonImageOnly: true   //기본 버튼의 회색 부분을 없애고, 이미지만 보이게 함
+                ,buttonText: "선택"       //버튼에 마우스 갖다 댔을 때 표시되는 텍스트                
+                ,yearSuffix: "년"         //달력의 년도 부분 뒤에 붙는 텍스트
+                ,monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'] //달력의 월 부분 텍스트
+                ,monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] //달력의 월 부분 Tooltip 텍스트
+                ,dayNamesMin: ['일','월','화','수','목','금','토'] //달력의 요일 부분 텍스트
+                ,dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'] //달력의 요일 부분 Tooltip 텍스트
+              	,minDate: min //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+                ,maxDate: "today" //최대 선택일자(+1D:하루후, +1M:한달후, +1Y:일년후)                
+        });
+		
+	}
+	
+	// 엑셀다운로드
+	function downloadExcel() {
+				
+		var frm = document.submitFrm;
+		
+		frm.action = "<%=ctxPath%>/account/docExcelDownload.hello2";
+		frm.submit();
+				
+	}
+		
 </script>
 
 <jsp:include page="template_KJH.jsp"/>
@@ -517,10 +570,34 @@
     
     <div class="container" style="margin-top: 70px;">
     	    		
-   		<h4>세금계산서 작성</h4>
+   		<h4>세금계산서</h4>
    		
    		<hr>
    		
+		<div class="my-2 text-left">
+			<button type="button" class="btn btn-primary btn-sm" onclick="downloadExcel()">엑셀다운로드</button>
+			<c:if test="${doc.status ne 1 and doc.status ne 2}">
+				<button type="button" id="" class="btn btn-secondary btn-sm" onclick="goPermission()">승인요청</button>
+			</c:if>
+			<c:if test="${doc.status ne 2}">
+				<button type="button" id="" class="btn btn-dark btn-sm" onclick="goHometax()">국세청전송</button>
+			</c:if>
+			<c:if test="${doc.status eq 0 and sessionScope.loginEmp.empid eq doc.empid}">
+				<button type="button" id="" class="btn btn-success btn-sm" onclick="startModify()">수정</button>
+				<button type="button" id="" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-backdrop="static">삭제</button>
+			</c:if>
+			<span style="float: right;"><button type="button" class="btn" onclick="location.href='<%=ctxPath%>/account/listBill.hello2?tabName=tbl_billtax'"  style="border: solid 1px gray; background-color: #ebf0fa; border-radius: 5px; font-size: 10pt; padding: 3px 8px;">목록으로</button></span>
+			<span style="display: none; float: none;"></span>
+    	</div>
+    	
+    	<%-- 승인, 국세청, 엑셀을 위한 히든 폼 --%>
+		<form id="submitFrm" name="submitFrm" method="POST">
+			<input type="hidden" name="seq" value="${doc.billtax_seq}"/>
+			<input type="hidden" name="state"/>
+			<input type="hidden" name="tabName2" value="tbl_billtax"/>
+			<input type="hidden" name="loc" value="<%=ctxPath%>/account/viewBill.hello2?tabName=tbl_billtax&seq=${doc.billtax_seq}"/>
+ 		</form>
+    	
    		<form style="width: 100%; font-size: 10pt; border: solid 1px red; padding: 1px;" name="billFrm">
    		
 			<table class="mytbl">
@@ -533,7 +610,7 @@
 				</tr>
 				<tr>
 					<td colspan="1">일련번호</td>
-					<td colspan="3"></td>
+					<td colspan="3">${doc.billtax_seq}<input type="hidden" name="billtax_seq" value="${doc.billtax_seq}"></td>
 				</tr>
 			
 			</table>
@@ -543,16 +620,16 @@
 				<tr>
 					<td rowspan="6" style="width: 3%;">공급자</td>
 					<td colspan="1" style="width: 15%;">등록번호</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_id" class="form-control" value="${sessionScope.comp.mycompany_id}" readonly/></td>
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_id" class="form-control" value="${doc.mycompany_id}" disabled readonly/></td>
 					<td rowspan="6" style="width: 3%;">공급받는자</td>
 					<td colspan="1" style="width: 15%;">등록번호</td>
 					<td colspan="2" style="width: 32%;" class="non-title">
 						<div class="input-group mx-0 px-0">
 							<div class="input-group-prepend" style="width: 80%; z-index: 0;">
-								<input type="text" class="form-control" name="customer_id" placeholder="반드시 -을 포함하여 입력하세요" autocomplete="off">
+								<input type="text" class="form-control" name="customer_id" placeholder="반드시 -을 포함하여 입력하세요" autocomplete="off" value="${doc.customer_id}" disabled/>
 							</div>				
 							<div class="input-group-append px-0 mx-0" style="width: 20%; z-index: 1;">
-								<button class="btn btn-outline-danger btn-sm mx-0 w-100" type="button" id="search"><i class="fas fa-search-plus"></i>검색</button>
+								<button class="btn btn-outline-danger btn-sm mx-0 w-100" type="button" id="search" disabled><i class="fas fa-search-plus"></i>검색</button>
 							</div>
 						</div>
 					</td>				
@@ -560,28 +637,28 @@
 				
 				<tr>
 					<td colspan="1" style="width: 15%;">상호<br>(업체명)</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_comp" class="form-control" value="${sessionScope.comp.mycompany_comp}" readonly/></td>
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_comp" class="form-control" value="${doc.mycompany_comp}" disabled readonly/></td>
 					<td colspan="1" style="width: 15%;">상호<br>(업체명)</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="customer_comp" class="form-control" autocomplete="off" /></td>				
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="customer_comp" class="form-control" autocomplete="off" value="${doc.customer_comp}" disabled /></td>				
 				</tr>
 				
 				<tr>
 					<td colspan="1" style="width: 15%;">성명</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_name" class="form-control" value="${sessionScope.comp.mycompany_name}" readonly/></td>
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_name" class="form-control" value="${doc.mycompany_name}" disabled readonly/></td>
 					<td colspan="1" style="width: 15%;">성명</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="customer_name" class="form-control" autocomplete="off" /></td>				
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="customer_name" class="form-control" autocomplete="off" value="${doc.customer_name}" disabled /></td>				
 				</tr>
 				
 				<tr>
 					<td colspan="1" style="width: 15%;">사업장<br>주소</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_addr" class="form-control" value="${sessionScope.comp.mycompany_addr}" readonly/></td>
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_addr" class="form-control" value="${doc.mycompany_addr}" disabled readonly/></td>
 					<td colspan="1" style="width: 15%;">사업장<br>주소</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="customer_addr" class="form-control" autocomplete="off"/></td>				
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="customer_addr" class="form-control" autocomplete="off" value="${doc.customer_addr}" disabled/></td>				
 				</tr>	
 				
 				<tr>
 					<td colspan="1" style="width: 15%;">업종</td>
-					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_sort" class="form-control" value="${sessionScope.comp.mycompany_sort}" readonly/></td>
+					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" name="mycompany_sort" class="form-control" value="${sessionScope.comp.mycompany_sort}" disabled readonly/></td>
 					<td colspan="1" style="width: 15%;">업종</td>
 					<td colspan="2" style="width: 32%;" class="non-title"><input type="text" class="form-control" readonly/></td>				
 				</tr>					
@@ -598,9 +675,9 @@
 				</tr>
 				
 				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker" name="regdate" class="form-control" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 34.65%;"><input type="text" name="totalprice" class="form-control" readonly/></td>
-					<td style="width: 34.65%;"><input type="text" name="taxprice" class="form-control" readonly/></td>
+					<td style="width: 15.35%;"><input type="text" class="datepicker" name="regdate" class="form-control" style="width:80%; margin-right: 2%;" value="${fn:substring(doc.regdate, 0, 11)}" disabled></td>
+					<td style="width: 34.65%;"><input type="text" name="totalprice" class="form-control" value="${doc.totalprice}" disabled readonly/></td>
+					<td style="width: 34.65%;"><input type="text" name="taxprice" class="form-control" value="${doc.taxprice}" disabled readonly/></td>
 					<td></td>
 				</tr>
 				
@@ -619,71 +696,31 @@
 					<td>비고</td>
 				</tr>
 				
-				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
-					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td></td>
-				</tr>
-				
-				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
-					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td></td>
-				</tr>
-				
-				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
-					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td></td>
-				</tr>
-				
-				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
-					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td></td>
-				</tr>
-				
-				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
-					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td></td>
-				</tr>
-				
-				<tr>
-					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
-					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
-					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td></td>
-				</tr>
+				<c:forEach var="detail" items="${detailList}">				
+					<tr>
+						<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;" value="${fn:substring(detail.selldate, 0, 11)}" disabled></td>
+						<td style="width: 11.65%;"><input type="text" class="sellprod form-control" value="${detail.sellprod}" disabled/></td>
+						<td style="width: 5%;"></td>
+						<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="${detail.sellamount}" disabled/></td>
+						<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="${detail.selloneprice}" disabled/></td>
+						<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="${detail.selltotalprice}" disabled/></td>
+						<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="${detail.selltax}" disabled/></td>
+						<td></td>
+					</tr>			
+				</c:forEach>
+								
+				<c:forEach var="detail" begin="1" end="${6-size}">				
+					<tr>
+						<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;" value="" disabled></td>
+						<td style="width: 11.65%;"><input type="text" class="sellprod form-control" value="" disabled/></td>
+						<td style="width: 5%;"></td>
+						<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="" disabled/></td>
+						<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="" disabled/></td>
+						<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="" disabled/></td>
+						<td style="width: 14.65%;"><input type="text" class="selltax onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" value="" disabled/></td>
+						<td></td>
+					</tr>				
+				</c:forEach>
 				
 				<tr style="display: none;">
 					<td style="width: 15.35%;"><input type="text" name="selldate" style="width:80%; margin-right: 2%;"></td>
@@ -707,12 +744,12 @@
 					<td style="width: 10%;">어음</td>
 					<td style="width: 10%;">외상미수금</td>
 					<td rowspan="2">
-						위 금액을&nbsp;<input type="radio" name="payment" value="영수" id="nopay"/>&nbsp;<label for="nopay" style="width:10%">영수</label>&nbsp;<input type="radio" name="payment" value="청구" id="yespay" checked/>&nbsp;<label for="yespay" class="checkedPayment" style="width:10%">청구</label>&nbsp;함.
+						위 금액을&nbsp;<input type="radio" name="payment" value="영수" id="nopay" disabled/>&nbsp;<label for="nopay" style="width:10%">영수</label>&nbsp;<input type="radio" name="payment" value="청구" id="yespay" disabled/>&nbsp;<label for="yespay" class="" style="width:10%">청구</label>&nbsp;함.
 					</td>
 				</tr>
 				 
 				<tr>
-					<td style="width: 30%;"><input type="text" id="total" readonly class="form-control"/></td>
+					<td style="width: 30%;"><input type="text" id="total" class="form-control" value="${total}" disabled readonly/></td>
 					<td style="width: 10%;"></td>
 					<td style="width: 10%;"></td>
 					<td style="width: 10%;"></td>
@@ -723,9 +760,9 @@
 						
 		</form>
 		
-		<div class="my-2 text-center">	
+		<div class="my-2 text-center" id="buttonBox" style="display: none;">	
 			<button type="button" id="btn_submit" class="btn btn-primary" onclick="goSubmit();">저장</button>
-			<button type="button" id="" class="btn btn-danger" onclick="location.reload(true);">초기화</button>
+			<button type="button" id="" class="btn btn-danger" onclick="location.reload(true);">취소</button>
     	</div>
     	
     	<button type="button" id="btn_searchModal" data-toggle="modal" data-target="#searchModal" style="display: none;"></button>
@@ -752,6 +789,33 @@
 	    
 	  		</div>
 	  		
+		</div>
+		   			
+  		<%-- 삭제모달 --%>
+        <div class="modal fade" id="deleteModal">
+			  <div class="modal-dialog modal-dialog-scrollable modal modal-dialog-centered">
+			  
+			    <div class="modal-content">			      
+			      	
+			      	<!-- Modal header -->
+			      <div class="modal-header text-center">
+			        	<h6 class="modal-title text-center mx-auto px-auto">문서를 정말로 삭제하시겠습니까?</h6>
+			      </div>
+			      	
+			     <!-- Modal body -->
+			      <div class="modal-body text-center">
+	
+				      	<form name="deleteFrm" method="POST" action="<%=ctxPath%>/account/deleteDoc.hello2">
+				      		<input type="hidden" value="${doc.billtax_seq}" name="seqes" required>
+				      		<input type="hidden" value="tbl_billtax" name="tabName3">				      		
+				      		<button type="submit" class="btn btn-sm btn-danger deletethis mx-1">삭제</button>
+				      		<button type="button" class="btn btn-sm btn-success thisclose mx-1" data-dismiss="modal">취소</button>
+						</form>
+												
+					</div>
+			     				      
+			    </div>
+			  </div>
 		</div>
     	
     </div>

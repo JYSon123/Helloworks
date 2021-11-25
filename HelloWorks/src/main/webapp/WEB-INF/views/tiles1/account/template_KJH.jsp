@@ -9,6 +9,8 @@
    
 <style type="text/css">
 	body,h1,h2,h3,h4,h5,h6 {font-family: Verdana, sans-serif;}
+	
+	#billtitle:hover {cursor: pointer;}
 </style>
 
 <script>
@@ -30,10 +32,12 @@ function w3_close() {
 			var totalVal = $(this).val();
 			
 			if(totalVal != "") {
-			
-				$("input#price").val(totalVal/1.1);
 				
-				$("input#tax").val(totalVal - totalVal/1.1);
+				var price = Math.round(totalVal/1.1);
+				
+				$("input#price").val(price);
+				
+				$("input#tax").val(totalVal - price);
 			
 			}
 			
@@ -52,24 +56,21 @@ function w3_close() {
 </script>
 
 <!-- 좌측 고정 상세메뉴 시작 -->
-<nav class="w3-sidebar w3-collapse w3-white " style="margin-top:20px; z-index:0; width:300px; background-color:#f5f5f5; overflow: auto;" id="mySidebar"><br>
+<nav class="w3-sidebar w3-collapse w3-white " style="margin-top:20px; z-index:0; width:300px; background-color:#f5f5f5; overflow:hidden;" id="mySidebar"><br>
   <div class="w3-container" style="background-color:#f5f5f5; margin-top:10px" >
     <a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu">
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:gray"><b>전자세금계산서</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:gray" id="billtitle"><b onclick="location.href='<%=ctxPath %>/account/home.hello2'">전자세금계산서</b></span><%-- 메인 --%>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <a href="<%=ctxPath %>/account/writeBillTax.hello2" class="w3-bar-item w3-button">세금계산서 작성</a>
 	  <a href="<%=ctxPath %>/account/writeBillNotax.hello2" class="w3-bar-item w3-button">계산서 작성</a>
-	  <a href="<%=ctxPath %>/account/editBill.hello2" class="w3-bar-item w3-button">(세금)계산서 수정</a>
-	  <a href="<%=ctxPath %>/account/listBill.hello2" class="w3-bar-item w3-button">작성완료 문서</a>
-	  <a href="<%=ctxPath %>/account/submittedBill.hello2" class="w3-bar-item w3-button">국세청 전송문서</a>
-	  <a href="<%=ctxPath %>/account/receivedBill.hello2" class="w3-bar-item w3-button">문서 수신함</a>
-	  <a href="<%=ctxPath %>/account/summaryBill.hello2" class="w3-bar-item w3-button">합계표</a>
+	  <a href="<%=ctxPath %>/account/writeTransaction.hello2" class="w3-bar-item w3-button">거래명세서 작성</a>
+	  <a href="<%=ctxPath %>/account/listBill.hello2" class="w3-bar-item w3-button">작성완료 문서</a> <%-- 작성문서의 수정, 삭제기능 / 승인요청(엑셀만들어서 메일로) / 국세청전송 --%>
 	  <a href="<%=ctxPath %>/account/manageCustomer.hello2" class="w3-bar-item w3-button">거래처 등록/관리</a>	  
 	  
 	  <c:if test="${sessionScope.loginEmp.ranking >= 3}">
@@ -79,7 +80,7 @@ function w3_close() {
 	  </c:if>
 	  
 	  <%-- 부가세 계산기 --%>	  
-	  <div style="background-color: #2648A3; margin-right: 10%; height: 230px; border-radius: 20px;" class="w-80 my-2 text-center py-2">
+	  <div style="background-color: #2648A3; margin-right: 10%; height: 230px; border-radius: 20px;" class="w-80 my-3 text-center py-3">
 	  	
 	  	<h5 class="text-center" style="color: white;"><i class="fas fa-calculator"></i>&nbsp;부가세 계산기</h5>
 	  	<hr>
@@ -90,7 +91,7 @@ function w3_close() {
 					<div class="input-group-prepend">
 						<span class="input-group-text">합계금액</span>
 					</div>
-					<input type="number" class="form-control" id="total">
+					<input type="number" class="form-control" id="total" autocomplete="off">
 				</div>
 				
 				<div class="input-group mb-3 input-group-sm">
