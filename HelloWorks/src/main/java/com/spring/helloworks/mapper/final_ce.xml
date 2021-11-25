@@ -204,12 +204,77 @@
 			where  #{searchDate} = substr(nowdate, 1,7) and fk_empno=#{fk_empno} and outtime is null
 	</select>
 	
+	
 	<!-- 출퇴근 테이블에서 엑셀용 근태현황 가져오기  -->
 	<select id="excelattendancevo" parameterType="String" resultType="com.spring.employees.model.AttendanceVO_ce">
 		select nowdate, fk_empno, intime, nvl(outtime,'퇴근미체크') as outtime , nvl(totaltime,0) as totaltime , status_latein, status_earlyout
 		from tbl_attendance
 		where fk_empno = #{fk_empno}
 		order by nowdate
+	</select>
+	
+	
+	<!-- 사원정보 갯수 조회하기  -->
+	<select id="getTotalCount_ce"  parameterType="HashMap" resultType="int">
+		select count(*) from tbl_employee
+		where empno is not null
+		<if test="hireyear != null">
+			and to_char( hiredate, 'yyyy') = #{hireyear} 
+		</if>
+		<if test="empstatus != null">
+			and empstatus = #{empstatus} 
+		</if>
+		<if test="empno != null">
+			and empno = #{empno} 
+		</if>
+		<if test="deptnoArr != null">
+	    	and fk_deptnum in 
+	    	<foreach collection="deptnoArr" index="i" open="(" separator="," close=")">
+	    		'${deptnoArr[i]}'
+	    	</foreach>
+	    </if>
+	    <if test="rankArr != null">
+	    	and ranking in 
+	    	<foreach collection="rankArr" index="i" open="(" separator="," close=")">
+	    		'${rankArr[i]}'
+	    	</foreach>
+	    </if>
+	</select>
+	
+	
+	<!-- 검색, 페이징처리한 사원정보 조회 -->
+	<select id="empListSearchWithPaging_ce"  parameterType="HashMap" resultType="com.spring.employees.model.EmpVO_LCE">
+		select empno, empname, empid, email, ranking, fk_deptnum, empstatus, empsalary, hiredate, noticeemail
+		from
+		(
+			select row_number() over(order by empno desc) as rno, empno, empname, empid, email, ranking, fk_deptnum, empstatus, empsalary, hiredate, noticeemail
+			from tbl_employee
+			where empno is not null
+			<if test="hireyear != null">
+				and to_char( hiredate, 'yyyy') = #{hireyear} 
+			</if>
+			<if test="empstatus != null">
+				and empstatus = #{empstatus} 
+			</if>
+			<if test="empno != null">
+				and empno = #{empno} 
+			</if>
+			<if test="deptnoArr != null">
+		    	and fk_deptnum in 
+		    	<foreach collection="deptnoArr" index="i" open="(" separator="," close=")">
+		    		'${deptnoArr[i]}'
+		    	</foreach>
+		    </if>
+		    <if test="rankArr != null">
+		    	and ranking in 
+		    	<foreach collection="rankArr" index="i" open="(" separator="," close=")">
+		    		'${rankArr[i]}'
+		    	</foreach>
+		    </if>
+		) V
+		<if test="startRno != null and endRno != null">
+		where rno between #{startRno} and #{endRno}
+		</if>
 	</select>
 	
 </mapper>

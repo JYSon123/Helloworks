@@ -349,26 +349,39 @@
 	
 </script>
 
-<!-- 좌측 고정 상세메뉴 시작 -->
+<!-- 좌측 상세메뉴 시작 -->
 <nav class="w3-sidebar w3-collapse w3-white " style="margin-top:20px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
-  <div class="w3-container" style="background-color:#f5f5f5; margin-top:10px" >
-    <a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu">
-      <i class="fa fa-remove"></i>
-    </a>
-	<br><br>
-    <span style="font-size:30pt; margin:100px 0 30px 40px ; color:gray"><b>게시판</b></span>
+  <div class="w3-container" style="background-color:#eff4fc; margin-top:10px; color:#595959" >   
+   <button type="button" onclick="location.href='<%= ctxPath %>/register.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin:35px 0 0 14px; font-size:21px; width: 240px; height:63px; color:white">
+            <i class="fas fa-plus" style="font-size: 14pt"></i>&nbsp;<b>임직원 등록</b>
+   </button> <br>
   </div>
-  <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
-	<div style="margin-left:42px; font-size: 13pt">
-	  <br>
-	  <a href="#메일"    class="w3-bar-item w3-button">최근게시물</a>
-	  <a href="#게시판"   class="w3-bar-item w3-button">전사게시판</a>
-	  <a href="#채팅"    class="w3-bar-item w3-button">환경설정</a>
-	  <a href="#전자세금" class="w3-bar-item w3-button">게시판 만들기</a>
-  	</div>
-  </div>  
+  
+  <div class="w3-bar-block" style="background-color:#eff4fc; height: 100% ">   
+   <div style="margin-left:50px; font-size: 15pt; color:#595959">
+     <br>
+     <a href="<%= ctxPath %>/emp/viewEmployee.hello2" class="w3-bar-item w3-button" style="margin: 5px 0 20px 0">
+        <i class="fas fa-address-book" style="font-size: 14pt; color:gray"></i>&nbsp;임직원 목록    
+     </a>
+   </div>
+   
+   <hr style="color: #d7dde8; height: 1px; background-color:#d7dde8 ">
+   
+   <div style="margin-left:50px; font-size: 15pt; color:#595959">             
+     <h4 style="color:#6d88a4"><i class="fas fa-angle-down"></i>&ensp;근무 관리</h4>
+      
+      <a href="<%= ctxPath %>/emp/viewAttend.hello2" class="w3-bar-item w3-button">
+        <i class="fas fa-calendar-alt" style="font-size: 14pt; color:gray"></i>&nbsp;근무 현황
+      </a>
+     
+      <a href="<%= ctxPath %>/emp/viewAttendOnlyHR.hello2" class="w3-bar-item w3-button">
+        <i class="fas fa-calendar-week" style="font-size: 14pt; color:gray"></i>&nbsp;부서 근무 현황
+      </a>
+     </div>
+ </div>
+  
 </nav>
-<!-- 좌측 고정 상세메뉴 끝 -->
+<!-- 좌측 상세메뉴 끝 -->
 
 
 <!-- !!!!!PAGE CONTENT START!!!!!! -->
@@ -382,7 +395,7 @@
     <div style="margin-top:30px">
     
 	   	<%-- 나의 근무현황_타이틀 --%>
-		<span style="margin:50px 0 25px 50px; display:block; font-size:25pt; font-weight:600; ">[${requestScope.empname}]님의 근무관리</span>
+		<span style="margin:50px 0 25px 50px; display:block; font-size:25pt; font-weight:600; ">[${requestScope.empname}]님의 근태관리</span>
 		<hr style="background-color:#80bfff; margin-bottom:70px;">
 		
 	   	<%-- 나의 근무현황_타이틀 --%>
