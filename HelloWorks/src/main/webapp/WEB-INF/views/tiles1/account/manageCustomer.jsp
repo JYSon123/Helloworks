@@ -7,6 +7,7 @@
 	
 	tr.cvo:hover {
 		background-color: #e6f4ff;
+		cursor: pointer;
 	}
 	
 </style>
@@ -15,7 +16,9 @@
 	
 	$(document).ready(function() {
 		
-		// 해야할 일 : 거래처 수정, 삭제, 이메일전송 만들기(tr클릭시 모달을 이용하자!) 
+		if("${searchType}" != null && "${searchType}" != "") {
+			$("#searchType").val("${searchType}");
+		}
 		
 		$("tr.cvo").click(function() {
 			
@@ -129,7 +132,7 @@
     <div class="container" style="margin-top: 70px;">
     	
     	<%-- 등록된 거래처가 존재하지 않는  경우 --%>
-    	<c:if test="${empty cvoList or cvoList == ''}">
+    	<c:if test="${searchType eq '' and (empty cvoList or cvoList == '')}">
     		
     		<h4>거래처 등록/관리</h4>
     		
@@ -143,7 +146,7 @@
     	</c:if>
     	
     	<%-- 등록된 거래처가 존재하는 경우 --%>
-    	<c:if test="${not empty cvoList and cvoList != ''}">
+    	<c:if test="${(searchType ne '' and (empty cvoList or cvoList == '')) or (not empty cvoList and cvoList != '')}">
     		
     		<h4>거래처 등록/관리</h4>
     		
@@ -152,35 +155,35 @@
     		<div class="mx-auto px-auto" style="width: 100%;">
     			
     			<p class="text-right w-100">
-    				<button type="button" class="btn btn-success" onclick="location.href='<%=request.getContextPath()%>/account/registerCustomer.hello2'">거래처 등록</button>
+    				<button type="button" class="btn btn-success btn-sm" onclick="location.href='<%=request.getContextPath()%>/account/registerCustomer.hello2'">거래처 등록</button>
     			</p>
     			
     			<table class="w-100" style="font-size: 10pt; font-weight: normal;">
     				
-    				<thead style="background-color: #0070C1; color: white; height: 50px;">
-				
+    				<thead style="background-color: #ebf0fa; height: 50px; color: gray;">
+			
 						<tr>
 							
-							<th style="width: 15%; text-align: center;">사업자등록번호</th>
-							<th style="width: 13%; text-align: center;">업체명(상호)</th>
-							<th style="width: 10%; text-align: center;">대표자명</th>
-							<th style="text-align: center;">사업장소재지</th>
-							<th style="width: 18%; text-align: center;">이메일</th>
+							<th style="width: 15%; text-align: center; font-weight: normal; border-right: solid 1px white;">사업자등록번호</th>
+							<th style="width: 13%; text-align: center; font-weight: normal; border-right: solid 1px white;">업체명(상호)</th>
+							<th style="width: 10%; text-align: center; font-weight: normal; border-right: solid 1px white;">대표자명</th>
+							<th style="text-align: center; font-weight: normal; border-right: solid 1px white;">사업장소재지</th>
+							<th style="width: 18%; text-align: center; font-weight: normal;">이메일</th>
 							
 						</tr>
-				
+			
 					</thead>
 					
 					<tbody>
 						
 						<c:forEach var="cvo" items="${cvoList}">
 							
-							<tr valign="middle" class="cvo">
+							<tr valign="middle" class="cvo" style="border: solid 1px #e6e6e6; border-top: none;">
 								
-								<td style="text-align: center;"><p class="my-2 customer_id">${cvo.customer_id}</p></td>
-								<td style="text-align: center;"><p class="my-2 customer_comp">${cvo.customer_comp}</p></td>
-								<td style="text-align: center;"><p class="my-2 customer_name">${cvo.customer_name}</p></td>
-								<td style="text-align: center;"><p class="my-2 customer_addr">${cvo.customer_addr}</p></td>
+								<td style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_id">${cvo.customer_id}</p></td>
+								<td style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_comp">${cvo.customer_comp}</p></td>
+								<td style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_name">${cvo.customer_name}</p></td>
+								<td style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_addr">${cvo.customer_addr}</p></td>
 								<td style="text-align: center;"><p class="my-2 customer_email">${cvo.customer_email}</p></td>
 								
 							</tr>
@@ -190,6 +193,31 @@
 					</tbody>
     				
     			</table>
+    			
+    			<nav class="nav-light">
+					<ul class="pagination justify-content-center" style="margin:20px 0;">
+						${pageBar}
+					</ul>
+				</nav>
+				
+				<form name="searchForm" action="<%=request.getContextPath()%>/account/manageCustomer.hello2" method="GET">
+								
+					<div class="row w-100 mx-0 my-2 px-auto justify-content-center input-group">
+									
+						<div class="input-group-prepend" style="">
+							<select name="searchType" id="searchType" style="height: 29px; background-color: #ebf0fa; border-radius: 5px 0 0 5px; text-align: center; font-size: 10pt;">
+								<option value="customer_id">사업자등록번호</option>
+								<option value="customer_comp" selected="selected">업체명(상호)</option>
+								<option value="customer_name">대표자명</option>
+							</select>
+						</div>								            	            
+						<input type="text" name="searchWord" style="font-size: 10pt;" value="${paraMap.searchWord}">
+						&ensp; 
+						<button type="button" onclick="search()" style="border: solid 1px gray; background-color: #ebf0fa; border-radius: 5px; font-size: 10pt; padding: 3px 8px;">조회</button>						    
+											
+					</div>
+					
+				</form>
     			
     			<button type="button" id="btn_customerModal" data-toggle="modal" data-target="#customerModal" style="display: none;"></button>
     			<button type="button" id="btn_deleteModal" data-toggle="modal" data-target="#deleteModal" style="display: none;" data-backdrop="static"></button>

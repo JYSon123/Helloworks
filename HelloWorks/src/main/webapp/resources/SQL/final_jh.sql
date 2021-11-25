@@ -109,7 +109,6 @@ create table tbl_billtax
 ,customer_comp  varchar2(1000)
 ,customer_name  varchar2(200)
 ,customer_addr  varchar2(1000)
-,customer_email varchar2(1000) -- 거래처 이메일(메일발송용도)
 ,regdate        date default sysdate not null
 ,totalprice     number           not null
 ,taxprice       number           not null
@@ -121,10 +120,18 @@ create table tbl_billtax
 ,constraint CK_tbl_billtax_status check(status in(0,1,2))
 );
 
+alter table tbl_billtax drop column customer_email;
+
 alter table tbl_billtax add mycompany_id varchar2(200) not null;
 alter table tbl_billtax add mycompany_comp  varchar2(1000);
 alter table tbl_billtax add mycompany_name  varchar2(200);
 alter table tbl_billtax add mycompany_addr  varchar2(1000);
+
+alter table tbl_billtax add payment varchar2(20); -- 영수, 청구
+alter table tbl_billtax add constraint CK_tbl_billtax_payment check (payment in('영수','청구'));
+
+select * from tbl_billtax;
+select * from tbl_billtax_detail;
 
 -- 세금계산서상세
 create table tbl_billtax_detail
@@ -140,8 +147,19 @@ create table tbl_billtax_detail
 ,constraint FK_fk_billtax_seq foreign key(fk_billtax_seq) references tbl_billtax(billtax_seq) on delete cascade
 );
 
+alter table tbl_billtax_detail modify sellamount default 1;
+
 -- 세금계산서시퀀스
 create sequence billtax_seq
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+nocache;
+
+-- 세금계산서상세시퀀스
+create sequence billtax_detail_seq
 start with 1
 increment by 1
 nomaxvalue
@@ -170,10 +188,19 @@ create table tbl_billnotax
 );
 
 
+alter table tbl_billnotax drop column customer_email;
+
+select * from tbl_billnotax;
+select * from tbl_billnotax_detail;
+
 alter table tbl_billnotax add mycompany_id varchar2(200) not null;
 alter table tbl_billnotax add mycompany_comp  varchar2(1000);
 alter table tbl_billnotax add mycompany_name  varchar2(200);
 alter table tbl_billnotax add mycompany_addr  varchar2(1000);
+
+alter table tbl_billnotax add payment varchar2(20); -- 영수, 청구
+alter table tbl_billnotax add constraint CK_tbl_billnotax_payment check (payment in('영수','청구'));
+
 
 -- 계산서 상세
 create table tbl_billnotax_detail
@@ -181,17 +208,31 @@ create table tbl_billnotax_detail
 ,fk_billnotax_seq         number      not null
 ,selldate               date        not null
 ,sellprod               varchar2(500) not null
-,sellamount             number
+,sellamount             number default 1
 ,selloneprice           number      not null
 ,selltotalprice         number      not null
 ,constraint PK_tbl_billnotax_detail primary key(billnotax_detail_seq)
 ,constraint FK_fk_billnotax_seq foreign key(fk_billnotax_seq) references tbl_billnotax(billnotax_seq) on delete cascade
 );
 
+alter table tbl_billnotax_detail modify sellamount default 1;
+
 desc tbl_billnotax_detail;
 
 -- 계산서 시퀀스
 create sequence billnotax_seq
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+nocache;
+
+select billnotax_seq.nextval
+from dual
+
+-- 계산서상세 시퀀스
+create sequence billnotax_detail_seq
 start with 1
 increment by 1
 nomaxvalue
@@ -246,6 +287,9 @@ nominvalue
 nocycle
 nocache;
 
+drop table tbl_hometax_tax purge;
+drop sequence hometax_tax_seq;
+
 --------------------------------------------
 
 -- 국세청(계산서)
@@ -270,3 +314,113 @@ nocache;
 
 -- 문서수신함(우리회사가 구매자인~) 테이블 만들어야 함
 
+
+-- 거래명세서테이블
+create table tbl_transaction
+(transaction_seq    number          not null
+,customer_id    varchar2(200)   not null
+,customer_comp  varchar2(1000)
+,customer_name  varchar2(200)
+,customer_addr  varchar2(1000)
+,regdate        date default sysdate not null
+,totalprice     number           not null
+,billtax_yn     varchar2(20) default '발행' not null
+,empid       varchar2(20)        not null -- 작성한 직원아이디(발급 담당자)
+,empname        varchar2(20)     not null
+,mycompany_id varchar2(200) not null
+,mycompany_comp  varchar2(1000)
+,mycompany_name  varchar2(200)
+,mycompany_addr  varchar2(1000)
+,constraint PK_tbl_transaction primary key(transaction_seq)
+,constraint CK_tbl_transaction_billtax_yn check(billtax_yn in('발행','미발행'))
+);
+
+alter table tbl_transaction add edit number;
+alter table tbl_transaction add status number default 0 not null; -- 0:발급전, 1:승인완료
+alter table tbl_transaction add constraint CK_tbl_transaction_status check(status in(0,1));
+
+alter table tbl_transaction rename column transactiondate to regdate;
+
+-- 거래명세서 상세
+create table tbl_transaction_detail
+(transaction_detail_seq     number      not null
+,fk_transaction_seq         number      not null
+,selldate               date        not null
+,sellprod               varchar2(500) not null
+,sellamount             number default 1
+,selloneprice           number      not null
+,selltotalprice         number      not null
+,constraint PK_tbl_transaction_detail primary key(transaction_detail_seq)
+,constraint FK_fk_transaction_seq foreign key(fk_transaction_seq) references tbl_transaction(transaction_seq) on delete cascade
+);
+
+
+drop table tbl_transaction_detail purge;
+drop table tbl_transaction purge;
+
+create sequence transaction_seq
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+nocache;
+
+create sequence transaction_detail_seq
+start with 1
+increment by 1
+nomaxvalue
+nominvalue
+nocycle
+nocache;
+
+select * from tbl_transaction where to_char(regdate, 'yyyymmdd') between '20211111' and '20211120';
+select * from tbl_transaction_detail;
+
+-----------------------------------------------------
+
+select regdate, customer_id, customer_comp, customer_name, empname, totalprice, status
+from
+(
+    select row_number() over(order by regdate desc) AS rno
+         , to_char(regdate, 'yyyy-mm-dd') AS regdate
+         , customer_id, customer_comp, customer_name, empname, totalprice, status
+    from tbl_billnotax
+    where 1 = 1
+          and to_char(regdate, 'yyyymmdd') between '20211111' and '20211120'
+          and customer_id like '%' || '-' || '%'
+) V
+where rno between 1 and 10
+order by rno desc
+
+------------------------------------------------
+
+select nvl(customer_email, 'empty') AS customer_email
+from tbl_billtax A JOIN tbl_customer C
+ON A.customer_id = C.customer_id
+where billtax_seq in ('1','2')
+
+-------------------------------------------------
+
+select customer_id, nvl(customer_comp, '') AS customer_comp
+     , nvl(customer_name, '') AS customer_name, nvl(customer_addr, '') AS customer_addr
+     , to_char(regdate, 'yyyy-mm-dd') AS regdate, totalprice, empid, empname
+     , mycompany_comp, mycompany_name, mycompany_addr
+from tbl_billtax
+where transaction_seq = 1
+
+select * from tbl_billtax;_detail;
+
+update tbl_transaction set status = 0 , empname = '테스트' where billtax_seq = 12;
+commit;
+
+select nvl(C.customer_comp, '') AS customer_comp, nvl(C.customer_name, '') AS customer_name, nvl(customer_email, 'empty') AS customer_email
+from tbl_billtax A JOIN tbl_customer C
+ON A.customer_id = C.customer_id
+where billtax_seq  = 12;
+
+select * from tbl_employee
+
+select * from tbl_loginhistory
+
+select * from tbl_billtax;

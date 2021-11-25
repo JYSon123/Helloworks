@@ -20,10 +20,12 @@ public class EmpVO_KJH {
 	
 	private String otpurl;
 	
+	private String noticeemail;
+	
 	public EmpVO_KJH() {}
 	
 	public EmpVO_KJH(String empno, String empname, String empid, String emppw, String email, int ranking, String fk_deptnum,
-			int empStatus, int empSalary, String hiredate, String otpkey, String otpurl) {
+			int empStatus, int empSalary, String hiredate, String otpkey, String otpurl, String noticeemail) {
 		super();
 		this.empno = empno;
 		this.empname = empname;
@@ -37,6 +39,7 @@ public class EmpVO_KJH {
 		this.hiredate = hiredate;
 		this.otpkey = otpkey;
 		this.otpurl = otpurl;
+		this.noticeemail = noticeemail;
 	}
 
 	public String getEmpno() {
@@ -157,6 +160,14 @@ public class EmpVO_KJH {
 
 	public void setOtpurl(String otpurl) {
 		this.otpurl = otpurl;
+	}
+
+	public String getNoticeemail() {
+		return noticeemail;
+	}
+
+	public void setNoticeemail(String noticeemail) {
+		this.noticeemail = noticeemail;
 	}
 	
 	

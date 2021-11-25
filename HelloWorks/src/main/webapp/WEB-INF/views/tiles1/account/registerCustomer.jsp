@@ -18,13 +18,36 @@
 				return;
 			}
 			 
-			else {				
-				$("input[name=customer_id]").prop("readonly", true);
+			else {
 				
-				$(this).prop("disabled", true);
-				$(this).removeClass("btn-outline-danger");
-				$(this).addClass("btn-success");
-				$(this).html("<i class='fas fa-check-circle'></i>&nbsp;완료");
+				$.ajax({url:"<%=request.getContextPath()%>/account/verifyId.hello2",
+						type:"POST",
+						data:{"compid":$("input[name=customer_id]").val()},
+						dataType:"JSON",
+						success:function(json) {
+														
+							if(json.isExist == 0) {
+
+								$("input[name=customer_id]").prop("readonly", true);
+								
+								$("button[name=idOK]").prop("disabled", true);
+								$("button[name=idOK]").removeClass("btn-outline-danger");
+								$("button[name=idOK]").addClass("btn-success");
+								$("button[name=idOK]").html("<i class='fas fa-check-circle'></i>&nbsp;완료");
+								
+							}
+							
+							else {
+								alert("이미 등록된 사업자 등록번호입니다.");
+								return;
+							}
+							
+						},
+						error: function(request, status, error){
+							alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+						}
+				});
+				
 			}
 			
 		});
