@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.spring.helloworks.model.EmpVO_KJH;
+import com.spring.helloworks.model.EmpVO_HJE;
 
 @Repository
 public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
@@ -146,8 +146,8 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 
 	// 공유대상에 포함된 직원의 이메일 알아오기
 	@Override
-	public List<EmpVO_KJH> getShareEmpEmail(Map<String, String[]> paraMap) {
-		List<EmpVO_KJH> shareEmpEmailList = sqlsession2.selectList("hje.getShareEmpEmail",paraMap);
+	public List<EmpVO_HJE> getShareEmpEmail(Map<String, String[]> paraMap) {
+		List<EmpVO_HJE> shareEmpEmailList = sqlsession2.selectList("hje.getShareEmpEmail",paraMap);
 		return shareEmpEmailList;
 	}
 
@@ -157,6 +157,14 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 	public int calnameDuplicateCheck(Map<String, String> paraMap) {
 		int count = sqlsession2.selectOne("hje.calnameDuplicateCheck",paraMap);
 		return count;
+	}
+
+
+	// 선택된 카테고리에 해당하는 일정만 보여주기 
+	@Override
+	public List<Map<String, String>> showChkCalList(Map<String, Object> paraMap) {
+		List<Map<String, String>> chkCalList = sqlsession2.selectList("hje.showChkCalList",paraMap);
+		return chkCalList;
 	}
 
 

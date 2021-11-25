@@ -1,10 +1,7 @@
 package com.spring.schedule.controller;
 
-import java.io.IOException;
 import java.util.*;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -255,7 +252,7 @@ public class ScheduleController_HJE {
 	   paraMap.put("shareEmp", shareEmp);
 	   paraMap.put("fk_cno", fk_cno);
 	   	   
-//	   int n = service.addCalendar(paraMap);
+	   int n = service.addCalendar(paraMap);
 	   
 	   mav.setViewName("redirect:/schedule.hello2");
 	   
@@ -307,6 +304,7 @@ public class ScheduleController_HJE {
 	   String fk_calno = request.getParameter("fk_calno");
 	   String title = request.getParameter("title");
 	   String location = request.getParameter("location");
+	  
 	   String content = request.getParameter("content");
 	   
 	   String startDay = request.getParameter("startDay");
@@ -333,7 +331,6 @@ public class ScheduleController_HJE {
 	   String mnoticeTime = request.getParameter("mnoticeTime");
 	   String enoticeTime = request.getParameter("enoticeTime");
 	   
-	   
 	   Map<String,String> paraMap = new HashMap<>();
 	   
 	   paraMap.put("fk_calno", fk_calno);	   
@@ -353,6 +350,9 @@ public class ScheduleController_HJE {
    // 개인 캘린더 수정 및 삭제
    @RequestMapping(value = "/changePersonal.hello2", method= {RequestMethod.POST})
    public String changePersonal(HttpServletRequest request, HttpServletResponse response) {
+	   
+	   HttpSession session = request.getSession();
+	   String goBackURL = (String) session.getAttribute("goBackURL");
 	   
 	   String calno = request.getParameter("calno");
 	   String calname = request.getParameter("calname");
@@ -374,7 +374,8 @@ public class ScheduleController_HJE {
 		   service.deletePersonal(paraMap);
 	   }
 
-	   return "redirect:/schedule.hello2";
+//	   return "redirect:/schedule.hello2";
+	   return "redirect:"+goBackURL;
    }
    
    
@@ -382,29 +383,48 @@ public class ScheduleController_HJE {
    @RequestMapping(value = "/changeShare.hello2", method= {RequestMethod.POST})
    public String changeShare(HttpServletRequest request, HttpServletResponse response) {
 	   
-	   String calno = request.getParameter("calno");
-	   String calname = request.getParameter("calname");
-	   String color = request.getParameter("color");
-	   String shareEmp = request.getParameter("shareEmp");
-	   String changeOption = request.getParameter("changeOption");
-	   	   
-	   Map<String,String> paraMap = new HashMap<>();
+	   HttpSession session = request.getSession();
+	   EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
 	   
-	   paraMap.put("calno", calno);
-	   paraMap.put("calname", calname);
-	   paraMap.put("color", color);
-	   paraMap.put("shareEmp", shareEmp);
+	   String goBackURL = (String) session.getAttribute("goBackURL");
 	   
-	   if( "1".equals(changeOption) ) {	// 수정
+	   if( loginEmp.getRanking() <= 2) {
+			// 대리(2)와 사원(1)은 공유캘린더 삭제 불가능
 		   
-		   service.updateShare(paraMap);
-	   }
-	   if( "2".equals(changeOption) ) { // 삭제
-		   
-		   service.deleteShare(paraMap);
+			String message = "일정 수정 및 삭제 권한이 존재하지 않습니다.";
+			String loc = request.getContextPath()+goBackURL;
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "tiles1/schedule/msg";
 	   }
 	   
-	   return "redirect:/schedule.hello2";
+	   else {
+		   String calno = request.getParameter("calno");
+		   String calname = request.getParameter("calname");
+		   String color = request.getParameter("color");
+		   String shareEmp = request.getParameter("shareEmp");
+		   String changeOption = request.getParameter("changeOption");
+		   	   
+		   Map<String,String> paraMap = new HashMap<>();
+		   
+		   paraMap.put("calno", calno);
+		   paraMap.put("calname", calname);
+		   paraMap.put("color", color);
+		   paraMap.put("shareEmp", shareEmp);
+		   
+		   if( "1".equals(changeOption) ) {	// 수정
+			   
+			   service.updateShare(paraMap);
+		   }
+		   if( "2".equals(changeOption) ) { // 삭제
+			   
+			   service.deleteShare(paraMap);
+		   }
+		   
+		   return "redirect:"+goBackURL;
+	   }
    }
    
    // 자동완성
@@ -445,14 +465,13 @@ public class ScheduleController_HJE {
    public String changeSchedule(HttpServletRequest request, HttpServletResponse response) {
 	   
 	   HttpSession session = request.getSession();
-	   
 	   EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
 	   
 	   String goBackURL = (String) session.getAttribute("goBackURL");
 	   
-	   if(loginEmp.getRanking() < 2) {
-			// 대리(2)와 사원(1)은 일정변경 불가능
-			
+	   if( "2".equals(request.getParameter("fk_cno")) && loginEmp.getRanking() <= 2) {
+			// 공유캘린더의 경우 대리(2)와 사원(1)은 일정변경 불가능
+		   
 			String message = "일정 수정 및 삭제 권한이 존재하지 않습니다.";
 			String loc = request.getContextPath()+goBackURL;
 			
@@ -463,6 +482,7 @@ public class ScheduleController_HJE {
 	   }
 	   
 	   else {
+		   // 개인캘린더이거나 직급이 부장 이상인 경우
 		   
 		   String sno = request.getParameter("sno");
 		   String title = request.getParameter("title");
@@ -508,11 +528,11 @@ public class ScheduleController_HJE {
 		   
 		   if( "1".equals(changeOption) ) {	// 수정
 			   
-			   service.updateSchedule(paraMap);
+//			   service.updateSchedule(paraMap);
 		   }
 		   if( "2".equals(changeOption) ) { // 삭제
 			   
-			   service.deleteSchedule(paraMap);
+//			   service.deleteSchedule(paraMap);
 		   }
 		   
 		   return "redirect:"+goBackURL;
@@ -821,13 +841,47 @@ public class ScheduleController_HJE {
 			isExists = false;
 		}
 		
-		System.out.println("count: "+ count);
-		System.out.println("isExists: "+ isExists);
-		
 		JSONObject jsonObj = new JSONObject();	//{}
 		jsonObj.put("isExists", isExists);		//{"isExists":true} 또는 {"isExists":false}
 
 		return jsonObj.toString();
+	}
+	
+	// 선택된 카테고리에 해당하는 일정만 보여주기 
+	@RequestMapping("/showChkCalList.hello2")
+	public String showChkCalList(HttpServletRequest request) {
+		
+		Map<String,Object> paraMap = new HashMap<>();
+		
+		HttpSession session = request.getSession();
+		EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
+		String empid = loginEmp.getEmpid();
+		paraMap.put("empid", empid);
+		
+		// 캘린더 리스트
+		List<CalendarVO_HJE> calList = service.showCalendarList(empid);
+		request.setAttribute("calList", calList);
+		
+		String sCalNo = request.getParameter("sCalNo");
+		
+		// 아무것도 선택하지 않았을 시 일정메인페이지로 이동
+		if ("".equals(sCalNo) ) {
+			return "redirect:/schedule.hello2";
+		}
+		
+		
+		if(sCalNo != null && !"".equals(sCalNo)) {
+			String[] calNoArr = sCalNo.split(",");
+			paraMap.put("calNoArr", calNoArr);
+			
+			request.setAttribute("sCalNo", sCalNo);
+		}
+		
+		List<Map<String,String>> chkCalList = service.showChkCalList(paraMap);
+		
+		request.setAttribute("chkCalList", chkCalList);
+		
+		return "schedule/calendar.tiles1";
 	}
 	
    

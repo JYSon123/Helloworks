@@ -18,6 +18,7 @@ create table tbl_employee
 , empstatus number(1) default 1 -- (1: 재직, 0: 퇴사, 2:휴직) 
 , empsalary number(20) not null  
 , hiredate  date default sysdate
+, noticeemail varchar2(30)  -- 알림용 개인이메일
 , constraint PK_tbl_member_empno primary key(empno)
 , constraint FK_tbl_member_deptnum foreign key(fk_deptnum) REFERENCES tbl_deptpartment(deptnum)
 , constraint CK_tbl_emp_rank check(ranking in (1,2,3,4,5))
@@ -196,7 +197,7 @@ values (snoSeq.nextval, 1,'페이징처리테스트21','2021-11-22T18:30:00','20
        commit
        
        
-select title, content, location, startdate, enddate, shareemp
+select title, content, location, startdate, enddate, shareemp, notice
 from tbl_schedule S JOIN tbl_calendar C
 ON S.FK_CALNO = c.CALNO
 where notice like '%' || 'email' and substr(startdate,1,10) = to_char(sysdate+1, 'yyyy-mm-dd')
@@ -212,7 +213,41 @@ select email
 from tbl_employee
 where empid in (test, ceo)
 
-select count(*)
-from tbl_calendar
-where calname='공유 캘린더2' and shareemp like '%'|| 'test' || '%'
+select * from tbl_calendar
+where calname='공유 캘린더2'; and shareemp like '%'|| 'test' || '%'
 
+alter table tbl_employee add noticeemail varchar2(30)
+
+update tbl_employee set noticeemail = 'dufrhdgktpa@naver.com'
+where empid='ceo'
+commit;
+select noticeemail
+		from tbl_employee
+        
+        select noticeemail
+		from tbl_employee
+		where empid in  ('test', 'account', 'ceo')
+        
+        update set tbl_employee 
+        
+        select * from tbl_employee
+        
+        update tbl_employee set noticeemail = 'dufrhdgktpa@naver.com'
+        where empid = 'ceo';
+        update tbl_employee set  noticeemail = 'marketing@naver.com'
+        where empid = 'marketing';
+        update tbl_employee set  noticeemail = 'account@naver.com'
+        where empid = 'account';
+        update tbl_employee set  noticeemail = 'sales@naver.com'
+        where empid = 'sales';
+        update set tbl_employee noticeemail = 'jubar2222@naver.com'
+        where empid = 'jubar2222';
+        update set tbl_employee noticeemail = 'jubar2222@naver.com'
+        where empid = 'jubar2222';
+        commit
+        
+        select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno,calname
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| 'test' ||'%'
+        and calNo in (13,15,1)

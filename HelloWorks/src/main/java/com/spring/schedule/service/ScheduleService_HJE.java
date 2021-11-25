@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.spring.helloworks.common.GoogleMail_HJE;
-import com.spring.helloworks.model.EmpVO_KJH;
+import com.spring.helloworks.model.EmpVO_HJE;
 import com.spring.schedule.model.CalendarVO_HJE;
 import com.spring.schedule.model.InterScheduleDAO_HJE;
 import com.spring.schedule.model.ScheduleVO_HJE;
@@ -175,12 +175,42 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 				Map<String, String[]> paraMap = new HashMap<>();
 				paraMap.put("shareempArr", shareempArr);
 				
-				List<EmpVO_KJH> shareEmpEmailList = dao.getShareEmpEmail(paraMap);
+				List<EmpVO_HJE> shareEmpEmailList = dao.getShareEmpEmail(paraMap);
 				
-				for(EmpVO_KJH evo : shareEmpEmailList) {
+				for(EmpVO_HJE evo : shareEmpEmailList) {
 					
-					String emailContents = "이메일테스트중";
-					mail.sendmail_Reservation(evo.getEmail(), emailContents);
+					if(evo != null && !"empty".equals(evo.getNoticeemail())) {
+						String emailContents =  "<div style='width: 500px; height: 500px; border: solid 20px #a1c0d6; border-radius: 10px ;'>" + 
+												"		<h2 style='text-align: center; background-color:#0070C1; color: #fff; width: 85%; margin: 40px auto; padding: 7px; border-radius: 10px;'>HelloWorks에 등록된 일정 정보</h2>" + 
+												"		" + 
+												"		<table style='margin: 0 auto; width:85%; border-collapse: collapse;'>" + 
+												"			<tbody>" + 
+												"				<tr style='border: solid 1px #e6e6e6; height: 40px;'>" + 
+												"					<td style='width: 30%; border: solid 1px #e6e6e6; text-align: center;'>일정제목&nbsp;</td>" + 
+												"					<td style='width: 70%; border: solid 1px #e6e6e6; padding-left: 10px;'>"+emailSchList.get(i).get("title")+"</td>" + 
+												"				</tr>" + 
+												"				<tr style='border: solid 1px #e6e6e6; height: 40px;'>" + 
+												"					<td style='width: 30%; border: solid 1px #e6e6e6; text-align: center;'>시작&nbsp;</td>" + 
+												"					<td style='width: 70%; border: solid 1px #e6e6e6; padding-left: 10px;'>"+emailSchList.get(i).get("startdate").substring(0,10)+"&nbsp;"+emailSchList.get(i).get("startdate").substring(11)+"</td>" + 
+												"				</tr>" + 
+												"				<tr style='border: solid 1px #e6e6e6; height: 40px;'>" + 
+												"					<td style='width: 30%; border: solid 1px #e6e6e6; text-align: center;'>종료&nbsp;</td>" + 
+												"					<td style='width: 70%; border: solid 1px #e6e6e6; padding-left: 10px;'>"+emailSchList.get(i).get("enddate").substring(0,10)+"&nbsp;"+emailSchList.get(i).get("enddate").substring(11)+"</td>" + 
+												"				</tr>" + 
+												"				<tr style='border: solid 1px #e6e6e6; height: 40px;'>" + 
+												"					<td style='width: 30%; border: solid 1px #e6e6e6; text-align: center;'>장소&nbsp;</td>" + 
+												"					<td style='width: 70%; border: solid 1px #e6e6e6; padding-left: 10px;'>"+emailSchList.get(i).get("location")+"</td>" + 
+												"				</tr>" + 
+												"				<tr style='border: solid 1px #e6e6e6; height: 40px;'>" + 
+												"					<td style='width: 30%; border: solid 1px #e6e6e6; text-align: center;'>내용&nbsp;</td>" + 
+												"					<td style='width: 70%; border: solid 1px #e6e6e6; padding-left: 10px;'>"+emailSchList.get(i).get("content")+"</td>" + 
+												"				</tr>" + 
+												"			</tbody>" + 
+												"		</table>" + 
+												"		<img src='http://localhost:9090/helloworks/resources/images/logo.jpg' width='70%' style='float: right; margin-top: 50px;'/>" + 
+												"	</div>";
+						mail.sendmail_Reservation(evo.getNoticeemail(), emailContents);
+					}
 				}
 				
 				
@@ -198,6 +228,13 @@ public class ScheduleService_HJE implements InterScheduleService_HJE {
 	public int calnameDuplicateCheck(Map<String, String> paraMap) {
 		int count = dao.calnameDuplicateCheck(paraMap);
 		return count;
+	}
+
+	// 선택된 카테고리에 해당하는 일정만 보여주기 
+	@Override
+	public List<Map<String, String>> showChkCalList(Map<String, Object> paraMap) {
+		List<Map<String, String>> chkCalList = dao.showChkCalList(paraMap);
+		return chkCalList;
 	}
 	
 	

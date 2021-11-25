@@ -97,13 +97,13 @@
 <script type="text/javascript">
 	
 	var allEmpid = "";
-	var flagcalNameDuplicate = true;
 	$(document).ready(function(){
 		
 		// 공유대상입력
   		$("input#s_shareEmp").keyup(function(){
   			
   			var shareEmp = $(this).val();
+  			
   			
   			$.ajax({
   				url:"<%=ctxPath%>/searchShareEmp.hello2",
@@ -199,24 +199,38 @@
 			return;
 		}
 
-		window.parent.calnameDuplicateCheck();
-		
-		if(flagcalNameDuplicate == false) { 
-			var frm = document.shareFrm;
-			
-			frm.action ="<%=ctxPath%>/addCalendar.hello2";
-			frm.method = "POST";
-			frm.submit();
-			
-			// 부모창의  closeModal 함수 호출해서 모달창 닫기
-			window.parent.closeModal();
-		}
-		else {
-			alert("이미 존재하는 캘린더 명입니다. 다시 입력해주세요.");
-			$("input#s_calname").val("");
-			$("input#s_calname").focus();
-		}
-		
+		// 캘린더명 중복 검사
+		$.ajax({
+			url: "<%= ctxPath%>/calnameDuplicateCheck.hello2",
+			type: "post",
+			data: {"calname":$("input#s_calname").val()},
+			dataType: "json",
+			success: function(json) {
+
+				if(json.isExists) {
+					// true, 입력한 calname이 이미 사용 중이라면
+					
+					alert("이미 존재하는 캘린더 명입니다. 다시 입력해주세요.");
+					$("input#s_calname").val("");
+					$("input#s_calname").focus();
+				}
+				else {
+					
+					var frm = document.shareFrm;
+					
+					frm.action ="<%=ctxPath%>/addCalendar.hello2";
+					frm.method = "POST";
+					frm.submit();
+					
+					// 부모창의  closeModal 함수 호출해서 모달창 닫기
+					window.parent.closeModal();
+				}
+				
+			},
+			error: function(request, status, error){
+                   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+                   }
+		}); 
 		
 	}
 	

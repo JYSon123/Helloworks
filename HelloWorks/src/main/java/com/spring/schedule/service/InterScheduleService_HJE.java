@@ -62,6 +62,9 @@ public interface InterScheduleService_HJE {
 	// 캘린더명 중복체크
 	int calnameDuplicateCheck(Map<String, String> paraMap);
 
+	// 선택된 카테고리에 해당하는 일정만 보여주기 
+	List<Map<String, String>> showChkCalList(Map<String, Object> paraMap);
+
 	
 
 

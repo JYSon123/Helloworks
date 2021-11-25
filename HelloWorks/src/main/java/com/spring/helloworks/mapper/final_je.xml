@@ -26,6 +26,7 @@
 		select calno, calname, color, fk_cno, shareemp
 		from tbl_calendar
 		where shareemp like '%'|| #{empid} ||'%'
+		order by fk_cno
 	</select>
 	
 	
@@ -106,10 +107,11 @@
        <result property="content"      	column="content"     javaType="String" />
        <result property="location"      column="location"    javaType="String" />
        <result property="status"      	column="status"      javaType="String" />
+       <result property="fk_cno"      	column="fk_cno"      javaType="String" />
     </resultMap>
 	<!-- 일정검사 -->
 	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
 		from tbl_calendar C JOIN tbl_schedule S
 		ON C.CALNO = S.FK_CALNO
 		where SHAREEMP like '%'|| #{empid} ||'%'
@@ -127,11 +129,11 @@
 	
 	<!-- 페이징처리한 일정 -->
 	<select id="searchPagingSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
 		from 
 		(
 			select row_number() over (order by sno desc) AS rno,
-	               title, startDate, endDate, calName, shareEmp, color, sno, content, location, status
+	               title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
 			from tbl_calendar C JOIN tbl_schedule S
 			ON C.CALNO = S.FK_CALNO
 			where SHAREEMP like '%'|| #{empid} ||'%'
@@ -148,6 +150,22 @@
 		)
 		where rno between #{startRno} and #{endRno}
 	</select>
+	
+	<!-- 선택된 카테고리에 해당하는 일정만 보여주기 -->
+	<select id="showChkCalList" resultMap="searchSchduleMap"  parameterType="HashMap">
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+		<if test="calNoArr != null">
+	    	and calNo in 
+	    	<foreach collection="calNoArr" index="i" open="(" separator="," close=")">
+	    		'${calNoArr[i]}'
+	    	</foreach>
+	    </if>
+		order by enddate desc
+	</select>
+	
 	
 	<!-- 검색결과에 대한 총 일정 건수 -->
 	<select id="getTotalCount" parameterType="HashMap" resultType="int">
@@ -208,15 +226,15 @@
        <result property="shareemp"  column="shareemp"   javaType="String" />
     </resultMap>
 	<select id="getEmailSchList" resultMap="emailSchMap">
-		select title, content, location, startdate, enddate, shareemp
+		select title, content, nvl(location,' ') as location, startdate, enddate, shareemp
 		from tbl_schedule S JOIN tbl_calendar C
 		ON S.FK_CALNO = c.CALNO
 		where notice like '%' || 'email' and substr(startdate,1,10) = to_char(sysdate+1, 'yyyy-mm-dd')
 	</select>
 	
 	<!-- 공유대상에 포함된 직원의 이메일 알아오기 -->
-	<select id="getShareEmpEmail" parameterType="HashMap" resultType="com.spring.helloworks.model.EmpVO_KJH" >
-		select email
+	<select id="getShareEmpEmail" parameterType="HashMap" resultType="com.spring.helloworks.model.EmpVO_HJE" >
+		select nvl(noticeemail, 'empty') as noticeemail
 		from tbl_employee
 		where empid in 
 		<foreach collection="shareempArr" index="i" open="(" separator="," close=")">
@@ -230,6 +248,8 @@
 		from tbl_calendar
 		where calname= #{calname} and shareemp like '%'|| #{empid} || '%'
 	</select>
+	
+	
 	
 	
 	

@@ -2,7 +2,7 @@ package com.spring.schedule.model;
 
 import java.util.*;
 
-import com.spring.helloworks.model.EmpVO_KJH;
+import com.spring.helloworks.model.EmpVO_HJE;
 
 public interface InterScheduleDAO_HJE {
 	
@@ -58,10 +58,12 @@ public interface InterScheduleDAO_HJE {
 	List<Map<String, String>> getEmailSchList();
 
 	// 공유대상에 포함된 직원의 이메일 알아오기
-	List<EmpVO_KJH> getShareEmpEmail(Map<String, String[]> paraMap);
+	List<EmpVO_HJE> getShareEmpEmail(Map<String, String[]> paraMap);
 
 	// 캘린더명 중복체크
 	int calnameDuplicateCheck(Map<String, String> paraMap);
 	
+	// 선택된 카테고리에 해당하는 일정만 보여주기 
+	List<Map<String, String>> showChkCalList(Map<String, Object> paraMap);
 	
 }
