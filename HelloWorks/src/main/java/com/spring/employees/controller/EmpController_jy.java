@@ -1104,7 +1104,18 @@ public class EmpController_jy {
 		   HttpSession session = request.getSession();
 	      
 	       EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
-		
+
+	       if(loginEmp == null) {
+				
+				mav.addObject("message", "먼저 로그인을 해주세요!");
+				
+				mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+				mav.setViewName("msg_JY");
+				
+				return mav;
+			}
+	       
 		   String empid = loginEmp.getEmpid();
 
 		   
