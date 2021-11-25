@@ -25,6 +25,7 @@ import com.spring.employees.model.BreakCalendarVO_jy;
 import com.spring.employees.model.DocumentVO_jy;
 import com.spring.employees.model.FileManager_jy;
 import com.spring.employees.service.InterEmpService_jy;
+import com.spring.helloworks.common_KJH.Sha256;
 import com.spring.helloworks.model.EmpVO_KJH;
 
 @Controller
@@ -46,10 +47,21 @@ public class EmpController_jy {
 		HttpSession session = request.getSession();
 		 
 		EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
-		 
+		
+		if(loginEmp == null) {
+			mav.addObject("message", "먼저 로그인을 해주세요!");
+			
+			mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+			mav.setViewName("msg_JY");
+			
+			return mav;
+		}
+		
+		
 		String empid = loginEmp.getEmpid();
 		
-	    if(!checkDepartment(request,"10") || empid.equals("admin")) { // 인사팀이나 관리자가 아닌 경우
+	    if(!checkDepartment(request,"10") || !empid.equals("admin")) { // 인사팀이나 관리자가 아닌 경우
 	    	
 	    	mav.addObject("loc", request.getContextPath()+"/myDocumentlist.hello2");
 
@@ -80,6 +92,21 @@ public class EmpController_jy {
 	public ModelAndView add(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {	
 		
 	//	getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 호출
+		
+		HttpSession session = request.getSession();
+		 
+		EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+		
+		if(loginEmp == null) {
+			mav.addObject("message", "먼저 로그인을 해주세요!");
+			
+			mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+			mav.setViewName("msg_JY");
+			
+			return mav;
+		}
+		
 		
 		mav.setViewName("document/add.tiles1");
 
@@ -340,149 +367,333 @@ public class EmpController_jy {
 	@RequestMapping(value="/documentlist.hello2")
     public ModelAndView documentlist(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
        
-   //  getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 생성 ===  
-       
-		List<DocumentVO_jy> documentList = null;
+		HttpSession session = request.getSession();
+		 
+		EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+		 
+		if(loginEmp == null) {
+			mav.addObject("message", "먼저 로그인을 해주세요!");
+			
+			mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+			mav.setViewName("msg_JY");
+			
+			return mav;
+		}
 		
-       // === #114. 페이징 처리를 한 검색어가 있는 전체 문서목록 보여주기 시작 === // 
-        String searchType = request.getParameter("searchType");
-        String searchWord = request.getParameter("searchWord");
-        String str_currentShowPageNo = request.getParameter("currentShowPageNo");
-        
-        
-        if(searchType == null) {
-        	searchType = "";
-        }
-        if(searchWord == null) {
-        	searchWord = "";
-        }
-        
-        
-        
-        Map<String,String> paraMap = new HashMap<>();
-        paraMap.put("searchType", searchType);
-        paraMap.put("searchWord", searchWord);
-        
-        
-        // 먼저 총 게시물 건수(totalCount)를 구해와야 한다.
-        // 총 게시물 건수(totalCount)는 검색조건이 있을 때와 없을 때로 나뉘어진다.
-        int totalCount = 0;        // 총 게시물 건수
-        int sizePerPage = 10;      // 한 페이지당 보여줄 게시물 건수
-        int currentShowPageNo = 0; // 현재 보여주는 페이지 번호로서, 초기치로는 1페이지로 설정함.
-        int totalPage = 0;         // 총 페이지수(웹브라우저상에서 보여줄 총 페이지 개수, 페이지바 )
-        
-        int startRno = 0;          // 시작 행번호
-        int endRno = 0;            // 끝 행번호
-        
-        // 총 게시물 건수(totalCount)
-        totalCount = service.getTotalCount(paraMap);
-       //  System.out.println("~~~ 확인용 totalCount=> "+ totalCount);
-        
-        // 만약에 총 게시물 건수(totalCount)가 127개이라면
-        // 총 페이지수(totalPage)는 13개 되어야 한다.
-        
-        totalPage = (int) Math.ceil((double)totalCount/sizePerPage); // (double)127/10 ==> 12.7 ==> Math.ceil(12.7) ==> 13.0 ==> (int)13.0 ==> 13
-        
-        if(str_currentShowPageNo == null) {
-           // 게시판에 보여지는 초기화면
-           currentShowPageNo = 1;
-        }
-        else {
-           try {
-              currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
-              if(currentShowPageNo < 1 || currentShowPageNo > totalPage) {
-                 currentShowPageNo = 1;
-              }
-           }catch(NumberFormatException e) {
-              currentShowPageNo = 1;
-           }
-        }
-        
-        // **** 가져올 게시글의 범위를 구한다.(공식임!!!) **** 
+		String empid = loginEmp.getEmpid();
+		
+		
+		
+		
+		
+		if(checkDepartment(request,"30")) {
+			   //  getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 생성 ===  
+	        
+						List<DocumentVO_jy> documentList = null;
+						
+				       // === #114. 페이징 처리를 한 검색어가 있는 전체 문서목록 보여주기 시작 === // 
+				        String searchType = request.getParameter("searchType");
+				        String searchWord = request.getParameter("searchWord");
+				        String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+				        
+				        
+				        if(searchType == null) {
+				        	searchType = "";
+				        }
+				        if(searchWord == null) {
+				        	searchWord = "";
+				        }
+				        
+				        
+				        
+				        Map<String,String> paraMap = new HashMap<>();
+				        paraMap.put("searchType", searchType);
+				        paraMap.put("searchWord", searchWord);
+				        
+				        
+				        // 먼저 총 게시물 건수(totalCount)를 구해와야 한다.
+				        // 총 게시물 건수(totalCount)는 검색조건이 있을 때와 없을 때로 나뉘어진다.
+				        int totalCount = 0;        // 총 게시물 건수
+				        int sizePerPage = 10;      // 한 페이지당 보여줄 게시물 건수
+				        int currentShowPageNo = 0; // 현재 보여주는 페이지 번호로서, 초기치로는 1페이지로 설정함.
+				        int totalPage = 0;         // 총 페이지수(웹브라우저상에서 보여줄 총 페이지 개수, 페이지바 )
+				        
+				        int startRno = 0;          // 시작 행번호
+				        int endRno = 0;            // 끝 행번호
+				        
+				        // 총 게시물 건수(totalCount)
+				        totalCount = service.getTotalCount(paraMap);
+				       //  System.out.println("~~~ 확인용 totalCount=> "+ totalCount);
+				        
+				        // 만약에 총 게시물 건수(totalCount)가 127개이라면
+				        // 총 페이지수(totalPage)는 13개 되어야 한다.
+				        
+				        totalPage = (int) Math.ceil((double)totalCount/sizePerPage); // (double)127/10 ==> 12.7 ==> Math.ceil(12.7) ==> 13.0 ==> (int)13.0 ==> 13
+				        
+				        if(str_currentShowPageNo == null) {
+				           // 게시판에 보여지는 초기화면
+				           currentShowPageNo = 1;
+				        }
+				        else {
+				           try {
+				              currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
+				              if(currentShowPageNo < 1 || currentShowPageNo > totalPage) {
+				                 currentShowPageNo = 1;
+				              }
+				           }catch(NumberFormatException e) {
+				              currentShowPageNo = 1;
+				           }
+				        }
+				        
+				        // **** 가져올 게시글의 범위를 구한다.(공식임!!!) **** 
 
-        
-        startRno = ( ( currentShowPageNo -1 ) * sizePerPage ) +1;
-        endRno = startRno + sizePerPage - 1;
-        
-        paraMap.put("startRno", String.valueOf(startRno));
-        paraMap.put("endRno", String.valueOf(endRno));
-        
-        documentList = service.documentListSearchWithPaging(paraMap);
-        // 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한 것)
-        
-        // 아래는 검색대상 컬럼과 검색어를 유지시키기 위한 것임.
-        if(!"".equals(searchType) && !"".equals(searchWord)) {
-           mav.addObject("paraMap",paraMap);
-        }
-        mav.addObject("paraMap",paraMap);
-        
-        // === #121. 페이지바 만들기 === //
-        int blockSize = 10;
-        // blockSize 는 1개 블럭(토막)당 보여지는 페이지번호의 개수 이다.
-        
-        int loop = 1;
-        /*
-           loop는 1부터 증가하여 1개 블럭을 이루는 페이지번호의 개수[ 지금은 10개(== blockSize) ] 까지만 증가하는 용도이다.
-        */
-        
-        int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
-        // *** !! 공식이다. !! *** //
+				        
+				        startRno = ( ( currentShowPageNo -1 ) * sizePerPage ) +1;
+				        endRno = startRno + sizePerPage - 1;
+				        
+				        paraMap.put("startRno", String.valueOf(startRno));
+				        paraMap.put("endRno", String.valueOf(endRno));
+				        
+				        documentList = service.documentListSearchWithPaging(paraMap);
+				        // 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한 것)
+				        
+				        // 아래는 검색대상 컬럼과 검색어를 유지시키기 위한 것임.
+				        if(!"".equals(searchType) && !"".equals(searchWord)) {
+				           mav.addObject("paraMap",paraMap);
+				        }
+				        mav.addObject("paraMap",paraMap);
+				        
+				        // === #121. 페이지바 만들기 === //
+				        int blockSize = 10;
+				        // blockSize 는 1개 블럭(토막)당 보여지는 페이지번호의 개수 이다.
+				        
+				        int loop = 1;
+				        /*
+				           loop는 1부터 증가하여 1개 블럭을 이루는 페이지번호의 개수[ 지금은 10개(== blockSize) ] 까지만 증가하는 용도이다.
+				        */
+				        
+				        int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
+				        // *** !! 공식이다. !! *** //
 
-        
-        String pageBar = "<ul style='list-style:none;'>"; 
-        String url = "documentlist.hello2";
-        
-        // === [맨처음][이전] 만들기 === 
-        if(pageNo != 1) {     
-           pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo=1'>[맨처음]</a></li>";
-           pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+(pageNo-1)+"'>[이전]</a></li>";     
-        }        
-        
-        while( !(loop > blockSize || pageNo > totalPage) ) {
-           
-           if(pageNo == currentShowPageNo) {
-              pageBar += "<li style='display:inline-block; width:30px; font-size:12pt; border:solid 1px gray; color:red; padding:2px 4px;'>"+pageNo+"</li>";
-           }
-           else {
-              pageBar += "<li style='display:inline-block; width:30px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>"+pageNo+"</a></li>";
-           }
-           
-           loop++;
-           pageNo++;
-           
-        }// end of while------------------------
-        
-              
-        // === [다음][마지막] 만들기 === 
-        if(pageNo <= totalPage) {     
-           pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>[다음]</a></li>";
-           pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+totalPage+"'>[마지막]</a></li>";     
-        }
-        
-        
-        pageBar += "</ul>";
-        
-        mav.addObject("pageBar", pageBar);
-       
-       
-       // === #123. 페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후 
-        //            사용자가 목록보기 버튼을 클릭했을 때 돌아갈 페이지를 알려주기 위해
-        //           현재 페이지 주소를 뷰단으로 넘겨준다. === //
-   //     String gobackURL = MyUtil.getCurrentURL(request);
-     // System.out.println("~~~~ 확인용 gobackURL => " + gobackURL);
-        // ~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=java
-        // ~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=%EC%9E%85%EB%8B%88%EB%8B%A4&currentShowPageNo=15
-        
-      //  mav.addObject("gobackURL", gobackURL);
-        
-        // === 페이징 처리를 한 검색어가 있는 전체 글목록 보여주기 끝 === //
-        /////////////////////////////////////////////////////////////
-        
-        mav.addObject("documentList", documentList);
-        mav.setViewName("document/list2.tiles1");
-       // /WEB-INF/views/tiles1/board/list.jsp 파일을 생성한다.
-       
-       return mav;
+				        
+				        String pageBar = "<ul style='list-style:none;'>"; 
+				        String url = "documentlist.hello2";
+				        
+				        // === [맨처음][이전] 만들기 === 
+				        if(pageNo != 1) {     
+				           pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo=1'>[맨처음]</a></li>";
+				           pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+(pageNo-1)+"'>[이전]</a></li>";     
+				        }        
+				        
+				        while( !(loop > blockSize || pageNo > totalPage) ) {
+				           
+				           if(pageNo == currentShowPageNo) {
+				              pageBar += "<li style='display:inline-block; width:30px; font-size:12pt; border:solid 1px gray; color:red; padding:2px 4px;'>"+pageNo+"</li>";
+				           }
+				           else {
+				              pageBar += "<li style='display:inline-block; width:30px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>"+pageNo+"</a></li>";
+				           }
+				           
+				           loop++;
+				           pageNo++;
+				           
+				        }// end of while------------------------
+				        
+				              
+				        // === [다음][마지막] 만들기 === 
+				        if(pageNo <= totalPage) {     
+				           pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>[다음]</a></li>";
+				           pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+totalPage+"'>[마지막]</a></li>";     
+				        }
+				        
+				        
+				        pageBar += "</ul>";
+				        
+				        mav.addObject("pageBar", pageBar);
+				       
+				       
+				       // === #123. 페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후 
+				        //            사용자가 목록보기 버튼을 클릭했을 때 돌아갈 페이지를 알려주기 위해
+				        //           현재 페이지 주소를 뷰단으로 넘겨준다. === //
+				   //     String gobackURL = MyUtil.getCurrentURL(request);
+				     // System.out.println("~~~~ 확인용 gobackURL => " + gobackURL);
+				        // ~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=java
+				        // ~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=%EC%9E%85%EB%8B%88%EB%8B%A4&currentShowPageNo=15
+				        
+				      //  mav.addObject("gobackURL", gobackURL);
+				        
+				        // === 페이징 처리를 한 검색어가 있는 전체 글목록 보여주기 끝 === //
+				        /////////////////////////////////////////////////////////////
+				        
+				        mav.addObject("documentList", documentList);
+				        mav.setViewName("document/list2.tiles1");
+				       // /WEB-INF/views/tiles1/board/list.jsp 파일을 생성한다.
+				       
+				       return mav;
+				    	
+			
+			
+		}
+		
+	    else if (empid.equals("admin")){ // 인사팀이나 관리자일 경우
+	    //  getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 생성 ===  
+	        
+			List<DocumentVO_jy> documentList = null;
+			
+	       // === #114. 페이징 처리를 한 검색어가 있는 전체 문서목록 보여주기 시작 === // 
+	        String searchType = request.getParameter("searchType");
+	        String searchWord = request.getParameter("searchWord");
+	        String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+	        
+	        
+	        if(searchType == null) {
+	        	searchType = "";
+	        }
+	        if(searchWord == null) {
+	        	searchWord = "";
+	        }
+	        
+	        
+	        
+	        Map<String,String> paraMap = new HashMap<>();
+	        paraMap.put("searchType", searchType);
+	        paraMap.put("searchWord", searchWord);
+	        
+	        
+	        // 먼저 총 게시물 건수(totalCount)를 구해와야 한다.
+	        // 총 게시물 건수(totalCount)는 검색조건이 있을 때와 없을 때로 나뉘어진다.
+	        int totalCount = 0;        // 총 게시물 건수
+	        int sizePerPage = 10;      // 한 페이지당 보여줄 게시물 건수
+	        int currentShowPageNo = 0; // 현재 보여주는 페이지 번호로서, 초기치로는 1페이지로 설정함.
+	        int totalPage = 0;         // 총 페이지수(웹브라우저상에서 보여줄 총 페이지 개수, 페이지바 )
+	        
+	        int startRno = 0;          // 시작 행번호
+	        int endRno = 0;            // 끝 행번호
+	        
+	        // 총 게시물 건수(totalCount)
+	        totalCount = service.getTotalCount(paraMap);
+	       //  System.out.println("~~~ 확인용 totalCount=> "+ totalCount);
+	        
+	        // 만약에 총 게시물 건수(totalCount)가 127개이라면
+	        // 총 페이지수(totalPage)는 13개 되어야 한다.
+	        
+	        totalPage = (int) Math.ceil((double)totalCount/sizePerPage); // (double)127/10 ==> 12.7 ==> Math.ceil(12.7) ==> 13.0 ==> (int)13.0 ==> 13
+	        
+	        if(str_currentShowPageNo == null) {
+	           // 게시판에 보여지는 초기화면
+	           currentShowPageNo = 1;
+	        }
+	        else {
+	           try {
+	              currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
+	              if(currentShowPageNo < 1 || currentShowPageNo > totalPage) {
+	                 currentShowPageNo = 1;
+	              }
+	           }catch(NumberFormatException e) {
+	              currentShowPageNo = 1;
+	           }
+	        }
+	        
+	        // **** 가져올 게시글의 범위를 구한다.(공식임!!!) **** 
+
+	        
+	        startRno = ( ( currentShowPageNo -1 ) * sizePerPage ) +1;
+	        endRno = startRno + sizePerPage - 1;
+	        
+	        paraMap.put("startRno", String.valueOf(startRno));
+	        paraMap.put("endRno", String.valueOf(endRno));
+	        
+	        documentList = service.documentListSearchWithPaging(paraMap);
+	        // 페이징 처리한 글목록 가져오기(검색이 있든지, 검색이 없든지 모두 다 포함한 것)
+	        
+	        // 아래는 검색대상 컬럼과 검색어를 유지시키기 위한 것임.
+	        if(!"".equals(searchType) && !"".equals(searchWord)) {
+	           mav.addObject("paraMap",paraMap);
+	        }
+	        mav.addObject("paraMap",paraMap);
+	        
+	        // === #121. 페이지바 만들기 === //
+	        int blockSize = 10;
+	        // blockSize 는 1개 블럭(토막)당 보여지는 페이지번호의 개수 이다.
+	        
+	        int loop = 1;
+	        /*
+	           loop는 1부터 증가하여 1개 블럭을 이루는 페이지번호의 개수[ 지금은 10개(== blockSize) ] 까지만 증가하는 용도이다.
+	        */
+	        
+	        int pageNo = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
+	        // *** !! 공식이다. !! *** //
+
+	        
+	        String pageBar = "<ul style='list-style:none;'>"; 
+	        String url = "documentlist.hello2";
+	        
+	        // === [맨처음][이전] 만들기 === 
+	        if(pageNo != 1) {     
+	           pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo=1'>[맨처음]</a></li>";
+	           pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+(pageNo-1)+"'>[이전]</a></li>";     
+	        }        
+	        
+	        while( !(loop > blockSize || pageNo > totalPage) ) {
+	           
+	           if(pageNo == currentShowPageNo) {
+	              pageBar += "<li style='display:inline-block; width:30px; font-size:12pt; border:solid 1px gray; color:red; padding:2px 4px;'>"+pageNo+"</li>";
+	           }
+	           else {
+	              pageBar += "<li style='display:inline-block; width:30px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>"+pageNo+"</a></li>";
+	           }
+	           
+	           loop++;
+	           pageNo++;
+	           
+	        }// end of while------------------------
+	        
+	              
+	        // === [다음][마지막] 만들기 === 
+	        if(pageNo <= totalPage) {     
+	           pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+pageNo+"'>[다음]</a></li>";
+	           pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&currentShowPageNo="+totalPage+"'>[마지막]</a></li>";     
+	        }
+	        
+	        
+	        pageBar += "</ul>";
+	        
+	        mav.addObject("pageBar", pageBar);
+	       
+	       
+	       // === #123. 페이징 처리되어진 후 특정 글제목을 클릭하여 상세내용을 본 이후 
+	        //            사용자가 목록보기 버튼을 클릭했을 때 돌아갈 페이지를 알려주기 위해
+	        //           현재 페이지 주소를 뷰단으로 넘겨준다. === //
+	   //     String gobackURL = MyUtil.getCurrentURL(request);
+	     // System.out.println("~~~~ 확인용 gobackURL => " + gobackURL);
+	        // ~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=java
+	        // ~~~~ 확인용 gobackURL => /list.action?searchType=subject&searchWord=%EC%9E%85%EB%8B%88%EB%8B%A4&currentShowPageNo=15
+	        
+	      //  mav.addObject("gobackURL", gobackURL);
+	        
+	        // === 페이징 처리를 한 검색어가 있는 전체 글목록 보여주기 끝 === //
+	        /////////////////////////////////////////////////////////////
+	        
+	        mav.addObject("documentList", documentList);
+	        mav.setViewName("document/list2.tiles1");
+	       // /WEB-INF/views/tiles1/board/list.jsp 파일을 생성한다.
+	       
+	       return mav;
+	    	
+	    }
+		
+	    else { // 인사팀이나 관리자가 아닌 경우
+	    	
+			mav.addObject("message", "접근 권한이 없습니다! (총무팀 전용)");
+			
+			mav.addObject("loc", request.getContextPath()+"/myDocumentlist.hello2");
+
+			mav.setViewName("msg_JY");
+			
+			return mav;
+	    }
+   
        
     }
 	
@@ -496,6 +707,17 @@ public class EmpController_jy {
 			 
 			EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
 			 
+			if(loginEmp == null) {
+				mav.addObject("message", "먼저 로그인을 해주세요!");
+				
+				mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+				mav.setViewName("msg_JY");
+				
+				return mav;
+			}
+			
+			
 			String fk_empno = loginEmp.getEmpno();
 			
 			List<DocumentVO_jy> documentList = null;
@@ -530,8 +752,8 @@ public class EmpController_jy {
 	        int startRno = 0;          // 시작 행번호
 	        int endRno = 0;            // 끝 행번호
 	        
-	        // 총 게시물 건수(totalCount)
-	        totalCount = service.getTotalCount(paraMap);
+	        // 총 게시물 건수(totalCount) 일반사용자
+	        totalCount = service.getMyTotalCount(paraMap);
 	       //  System.out.println("~~~ 확인용 totalCount=> "+ totalCount);
 	        
 	        // 만약에 총 게시물 건수(totalCount)가 127개이라면
@@ -585,7 +807,7 @@ public class EmpController_jy {
 
 	        
 	        String pageBar = "<ul style='list-style:none;'>"; 
-	        String url = "documentlist.hello2";
+	        String url = "myDocumentlist.hello2";
 	        
 	        // === [맨처음][이전] 만들기 === 
 	        if(pageNo != 1) {     
@@ -818,6 +1040,20 @@ public class EmpController_jy {
 		
 	//	getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 그 페이지로 그대로 돌아가기 위한 메소드 호출
 		
+		HttpSession session = request.getSession();
+		 
+		EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+		 
+		if(loginEmp == null) {
+			mav.addObject("message", "먼저 로그인을 해주세요!");
+			
+			mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+			mav.setViewName("msg_JY");
+			
+			return mav;
+		}
+		
 		mav.setViewName("break/breakMain.tiles1");
 
 		return mav;
@@ -834,9 +1070,9 @@ public class EmpController_jy {
 		 
 		 EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
 		 
-	//	 String fk_empno = loginEmp.getEmpno();
+		 String fk_empno = loginEmp.getEmpno();
 		 
-		 String fk_empno = "202111081004";
+	//	 String fk_empno = "202111081004";
 		 
 		 Map<String, String> paraMap = new HashMap<>();
 		 paraMap.put("fk_empno", fk_empno);
@@ -861,6 +1097,142 @@ public class EmpController_jy {
 	}
 	
 	
+    // 사원등록 페이지 보여주기
+	@RequestMapping(value="/register.hello2")
+	public ModelAndView register(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {	
+		
+		   HttpSession session = request.getSession();
+	      
+	       EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+		
+		   String empid = loginEmp.getEmpid();
+
+		   
+		   if(!checkDepartment(request,"10") ) { // 인사팀이 아닌 경우
+		    	
+				mav.addObject("message", "접근 권한이 없습니다!(인사팀전용)");
+				
+				mav.addObject("loc", "javascript:history.go(-1)");
+
+				mav.setViewName("msg_JY");
+				
+				return mav;
+			   
+		    }
+		   
+		   else if (empid.equals("admin")) {  // 관리자일 경우
+		    	
+		    	mav.setViewName("document/register.tiles1");
+		    	
+				return mav;
+		    	
+		    }
+			
+		    else { // 인사팀일 경우
+		    	
+		    	mav.setViewName("document/register.tiles1");
+		    	
+				return mav;
+		    	
+		    }
+		   
+		  
+		   
+		   
+
+	}
+	
+
+	    // id 중복확인 버튼을 눌렀을 경우
+		@ResponseBody
+		@RequestMapping(value="/idDuplicateCheck.hello2", method= {RequestMethod.POST}, produces="text/plain;charset=UTF-8")
+		public String idDuplicateCheck(HttpServletRequest request, HttpServletResponse response) {	
+			
+			String empid = request.getParameter("empid");
+			  
+			int n = service.idDuplicateCheck(empid); // ID를 중복확인 해주는 메소드
+			
+			JSONObject jsonObj = new JSONObject();
+		    jsonObj.put("n", n); 
+
+		    return jsonObj.toString();
+		
+		}
+		
+		// 회원등록을 해주는 메소드
+		@RequestMapping(value="/registerEnd.hello2", method= {RequestMethod.POST}, produces="text/plain;charset=UTF-8")
+		public ModelAndView registerEnd(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {	
+			
+			 HttpSession session = request.getSession();
+		      
+		     EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+			
+			
+			if(loginEmp == null) {
+				
+				mav.addObject("message", "먼저 로그인을 해주세요!");
+				
+				mav.addObject("loc", request.getContextPath()+"/login.hello2");
+
+				mav.setViewName("msg_JY");
+				
+				return mav;
+			}
+			
+			else {
+			
+			
+				String empname = request.getParameter("empname");
+				String empid = request.getParameter("empid");
+				String emppw = request.getParameter("emppw");
+				String ranking = request.getParameter("ranking");
+				String fk_deptnum = request.getParameter("fk_deptnum");
+				String empsalary = request.getParameter("empsalary");
+				String hiredate = request.getParameter("hiredate");
+				String noticeemail = request.getParameter("noticeemail");
+				
+				
+				
+				Map<String, String> paraMap = new HashMap<> ();
+				
+				paraMap.put("empname", empname);
+				paraMap.put("empid", empid);
+				paraMap.put("emppw", Sha256.encrypt(emppw));
+				paraMap.put("ranking", ranking);
+				paraMap.put("fk_deptnum", fk_deptnum);
+				paraMap.put("empsalary", empsalary);
+				paraMap.put("hiredate", hiredate);
+				paraMap.put("noticeemail", noticeemail);
+				
+				// 회원등록을 해주는 메소드
+				int n = service.registerEnd(paraMap);
+				
+				if(n == 1) {
+					mav.addObject("message", "사용자 등록이 완료되었습니다!");
+					
+					mav.addObject("loc", request.getContextPath()+"/register.hello2");
+	
+					mav.setViewName("msg_JY");
+					
+					return mav;
+				}
+				else {
+					mav.addObject("message", "사용자 등록이 실패했습니다");
+					
+					mav.addObject("loc", request.getContextPath()+"/register.hello2");
+	
+					mav.setViewName("msg_JY");
+					
+					return mav;
+				}
+		
+			
+			}
+		
+		}
+		
+		
+
 	
 	
 	

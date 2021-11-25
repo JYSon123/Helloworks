@@ -111,6 +111,28 @@ public class EmpService_jy implements InterEmpService_jy {
 		
 		return n;
 	}
+	
+	// 총 게시물 건수(totalCount) 일반사용자
+	@Override
+	public int getMyTotalCount(Map<String, String> paraMap) {
+		int n = dao.getMyTotalCount(paraMap);
+		return n;
+	}
+	
+	
+	// ID를 중복확인 해주는 메소드
+	@Override
+	public int idDuplicateCheck(String empid) {
+		int n = dao.idDuplicateCheck(empid);
+		return n;
+	}
+	
+	// 회원등록을 해주는 메소드
+	@Override
+	public int registerEnd(Map<String, String> paraMap) {
+		int n = dao.registerEnd(paraMap);
+		return n;
+	}
 
 	
 

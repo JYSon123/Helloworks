@@ -99,6 +99,27 @@ public class EmpDAO_jy implements InterEmpDAO_jy {
 		
 		return n;
 	}
+	
+	// 총 게시물 건수(totalCount) 일반사용자
+	@Override
+	public int getMyTotalCount(Map<String, String> paraMap) {
+		int n = sqlsession2.selectOne("sonjy.getMyTotalCount",paraMap);
+		return n;
+	}
+	
+	// ID를 중복확인 해주는 메소드
+	@Override
+	public int idDuplicateCheck(String empid) {
+		int n = sqlsession2.selectOne("sonjy.idDuplicateCheck", empid);
+		return n;
+	}
+	
+	// 회원등록을 해주는 메소드
+	@Override
+	public int registerEnd(Map<String, String> paraMap) {
+		int n = sqlsession2.insert("sonjy.registerEnd", paraMap);
+		return n;
+	}
 
 
 }

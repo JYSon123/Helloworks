@@ -23,9 +23,9 @@
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
 	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
-	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록 (평사원)</a>
+	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록</a>
 	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
-	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록(결재)<br></a>
   	</div>
   </div>  
 </nav>
@@ -130,15 +130,15 @@
 
   #calendar {
     max-width: 1500px;
-    margin: 0 auto;
-    width: 1050px;
+    margin: 0 0 0 -10px;
+    width: 950px;
   }
 
 </style>
 </head>
 <body>
 
-	<div class="row" id='calendar' style="margin: 110px 30px 0px 700px;"></div>
+	<div class="row" id='calendar' style="margin: 110px 30px 0px 600px;"></div>
 
 </body>
 </html>

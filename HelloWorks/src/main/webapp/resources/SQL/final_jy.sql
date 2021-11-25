@@ -32,13 +32,16 @@ commit;
 select *
 from tbl_employee;
 
+commit;
 
+select to_char(sysdate, 'yyyymmdd') || 100 || to_char(empnoSeq.nextval)
+from dual;
 
 [직원테이블] TBL_EMPLOYEE
 
 create table tbl_employee
 (
-  empno varchar2(200) not null     -- 사원번호   to_char(sysdate, ‘yyyy’) || to_char(empnoSeq.nextval)
+  empno varchar2(200) not null     -- 사원번호   to_char(sysdate, ‘yyyymmdd’) || to_char(empnoSeq.nextval)
 , empname varchar2(20) not null    -- 사원이름
 , empid varchar2(20) not null      -- ID
 , emppw varchar2(30) not null      -- PW
@@ -54,11 +57,23 @@ create table tbl_employee
 , constraint CK_tbl_emp_empstatus check(empstatus in (0,1,2))
 );
 
+noticeemail
+
+ delete from tbl_employee
+ where empno = '202111241009';
+
 update tbl_employee set fk_deptnum = 10
 where empid = 'test';
 commit;
 
-insert into 
+
+INSERT INTO tbl_employee(empno, empname, empid, emppw, email, ranking, fk_deptnum, empstatus, empsalary, hiredate)
+values(to_char(sysdate, 'yyyymmdd') || '100' || to_char(empnoSeq.nextval),'나영업', 'sales', '9695b88a59a1610320897fa84cb7e144cc51f2984520efb77111d94b402a8382',  ||'@helloworks.com', '2', '50', '1', '2004', to_char(sysdate, 'yyyy/mm/dd')  );
+
+commit;
+
+select to_char(sysdate, 'yyyy/mm/dd')
+from dual;
 
 
 
@@ -78,6 +93,7 @@ nocache;
 40: 마케팅팀
 50: 영업팀
 60: 대표 
+
 
 
 
@@ -311,7 +327,7 @@ commit;
 INSERT INTO tbl_breakcalendar values('202111081004','날짜 테스트중2222',to_date('2021-12-10','YYYY/MM/DD') , (to_date('2021-12-15','YYYY/MM/DD')+ (INTERVAL '1' DAY)) );
 
     delete from tbl_breakcalendar
-    where title = '2';
+    where title = '테스트용2';
     commit;
     
     

@@ -97,9 +97,9 @@
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
 	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
-	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록 (평사원)</a>
+	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록</a>
 	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
-	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록보기<br>(경지,admin)</a>
+	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록(결재)<br></a>
   	</div>
   </div>  
 </nav>
@@ -115,7 +115,7 @@
 -->
 
  <div style="display: flex;">
-<div style="margin: auto; padding-left: 3%;">
+<div style="margin: auto; padding-left: 10%;">
 
    <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;">${sessionScope.loginEmp.empname}님의 기안 목록</h2>
    <div style="height: 800px;">

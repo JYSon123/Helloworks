@@ -38,6 +38,15 @@ public interface InterEmpService_jy {
 	// 기안문서를 삭제해주는 메소드
 	int delDocumentEnd(Map<String, String> paraMap);
 	
+	// 총 게시물 건수(totalCount) 일반사용자
+	int getMyTotalCount(Map<String, String> paraMap);
+	
+	// ID를 중복확인 해주는 메소드
+	int idDuplicateCheck(String empid);
+	
+	// 회원등록을 해주는 메소드
+	int registerEnd(Map<String, String> paraMap);
+	
 	
 
 	
