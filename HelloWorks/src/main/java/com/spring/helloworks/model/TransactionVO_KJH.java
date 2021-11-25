@@ -16,12 +16,13 @@ public class TransactionVO_KJH {
 	private String mycompany_comp;
 	private String mycompany_name;
 	private String mycompany_addr;
+	private int status;
 	
 	public TransactionVO_KJH() {}
 
 	public TransactionVO_KJH(String transaction_seq, String customer_id, String customer_comp, String customer_name,
 			String customer_addr, String regdate, int totalprice, String billtax_yn, String payment, String empid,
-			String empname, String mycompany_id, String mycompany_comp, String mycompany_name, String mycompany_addr) {
+			String empname, String mycompany_id, String mycompany_comp, String mycompany_name, String mycompany_addr, int status) {
 		super();
 		this.transaction_seq = transaction_seq;
 		this.customer_id = customer_id;
@@ -37,6 +38,7 @@ public class TransactionVO_KJH {
 		this.mycompany_comp = mycompany_comp;
 		this.mycompany_name = mycompany_name;
 		this.mycompany_addr = mycompany_addr;
+		this.status = status;
 	}
 
 	public String getTransaction_seq() {
@@ -149,6 +151,14 @@ public class TransactionVO_KJH {
 
 	public void setMycompany_addr(String mycompany_addr) {
 		this.mycompany_addr = mycompany_addr;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 	

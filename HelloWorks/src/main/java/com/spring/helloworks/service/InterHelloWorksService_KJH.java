@@ -2,9 +2,15 @@ package com.spring.helloworks.service;
 
 import java.util.*;
 
+import com.spring.helloworks.model.BillnotaxDetailVO_KJH;
+import com.spring.helloworks.model.BillnotaxVO_KJH;
+import com.spring.helloworks.model.BilltaxDetailVO_KJH;
+import com.spring.helloworks.model.BilltaxVO_KJH;
 import com.spring.helloworks.model.CustomerVO_KJH;
 import com.spring.helloworks.model.EmpVO_KJH;
 import com.spring.helloworks.model.MycompanyVO_KJH;
+import com.spring.helloworks.model.TransactionDetailVO_KJH;
+import com.spring.helloworks.model.TransactionVO_KJH;
 
 public interface InterHelloWorksService_KJH {
 
@@ -76,6 +82,45 @@ public interface InterHelloWorksService_KJH {
 
 	// 작성문서 SELECT
 	List<Map<String, String>> getDocumentList(Map<String, String> paraMap);
+
+	// 작성문서 상태 UPDATE
+	int updateStatus(Map<String, String> paraMap);
+
+	// 메일 발송을 위한 거래처 이메일 SELECT
+	CustomerVO_KJH getEmail(Map<String, String> paraMap);
+
+	// 세금계산서정보 SELECT
+	BilltaxVO_KJH getBilltaxDoc(Map<String, String> paraMap);
+
+	// 세금계산서상세정보 SELECT
+	List<BilltaxDetailVO_KJH> getDetailBilltaxList(Map<String, String> paraMap);
+
+	// 계산서정보 SELECT
+	BillnotaxVO_KJH getBillnotaxDoc(Map<String, String> paraMap);
+
+	// 계산서상세정보 SELECT
+	List<BillnotaxDetailVO_KJH> getDetailBillnotaxList(Map<String, String> paraMap);
+
+	// 거래명세서정보 SELECT
+	TransactionVO_KJH getTransactionDoc(Map<String, String> paraMap);
+
+	// 거래명세서상세정보 SELECT
+	List<TransactionDetailVO_KJH> getDetailTransactionList(Map<String, String> paraMap);
+
+	// 문서 DELETE
+	int deleteDoc(Map<String, String> paraMap);
+
+	// 매월 10일 오후12시에 문서 국세청으로 전송
+	void submitDoc() throws Exception;
+
+	// 세금계산서 UPDATE
+	int updateBillTax(Map<String, Object> paraMap);
+
+	// 계산서 UPDATE
+	int updateBillNoTax(Map<String, Object> paraMap);
+
+	// 거래명세서 UPDATE
+	int updateTransaction(Map<String, Object> paraMap);
 
 	
 	

@@ -19,6 +19,10 @@
 		background-color: #ebf0fa;
 	}
 	
+	.tblue {
+		color: blue;
+	}
+	
 </style>
 
 <script type="text/javascript">
@@ -123,7 +127,11 @@
        	
        	// 행 클릭 시
        	$("td.click").click(function() {
-			location.href="<%=ctxPath%>/account/registerCustomer.hello2";
+       		
+       		var seq = $(this).parent().find("p.seq").text();
+       		
+			location.href="<%=ctxPath%>/account/viewBill.hello2?tabName=" + "${paraMap.tabName}" + "&seq=" + seq;
+			
        	});
        	
        	
@@ -133,7 +141,7 @@
        	
 	});
 	
-	// Function Declaration
+	// =============== Function Declaration ===============
 	
 	function search(){
 		
@@ -159,6 +167,204 @@
 		frm.action = "<%=ctxPath%>/account/listBill.hello2";
 		
 		frm.submit();
+		
+	}
+	
+	// 삭제
+	function goDelete() {
+
+		var checkCnt = 0;
+		var selectSeq = "";
+		var flagReturn = false;
+		
+		$(".selectdoc").each(function(index, item) {
+			
+			if($(this).prop("checked") == true) {
+				
+				if($(this).parent().parent().find("p.status").text() == "승인요청전") {
+					
+					if(checkCnt == 0) 
+						selectSeq += $(this).parent().parent().find("p.seq").text().trim();
+					
+					else
+						selectSeq += "," + $(this).parent().parent().find("p.seq").text().trim();
+					
+					checkCnt++;
+				
+				}
+				
+				else {
+					alert("이미 승인요청이 완료되었거나 국세청으로 전송된 문서는 삭제가 불가합니다.");
+					flagReturn = true;
+					return false;
+				}
+				
+			}
+						
+		});
+		
+		if(checkCnt == 0 && flagReturn == false) {
+			alert("삭제할 문서를 선택해주세요.");
+			return;
+		}
+		
+		else if(flagReturn == true)
+			return;
+		
+		else {
+			
+			$("input[name=seqes]").val(selectSeq);
+			
+			$("button.btn-del").click();
+			
+		}
+		
+	}
+	
+	// 승인요청
+	function goPermission() {
+		
+		var checkCnt = 0;
+		var selectSeq = "";
+		var flagReturn = false;
+				
+		$(".selectdoc").each(function(index, item) {
+			
+			if($(this).prop("checked") == true) {
+				
+				if($(this).parent().parent().find("p.status").text() == "승인요청전") {
+					
+					if(checkCnt == 0) 
+						selectSeq += $(this).parent().parent().find("p.seq").text().trim();
+					
+					else
+						selectSeq += "," + $(this).parent().parent().find("p.seq").text().trim();
+					
+					checkCnt++;
+				
+				}
+				
+				else {
+					alert("이미 승인요청이 완료되었거나 국세청으로 전송된 문서는 승인요청이 불가합니다.");
+					flagReturn = true;
+					return false;
+				}
+				
+			}
+						
+		});
+		
+		if(checkCnt == 0 && flagReturn == false) {
+			alert("승인을 요청할 문서를 선택해주세요.");
+			return;
+		}
+		
+		else if(flagReturn == true)
+			return;
+		
+		else {
+			var frm = document.submitFrm;
+			
+			frm.seq.value = selectSeq;
+			frm.state.value = "1";
+			
+			frm.action = "<%=ctxPath%>/account/updateStatus.hello2";
+			frm.method = "POST";
+			frm.submit();
+		}
+		
+	}
+	
+	// 국세청전송
+	function goHometax() {
+		
+		var checkCnt = 0;
+		var selectSeq = "";
+		var flagReturn = false;
+		
+		$(".selectdoc").each(function(index, item) {
+			
+			if($(this).prop("checked") == true) {
+				
+				if($(this).parent().parent().find("p.status").text() != "국세청전송완료") {
+					
+					if(checkCnt == 0) 
+						selectSeq += $(this).parent().parent().find("p.seq").text().trim();
+					
+					else
+						selectSeq += "," + $(this).parent().parent().find("p.seq").text().trim();
+					
+					checkCnt++;
+				
+				}
+				
+				else {
+					alert("이미 국세청으로 전송된 문서는 재전송이 불가합니다.");
+					flagReturn = true;
+					return false;
+				}
+				
+			}
+			
+		});
+		
+		if(checkCnt == 0 && flagReturn == false) {
+			alert("국세청으로 전송할 문서를 선택해주세요.");
+			return;
+		}
+		
+		else if(flagReturn == true)
+			return;
+		
+		else {
+			var frm = document.submitFrm;
+			
+			frm.seq.value = selectSeq;
+			frm.state.value = "2";
+			
+			frm.action = "<%=ctxPath%>/account/updateStatus.hello2";
+			frm.method = "POST";
+			frm.submit();
+		}
+		
+	}
+	
+	// 엑셀다운로드
+	function downloadExcel() {
+		
+		var checkCnt = 0;
+		var selectSeq = "";
+		
+		$(".selectdoc").each(function(index, item) {
+			
+			if($(this).prop("checked") == true) {				
+					
+				if(checkCnt == 0) 
+					selectSeq += $(this).parent().parent().find("p.seq").text().trim();
+				
+				else
+					selectSeq += "," + $(this).parent().parent().find("p.seq").text().trim();
+				
+				checkCnt++;
+			
+			}
+			
+		});
+		
+		if(checkCnt == 0) {
+			alert("엑셀로 다운로드할 문서를 선택해주세요.");
+			return;
+		}
+				
+		else {
+			var frm = document.submitFrm;
+			
+			frm.seq.value = selectSeq;
+			
+			frm.action = "<%=ctxPath%>/account/docExcelDownload.hello2";
+			frm.method = "POST";
+			frm.submit();
+		}
 		
 	}
 	
@@ -190,7 +396,14 @@
 					<a class="nav-link text-secondary" href="<%=ctxPath%>/account/listBill.hello2?tabName=tbl_transaction" id="tbl_transaction">거래명세서</a>
 				</li>
 			</ul>
-		
+			
+			<%-- 승인, 국세청, 엑셀을 위한 히든 폼 --%>
+			<form id="submitFrm" name="submitFrm">
+   				<input type="hidden" name="seq"/>
+   				<input type="hidden" name="state"/>
+   				<input type="hidden" name="tabName2" value="${paraMap.tabName}"/>
+   			</form>
+			
 			<form id="searchFrm" name="searchFrm">
 		
 				<%-- 날짜선택 --%>
@@ -209,11 +422,14 @@
 			
 				<%-- 버튼자리(체크박스 선택시 나타나게!) : 승인요청, 국세청전송, 엑셀다운로드 --%>
 				<p class="text-right w-100">
-		   			<button type="button" class="btn btn-secondary btn-sm" onclick="location.href='<%=ctxPath%>/account/registerCustomer.hello2'">승인요청</button>
-		   			<button type="button" class="btn btn-dark btn-sm" onclick="location.href='<%=ctxPath%>/account/registerCustomer.hello2'">국세청전송</button>
-		   			<button type="button" class="btn btn-primary btn-sm" onclick="location.href='<%=ctxPath%>/account/registerCustomer.hello2'">엑셀다운로드</button>
+					<button type="button" class="btn btn-danger btn-sm" onclick="goDelete()">삭제</button>
+		   			<button type="button" class="btn btn-secondary btn-sm" onclick="goPermission()">승인요청</button>
+		   			<c:if test="${paraMap.tabName ne 'tbl_transaction'}">
+		   				<button type="button" class="btn btn-dark btn-sm" onclick="goHometax()">국세청전송</button>
+		   			</c:if>
+		   			<button type="button" class="btn btn-primary btn-sm" onclick="downloadExcel()">엑셀다운로드</button>		   			
 		   		</p>
-					
+		   						
 		   		<div class="mx-auto px-auto" style="width: 100%;">   			
 		   			
 		   			<%-- 리스트 --%>   			
@@ -240,24 +456,49 @@
 							<c:forEach var="doc" items="${docList}" varStatus="status">
 								
 								<tr valign="middle" class="doc" style="border: solid 1px #e6e6e6; border-top: none;">
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 seq">${doc.seq}</p></td>
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 regdate">${doc.regdate}</p></td>
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_id">${doc.customer_id}</p></td>
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_comp">${doc.customer_comp}</p></td>
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_name">${doc.customer_name}</p></td>
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname">${doc.empname}</p></td>
+								
+									<c:if test="${doc.edit eq '1'}">
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 seq tblue">${doc.seq}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 regdate tblue">${doc.regdate}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_id tblue">${doc.customer_id}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_comp tblue">${doc.customer_comp}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_name tblue">${doc.customer_name}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname tblue">${doc.empname}</p></td>
+										
+										<fmt:parseNumber var="totalprice" value="${doc.totalprice}" integerOnly="true" />
+										<td class="click" style="text-align: left; border-right: solid 1px #e6e6e6;"><p class="my-2 totalprice pl-4 tblue"><fmt:formatNumber value="${totalprice}" type="currency"/></p></td>
+										
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;">
+											<c:choose>
+												<c:when test="${doc.status == 0}"><p class="my-2 status tblue">승인요청전</p></c:when>
+												<c:when test="${doc.status == 1}"><p class="my-2 status tblue">승인완료</p></c:when>
+												<c:otherwise><p class="my-2 status tblue">국세청전송완료</p></c:otherwise>
+											</c:choose>
+										</td>
+										<td style="text-align: center;"><input type="checkbox" name="selectdoc" class="selectdoc"/></td>
+									</c:if>
 									
-									<fmt:parseNumber var="totalprice" value="${doc.totalprice}" integerOnly="true" />
-									<td class="click" style="text-align: left; border-right: solid 1px #e6e6e6;"><p class="my-2 totalprice pl-4">￦&nbsp;<fmt:formatNumber value="${totalprice}" pattern="###,###" /></p></td>
+									<c:if test="${doc.edit ne '1'}">
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 seq">${doc.seq}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 regdate">${doc.regdate}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_id">${doc.customer_id}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_comp">${doc.customer_comp}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_name">${doc.customer_name}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname">${doc.empname}</p></td>
+										
+										<fmt:parseNumber var="totalprice" value="${doc.totalprice}" integerOnly="true" />
+										<td class="click" style="text-align: left; border-right: solid 1px #e6e6e6;"><p class="my-2 totalprice pl-4"><fmt:formatNumber value="${totalprice}" type="currency"/></p></td>
+										
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;">
+											<c:choose>
+												<c:when test="${doc.status == 0}"><p class="my-2 status">승인요청전</p></c:when>
+												<c:when test="${doc.status == 1}"><p class="my-2 status">승인완료</p></c:when>
+												<c:otherwise><p class="my-2 status">국세청전송완료</p></c:otherwise>
+											</c:choose>
+										</td>
+										<td style="text-align: center;"><input type="checkbox" name="selectdoc" class="selectdoc"/></td>
+									</c:if>
 									
-									<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;">
-										<c:choose>
-											<c:when test="${doc.status == 0}"><p class="my-2 status">승인요청전</p></c:when>
-											<c:when test="${doc.status == 1}"><p class="my-2 status">승인완료</p></c:when>
-											<c:otherwise><p class="my-2 status">국세청전송완료</p></c:otherwise>
-										</c:choose>
-									</td>
-									<td style="text-align: center;"><input type="checkbox" name="selectdoc"/></td>
 								</tr>
 								
 							</c:forEach>
@@ -292,6 +533,35 @@
 				</div>
    			
    			</form>
+   			
+   			<button type="button" class="btn btn-del" data-toggle="modal" data-target="#deleteModal" data-backdrop="static" style="display: none;"></button>	   
+   			
+   			<%-- 삭제모달 --%>
+	        <div class="modal fade" id="deleteModal">
+				  <div class="modal-dialog modal-dialog-scrollable modal modal-dialog-centered">
+				  
+				    <div class="modal-content">			      
+				      	
+				      	<!-- Modal header -->
+				      <div class="modal-header text-center">
+				        	<h6 class="modal-title text-center mx-auto px-auto">선택하신 문서를 정말로 삭제하시겠습니까?</h6>
+				      </div>
+				      	
+				     <!-- Modal body -->
+				      <div class="modal-body text-center">
+		
+					      	<form name="deleteFrm" method="POST" action="<%=ctxPath%>/account/deleteDoc.hello2">
+					      		<input type="hidden" value="" name="seqes" required>
+					      		<input type="hidden" value="${paraMap.tabName}" name="tabName3">				      		
+					      		<button type="submit" class="btn btn-sm btn-danger deletethis mx-1">삭제</button>
+					      		<button type="button" class="btn btn-sm btn-success thisclose mx-1" data-dismiss="modal">취소</button>
+							</form>
+													
+						</div>
+				     				      
+				    </div>
+				  </div>
+			</div>
    			   			
 		</div>
    		    			    	

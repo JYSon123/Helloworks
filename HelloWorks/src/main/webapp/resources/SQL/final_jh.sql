@@ -287,6 +287,9 @@ nominvalue
 nocycle
 nocache;
 
+drop table tbl_hometax_tax purge;
+drop sequence hometax_tax_seq;
+
 --------------------------------------------
 
 -- 국세청(계산서)
@@ -332,6 +335,7 @@ create table tbl_transaction
 ,constraint CK_tbl_transaction_billtax_yn check(billtax_yn in('발행','미발행'))
 );
 
+alter table tbl_transaction add edit number;
 alter table tbl_transaction add status number default 0 not null; -- 0:발급전, 1:승인완료
 alter table tbl_transaction add constraint CK_tbl_transaction_status check(status in(0,1));
 
@@ -388,3 +392,35 @@ from
 ) V
 where rno between 1 and 10
 order by rno desc
+
+------------------------------------------------
+
+select nvl(customer_email, 'empty') AS customer_email
+from tbl_billtax A JOIN tbl_customer C
+ON A.customer_id = C.customer_id
+where billtax_seq in ('1','2')
+
+-------------------------------------------------
+
+select customer_id, nvl(customer_comp, '') AS customer_comp
+     , nvl(customer_name, '') AS customer_name, nvl(customer_addr, '') AS customer_addr
+     , to_char(regdate, 'yyyy-mm-dd') AS regdate, totalprice, empid, empname
+     , mycompany_comp, mycompany_name, mycompany_addr
+from tbl_billtax
+where transaction_seq = 1
+
+select * from tbl_billtax;_detail;
+
+update tbl_transaction set status = 0 , empname = '테스트' where billtax_seq = 12;
+commit;
+
+select nvl(C.customer_comp, '') AS customer_comp, nvl(C.customer_name, '') AS customer_name, nvl(customer_email, 'empty') AS customer_email
+from tbl_billtax A JOIN tbl_customer C
+ON A.customer_id = C.customer_id
+where billtax_seq  = 12;
+
+select * from tbl_employee
+
+select * from tbl_loginhistory
+
+select * from tbl_billtax;

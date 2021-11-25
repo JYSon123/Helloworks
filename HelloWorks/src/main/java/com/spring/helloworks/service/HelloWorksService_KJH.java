@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -417,6 +418,162 @@ public class HelloWorksService_KJH implements InterHelloWorksService_KJH {
 		
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 작성문서 상태 UPDATE
+	@Override
+	public int updateStatus(Map<String, String> paraMap) {
+		
+		int n = dao.updateStatus(paraMap);
+		
+		return n;
+		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 메일 발송을 위한 거래처 이메일 SELECT
+	@Override
+	public CustomerVO_KJH getEmail(Map<String, String> paraMap) {
+		
+		CustomerVO_KJH cvoList = dao.getEmail(paraMap);
+		
+		return cvoList;
+		
+	}
+	
+	@Override
+	public BilltaxVO_KJH getBilltaxDoc(Map<String, String> paraMap) {
+		BilltaxVO_KJH doc = dao.getBilltaxDoc(paraMap);
+		return doc;
+	}
+
+	@Override
+	public List<BilltaxDetailVO_KJH> getDetailBilltaxList(Map<String, String> paraMap) {
+		List<BilltaxDetailVO_KJH> detailList = dao.getDetailBilltaxList(paraMap);
+		return detailList;
+	}
+
+	@Override
+	public BillnotaxVO_KJH getBillnotaxDoc(Map<String, String> paraMap) {
+		BillnotaxVO_KJH doc = dao.getBillnotaxDoc(paraMap);
+		return doc;
+	}
+
+	@Override
+	public List<BillnotaxDetailVO_KJH> getDetailBillnotaxList(Map<String, String> paraMap) {
+		List<BillnotaxDetailVO_KJH> detailList = dao.getDetailBillnotaxList(paraMap);
+		return detailList;
+	}
+
+	@Override
+	public TransactionVO_KJH getTransactionDoc(Map<String, String> paraMap) {
+		TransactionVO_KJH doc = dao.getTransactionDoc(paraMap);
+		return doc;
+	}
+
+	@Override
+	public List<TransactionDetailVO_KJH> getDetailTransactionList(Map<String, String> paraMap) {
+		List<TransactionDetailVO_KJH> detailList = dao.getDetailTransactionList(paraMap);
+		return detailList;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	
+	// 문서 DELETE
+	@Override
+	public int deleteDoc(Map<String, String> paraMap) {
+		
+		int n = dao.deleteDoc(paraMap);
+		
+		return n;
+		
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////
+	
+	// 매월 10일 오후12시에 문서 국세청으로 전송
+	@Override
+	@Scheduled(cron="0 0 12 10 * *")
+	public void submitDoc() throws Exception {
+		
+		dao.updateStatusAlltax();
+		
+		dao.updateStatusAllnotax();
+				
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	
+	// 세금계산서 UPDATE
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED, isolation=Isolation.READ_COMMITTED, rollbackFor= {Throwable.class})
+	public int updateBillTax(Map<String, Object> paraMap) {
+		
+		Map<String, String> delMap = new HashMap<> ();
+		
+		BilltaxVO_KJH btvo = (BilltaxVO_KJH)paraMap.get("btvo");
+		
+		delMap.put("tabName", "tbl_billtax");
+		delMap.put("colName", "billtax_seq");
+		delMap.put("seq", btvo.getBilltax_seq());
+		delMap.put("empid", btvo.getEmpid());
+		
+		int n = deleteDoc(delMap);
+		
+		int m = insertBillTax(paraMap);
+		
+		return n*m;
+		
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	// 계산서 UPDATE
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED, isolation=Isolation.READ_COMMITTED, rollbackFor= {Throwable.class})
+	public int updateBillNoTax(Map<String, Object> paraMap) {
+		
+		Map<String, String> delMap = new HashMap<> ();
+		
+		BillnotaxVO_KJH bntvo = (BillnotaxVO_KJH)paraMap.get("bntvo");
+		
+		delMap.put("tabName", "tbl_billnotax");
+		delMap.put("colName", "billnotax_seq");
+		delMap.put("seq", bntvo.getBillnotax_seq());
+		delMap.put("empid", bntvo.getEmpid());
+		
+		int n = deleteDoc(delMap);
+		
+		int m = insertBillNoTax(paraMap);
+		
+		return n*m;
+		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래명세서 UPDATE
+	@Override
+	@Transactional(propagation=Propagation.REQUIRED, isolation=Isolation.READ_COMMITTED, rollbackFor= {Throwable.class})
+	public int updateTransaction(Map<String, Object> paraMap) {
+
+		Map<String, String> delMap = new HashMap<> ();
+		
+		TransactionVO_KJH tvo = (TransactionVO_KJH)paraMap.get("tvo");
+		
+		delMap.put("tabName", "tbl_transaction");
+		delMap.put("colName", "transaction_seq");
+		delMap.put("seq", tvo.getTransaction_seq());
+		delMap.put("empid", tvo.getEmpid());
+		
+		int n = deleteDoc(delMap);
+		
+		int m = insertTransaction(paraMap);
+		
+		return n*m;
+		
+	}
 	
 	
 	

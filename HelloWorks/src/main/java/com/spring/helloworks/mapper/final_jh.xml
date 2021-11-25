@@ -10,11 +10,11 @@
 	<select id="getLoginEmp" parameterType="HashMap" resultType="com.spring.helloworks.model.EmpVO_KJH">
 		
 		select empno, empname, empid, emppw, email, ranking, fk_deptnum
-	         , empstatus, empsalary, hiredate, otpkey, lastlogingap
+	         , empstatus, empsalary, hiredate, otpkey, lastlogingap, noticeemail
 		from
 		(
 		    select empno, empname, empid, emppw, email, ranking, fk_deptnum
-		         , empstatus, empsalary, to_char(hiredate, 'yyyy-mm-dd') AS hiredate, otpkey
+		         , empstatus, empsalary, to_char(hiredate, 'yyyy-mm-dd') AS hiredate, otpkey, noticeemail
 		    from tbl_employee
 		    where empstatus != 0 and empid = #{empid} and emppw = #{emppw}
 		) E
@@ -238,16 +238,17 @@
 		<result property="empname" column="empname" javaType="String"/>
 		<result property="totalprice" column="totalprice" javaType="String"/>
 		<result property="status" column="status" javaType="String"/>
+		<result property="edit" column="edit" javaType="String"/>
 	</resultMap>
 	
 	<!-- 작성문서 SELECT -->
 	<select id="getDocumentList" parameterType="HashMap" resultMap="docMap">
-		select seq, regdate, customer_id, customer_comp, customer_name, empname, totalprice, status
+		select seq, regdate, customer_id, customer_comp, customer_name, empname, totalprice, status, edit
 		from
 		(
 		    select row_number() over(order by ${seq} desc) AS rno
 		         , ${seq} AS seq, to_char(regdate, 'yyyy-mm-dd') AS regdate
-		         , customer_id, customer_comp, customer_name, empname, totalprice, status
+		         , customer_id, customer_comp, customer_name, empname, totalprice, status, edit
 		    from ${tabName}
 		    where 1 = 1
 		    <if test="startDate neq null and lastDate neq null">
@@ -261,4 +262,60 @@
 		order by rno
 	</select>
 	
+	<!-- 작성문서 상태 UPDATE -->
+	<update id="updateStatus" parameterType="HashMap">
+		update ${tabName} set status = #{status}
+		where ${colName} = #{seq}
+	</update>
+	
+	<!-- 메일 발송을 위한 거래처 이메일 SELECT -->
+	<select id="getEmail" parameterType="HashMap" resultType="com.spring.helloworks.model.CustomerVO_KJH">
+		select nvl(C.customer_comp, '') AS customer_comp, nvl(C.customer_name, '') AS customer_name, nvl(customer_email, 'empty') AS customer_email
+		from ${tabName} A JOIN tbl_customer C
+		ON A.customer_id = C.customer_id
+		where ${colName}  = #{seq}
+	</select>
+	
+	<!--=======================================================-->
+	
+	<select id="getBilltaxDoc" parameterType="HashMap" resultType="com.spring.helloworks.model.BilltaxVO_KJH">
+		select * from tbl_billtax where billtax_seq = #{seq}
+	</select>
+	
+	<select id="getDetailBilltaxList" parameterType="HashMap" resultType="com.spring.helloworks.model.BilltaxDetailVO_KJH">
+		select * from tbl_billtax_detail where fk_billtax_seq = #{seq}
+	</select>
+	
+	<select id="getBillnotaxDoc" parameterType="HashMap" resultType="com.spring.helloworks.model.BillnotaxVO_KJH">
+		select * from tbl_billnotax where billnotax_seq = #{seq}
+	</select>
+	
+	<select id="getDetailBillnotaxList" parameterType="HashMap" resultType="com.spring.helloworks.model.BillnotaxDetailVO_KJH">
+		select * from tbl_billnotax_detail where fk_billnotax_seq = #{seq}
+	</select>
+	
+	<select id="getTransactionDoc" parameterType="HashMap" resultType="com.spring.helloworks.model.TransactionVO_KJH">
+		select * from tbl_transaction where transaction_seq = #{seq}
+	</select>
+	
+	<select id="getDetailTransactionList" parameterType="HashMap" resultType="com.spring.helloworks.model.TransactionDetailVO_KJH">
+		select * from tbl_transaction_detail where fk_transaction_seq = #{seq}
+	</select>	
+	
+	<!--=======================================================-->
+	
+	<!-- 문서 DELETE -->
+	<delete id="deleteDoc" parameterType="HashMap">
+		delete from ${tabName} where ${colName} = #{seq} and empid = #{empid}
+	</delete>
+	
+	<!-- 매월 10일 오후12시에 문서 국세청으로 전송 -->
+	<update id="updateStatusAlltax">
+		update tbl_billtax set status = 2
+		where status != 2
+	</update>
+	<update id="updateStatusAllnotax">
+		update tbl_billnotax set status = 2
+		where status != 2
+	</update>
 </mapper>

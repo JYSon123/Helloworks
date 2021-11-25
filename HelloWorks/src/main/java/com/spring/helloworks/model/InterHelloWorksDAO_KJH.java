@@ -84,6 +84,31 @@ public interface InterHelloWorksDAO_KJH {
 
 	// 작성문서 SELECT
 	List<Map<String, String>> getDocumentList(Map<String, String> paraMap);
+
+	// 작성문서 상태 UPDATE
+	int updateStatus(Map<String, String> paraMap);
+
+	// 메일 발송을 위한 거래처 이메일 SELECT
+	CustomerVO_KJH getEmail(Map<String, String> paraMap);
+
+	BilltaxVO_KJH getBilltaxDoc(Map<String, String> paraMap);
+
+	List<BilltaxDetailVO_KJH> getDetailBilltaxList(Map<String, String> paraMap);
+
+	BillnotaxVO_KJH getBillnotaxDoc(Map<String, String> paraMap);
+
+	List<BillnotaxDetailVO_KJH> getDetailBillnotaxList(Map<String, String> paraMap);
+
+	TransactionVO_KJH getTransactionDoc(Map<String, String> paraMap);
+
+	List<TransactionDetailVO_KJH> getDetailTransactionList(Map<String, String> paraMap);
+
+	// 문서 DELETE
+	int deleteDoc(Map<String, String> paraMap);
+
+	// 매월 10일 오후12시에 문서 국세청으로 전송
+	void updateStatusAlltax();
+	void updateStatusAllnotax();
 	
 	
 

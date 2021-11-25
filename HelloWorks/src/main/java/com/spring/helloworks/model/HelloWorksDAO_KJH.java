@@ -335,6 +335,93 @@ public class HelloWorksDAO_KJH implements InterHelloWorksDAO_KJH {
 		return docList;
 		
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 작성문서 상태 UPDATE
+	@Override
+	public int updateStatus(Map<String, String> paraMap) {
+		
+		int n = sqlsession2.update("jihee.updateStatus", paraMap);
+		
+		return n;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 메일 발송을 위한 거래처 이메일 SELECT
+	@Override
+	public CustomerVO_KJH getEmail(Map<String, String> paraMap) {
+		
+		CustomerVO_KJH cvoList = sqlsession2.selectOne("jihee.getEmail", paraMap);
+		
+		return cvoList;
+		
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+		
+	@Override
+	public BilltaxVO_KJH getBilltaxDoc(Map<String, String> paraMap) {
+		BilltaxVO_KJH doc = sqlsession2.selectOne("jihee.getBilltaxDoc", paraMap);
+		return doc;
+	}
+
+	@Override
+	public List<BilltaxDetailVO_KJH> getDetailBilltaxList(Map<String, String> paraMap) {
+		List<BilltaxDetailVO_KJH> detailList = sqlsession2.selectList("jihee.getDetailBilltaxList", paraMap);
+		return detailList;
+	}
+
+	@Override
+	public BillnotaxVO_KJH getBillnotaxDoc(Map<String, String> paraMap) {
+		BillnotaxVO_KJH doc = sqlsession2.selectOne("jihee.getBillnotaxDoc", paraMap);
+		return doc;
+	}
+
+	@Override
+	public List<BillnotaxDetailVO_KJH> getDetailBillnotaxList(Map<String, String> paraMap) {
+		List<BillnotaxDetailVO_KJH> detailList = sqlsession2.selectList("jihee.getDetailBillnotaxList", paraMap);
+		return detailList;
+	}
+
+	@Override
+	public TransactionVO_KJH getTransactionDoc(Map<String, String> paraMap) {
+		TransactionVO_KJH doc = sqlsession2.selectOne("jihee.getTransactionDoc", paraMap);
+		return doc;
+	}
+
+	@Override
+	public List<TransactionDetailVO_KJH> getDetailTransactionList(Map<String, String> paraMap) {
+		List<TransactionDetailVO_KJH> detailList = sqlsession2.selectList("jihee.getDetailTransactionList", paraMap);
+		return detailList;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	// 문서 DELETE
+	@Override
+	public int deleteDoc(Map<String, String> paraMap) {
+		
+		int n = sqlsession2.delete("jihee.deleteDoc", paraMap);
+		
+		return n;
+		
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	// 매월 10일 오후12시에 문서 국세청으로 전송
+	@Override
+	public void updateStatusAlltax() {		
+		sqlsession2.update("jihee.updateStatusAlltax");		
+	}
+
+	@Override
+	public void updateStatusAllnotax() {		
+		sqlsession2.update("jihee.updateStatusAllnotax");		
+	}
 	
 	
 	

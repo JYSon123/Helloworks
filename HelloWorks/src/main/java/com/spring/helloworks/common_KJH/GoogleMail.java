@@ -5,6 +5,9 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class GoogleMail {
 
 	   public void sendmail(String recipient, String certificationCode) throws Exception {
