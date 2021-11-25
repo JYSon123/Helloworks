@@ -69,6 +69,12 @@ public interface InterEmpDAO_ce {
 	// 부서별 사원들 근태현황 엑셀다운받기
 	List<AttendanceVO_ce> excelattendancevo(String fk_empno);
 
+	// 사원정보 건수 조회
+	int getTotalCount_ce(Map<String, Object> paraMap);
+
+	// 검색, 페이징처리한 사원정보 조회
+	List<EmpVO_LCE> empListSearchWithPaging_ce(Map<String, Object> paraMap);
+
 	
 
 

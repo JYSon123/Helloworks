@@ -7,10 +7,229 @@
 <!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!! 팀원님들 각자 하나씩 만드셔요) ==== -->
 <mapper namespace="sonjy">
 	
-	<select id="getName" resultType="String" >
-		select name
-		from tbl_test
-	</select>
-	<!-- 확인용 확인용!!  -->
+	<!-- 작성한 문서를 테이블에 insert 시켜주는 메소드 -->
+	<insert id="addEnd" parameterType="HashMap">
+		<if test = 'status != 1'>
+			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result)
+			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default)
+		</if>
+		<if test = 'status == 1'>
+			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, breakstart, breakend, breakkind)
+			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default, to_date(#{breakstart},'YYYY/MM/DD'), to_date(#{breakend},'YYYY/MM/DD'), #{breakkind})
+		</if>
+	</insert>
 	
+  <!-- 작성한 문서를 테이블에 insert 시켜주는 메소드 (file이 있을때) -->
+	<insert id="addEndFile" parameterType="HashMap">
+		<if test = 'status != 1'>
+			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, fileName, orgFilename, fileSize)
+			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default, #{fileName}, #{orgFilename}, #{fileSize})
+		</if>
+		<if test = 'status == 1'>
+			insert into TBL_DOCUMENT(doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, breakstart, breakend, breakkind, fileName, orgFilename, fileSize)
+			values(to_char(sysdate, 'yyyymmdd') || to_char(documentSeq.nextval), #{fk_empno}, #{fk_deptnum}, #{name}, #{subject}, #{content}, sysdate, #{status}, default, to_date(#{breakstart},'YYYY/MM/DD'), to_date(#{breakend},'YYYY/MM/DD'), #{breakkind}, #{fileName}, #{orgFilename}, #{fileSize})
+		</if>
+	</insert>
+	
+	
+	<!-- 총 게시물 건수(totalCount)를 알아오는 메소드 -->
+    <select id="getTotalCount" parameterType="HashMap" resultType="int">
+	  <if test='searchType == "" and searchWord == ""'>
+	  	select count(*)
+	    from TBL_DOCUMENT
+	  </if>
+	  
+      <if test='searchType != "" and searchWord != ""'>
+      	select count(*)
+	    from TBL_DOCUMENT
+		where  status = ${searchType} and result = ${searchWord}
+      </if>
+      
+	  <if test='searchType != "" and searchWord == ""'>
+	  	select count(*)
+	    from TBL_DOCUMENT
+		where status = ${searchType}
+      </if>
+      
+      <if test='searchType == "" and searchWord != ""'>
+      	select count(*)
+	    from TBL_DOCUMENT
+		where result = ${searchWord}
+      </if>	
+      
+   </select>
+   
+   
+   <select id="documentListSearchWithPaging" parameterType="HashMap" resultType="com.spring.employees.model.DocumentVO_jy">
+	    
+	    <if test='searchType == "" and searchWord == ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	  	<if test='searchType != "" and searchWord != ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType} and result = ${searchWord}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	  	<if test='searchType != "" and searchWord == ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	    <if test='searchType == "" and searchWord != ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where result = ${searchWord}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	
+	</select>
+	
+	<!-- 한 파일을 자세히보기 -->
+	<select id="viewDocument" parameterType="HashMap" resultType="com.spring.employees.model.DocumentVO_jy">
+		select doument_seq, status, result, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, filename, to_char(breakstart,'YYYY-MM-DD') AS breakstart, to_char(breakend,'YYYY-MM-DD') AS breakend, breakkind , fileName, orgFilename, fileSize
+		from tbl_document
+		where doument_seq = #{doument_seq}
+	</select>
+	
+	
+	
+	<select id="viewBreak" parameterType="HashMap" resultType="com.spring.employees.model.BreakCalendarVO_jy">
+		select  title, to_char(start1,'YYYY-MM-DD') AS start1 ,  to_char(end1,'YYYY-MM-DD') AS end1
+		from tbl_breakcalendar
+		where fk_empno = #{fk_empno}
+	</select>
+	
+	
+	 <update id="changeResult" parameterType="HashMap">
+	      update tbl_document set result = #{result}
+	      where doument_seq = #{doument_seq}
+     </update>
+     
+
+
+	<insert id="insertCalendar" parameterType="HashMap" >
+		insert into tbl_breakcalendar values(#{fk_empno}, #{title}, to_date(#{start1},'YYYY/MM/DD') , (to_date(#{end1},'YYYY/MM/DD')+(INTERVAL '1' DAY)))
+	</insert>
+	
+	
+	 <select id="myDocumentListSearchWithPaging" parameterType="HashMap" resultType="com.spring.employees.model.DocumentVO_jy">
+	    
+	    <if test='searchType == "" and searchWord == ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	  	<if test='searchType != "" and searchWord != ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType} and result = ${searchWord} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	  	<if test='searchType != "" and searchWord == ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where status = ${searchType} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	  	
+	    <if test='searchType == "" and searchWord != ""'>
+	     select doument_seq, fk_empno, fk_deptnum, name, subject, content, regDate, status, result, filename
+			from 
+			(
+			    select row_number() over(order by doument_seq desc) AS rno, doument_seq, fk_empno, fk_deptnum, name, subject, content, to_char(regDate, 'yyyy-mm-dd hh24:mi:ss' ) AS regDate, status, result, filename
+			    from TBL_DOCUMENT
+			    where result = ${searchWord} and fk_empno = ${fk_empno}
+			) V
+	  	 where rno between #{startRno} and #{endRno}
+	  	</if>
+	
+	</select>
+	
+	   
+   <delete id="delDocumentEnd" parameterType="HashMap">
+   		delete from tbl_document
+    	where doument_seq = #{doument_seq}
+   </delete>
+   
+   
+   <!-- 총 게시물 건수(totalCount)를 알아오는 메소드, 회원용 -->
+    <select id="getMyTotalCount" parameterType="HashMap" resultType="int">
+	  <if test='searchType == "" and searchWord == ""'>
+	  	select count(*)
+	    from TBL_DOCUMENT
+	    where fk_empno = ${fk_empno}
+	  </if>
+	  
+      <if test='searchType != "" and searchWord != ""'>
+      	select count(*)
+	    from TBL_DOCUMENT
+		where  status = ${searchType} and result = ${searchWord} and fk_empno = ${fk_empno}
+      </if>
+      
+	  <if test='searchType != "" and searchWord == ""'>
+	  	select count(*)
+	    from TBL_DOCUMENT
+		where status = ${searchType} and fk_empno = ${fk_empno} and fk_empno = ${fk_empno}
+      </if>
+      
+      <if test='searchType == "" and searchWord != ""'>
+      	select count(*)
+	    from TBL_DOCUMENT
+		where result = ${searchWord} and fk_empno = ${fk_empno}
+      </if>	
+      
+   </select>
+   
+   
+   <select id="idDuplicateCheck" parameterType="String" resultType="int">
+   		select count(*)
+		from tbl_employee
+		where empid = #{empid}
+   </select>
+   
+   
+	<insert id="registerEnd">
+		INSERT INTO tbl_employee(empno, empname, empid, emppw, email, ranking, fk_deptnum, empstatus, empsalary, hiredate, noticeemail)
+		values(to_char(sysdate, 'yyyymmdd') || '100' || to_char(empnoSeq.nextval), #{empname}, #{empid}, #{emppw},  #{empid} || '@helloworks.com', #{ranking}, #{fk_deptnum}, default, #{empsalary}, to_char(sysdate, 'yyyy/mm/dd'), #{noticeemail}  )
+	
+	</insert>
+		
 </mapper>

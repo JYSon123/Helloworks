@@ -558,3 +558,54 @@ select nowdate, fk_empno, intime, nvl(outtime,'퇴근미체크') as outtime , nv
 from tbl_attendance
 where fk_empno = '202111081004'
 order by nowdate
+
+
+select * from tab;
+
+select * from tbl_employee
+
+
+-- 검색처리한 사원정보 총 갯수 가져오기 
+select count(*) from tbl_employee
+where empno is not null
+and to_char( hiredate, 'yyyy') = '2021' -- 입사일자
+and empstatus = 1 -- 재직상태
+and empno = '202111081004' -- 사원번호
+and fk_deptnum in (10,20) -- 부서번호
+and ranking in (1,2,3) -- 직급 
+
+
+-- 페이징처리한 사원정보 조회 
+select empno, empname, empid, email, ranking, fk_deptnum, empstatus, empsalary, hiredate
+from
+(
+select row_number() over(order by empno desc) as rno, empno, empname, empid, email, ranking, fk_deptnum, empstatus, empsalary, hiredate
+from tbl_employee
+where empno is not null
+and to_char( hiredate, 'yyyy') = '2021' -- 입사일자
+and empstatus = 1 -- 재직상태
+and empno = '202111081004' -- 사원번호
+and fk_deptnum in (10,20) -- 부서번호
+and ranking in (1,2,3) -- 직급 
+) V
+where rno between 1 and 3
+
+
+select empno, empname, empid, email, ranking, fk_deptnum, empstatus, empsalary, hiredate, noticeemail
+from
+(
+select row_number() over(order by empno desc) as rno, empno, empname, empid, email, ranking, fk_deptnum, empstatus, empsalary, hiredate, noticeemail
+from tbl_employee e
+where empno is not null
+and to_char( hiredate, 'yyyy') = '2021' -- 입사일자
+and empstatus = 1 -- 재직상태
+and empno = '202111081004' -- 사원번호
+and fk_deptnum in (10,20) -- 부서번호
+and ranking in (1,2,3) -- 직급 
+) V
+where rno between 1 and 3
+
+select * from tbl_employee
+
+
+
