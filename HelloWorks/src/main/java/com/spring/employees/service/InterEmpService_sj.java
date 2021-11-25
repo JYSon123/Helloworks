@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.spring.employees.model.BoardVO;
 import com.spring.employees.model.CommentVO_sj;
+import com.spring.employees.model.EmpVO_sj;
+import com.spring.helloworks.model.EmpVO_KJH;
 
 public interface InterEmpService_sj {
 
@@ -40,6 +42,15 @@ public interface InterEmpService_sj {
 
 	// 댓글쓰기(transaction처리)
 	int addComment(CommentVO_sj commentvo) throws Throwable;
+
+	// 원게시물에 딸린 댓글들을 조회해오는 것
+	List<CommentVO_sj> getCommentList(String parentSeq);
+
+	// 회원 한 명의 정보 불러오기
+	EmpVO_sj getViewEmpOne(Map<String, String> paraMap);
+
+	// 회원 한 명의 정보 수정하기
+	int empUpdate(EmpVO_sj emp);
 
 	
 }

@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.employees.model.BoardVO;
 import com.spring.employees.model.CommentVO_sj;
+import com.spring.employees.model.EmpVO_sj;
 import com.spring.employees.model.FileManager_sj;
 import com.spring.employees.model.InterEmpDAO_sj;
+import com.spring.helloworks.model.EmpVO_KJH;
 
 @Service
 public class EmpService_sj implements InterEmpService_sj {
@@ -170,13 +172,32 @@ public class EmpService_sj implements InterEmpService_sj {
 		List<String> wordList = dao.wordSearchShow(paraMap);
 		return wordList;
 	}
+
+
+	// 원게시물에 딸린 댓글들을 조회해오는 것
+	@Override
+	public List<CommentVO_sj> getCommentList(String parentSeq) {
+		List<CommentVO_sj> commentList = dao.getCommentList(parentSeq);
+		return commentList;
+	}
+
+
+	// 회원 한 명의 정보 불러오기
+	@Override
+	public EmpVO_sj getViewEmpOne(Map<String, String> paraMap) {
+		EmpVO_sj empvo = dao.getViewEmpOne(paraMap);
+		return empvo;
+	}
+
+
+	// 회원 한 명의 정보 수정하기
+	@Override
+	public int empUpdate(EmpVO_sj emp) {
+		int n = dao.empUpdate(emp);
+		return n;
+	}
 	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	

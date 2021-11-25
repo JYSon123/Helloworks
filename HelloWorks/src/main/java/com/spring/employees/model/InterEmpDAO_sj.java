@@ -3,6 +3,8 @@ package com.spring.employees.model;
 import java.util.List;
 import java.util.Map;
 
+import com.spring.helloworks.model.EmpVO_KJH;
+
 public interface InterEmpDAO_sj {
 
 	// tbl_board테이블에서 groupno 컬럼의 최대값 알아오기
@@ -43,6 +45,15 @@ public interface InterEmpDAO_sj {
 
 	// 검색어 입력시 자동글 완성하기
 	List<String> wordSearchShow(Map<String, String> paraMap);
+
+	// 원게시물에 딸린 댓글들을 조회해오는 것
+	List<CommentVO_sj> getCommentList(String parentSeq);
+
+	// 회원 한 명의 정보 불러오기
+	EmpVO_sj getViewEmpOne(Map<String, String> paraMap);
+
+	// 회원 한 명의 정보 수정하기
+	int empUpdate(EmpVO_sj emp);
 
 
 	

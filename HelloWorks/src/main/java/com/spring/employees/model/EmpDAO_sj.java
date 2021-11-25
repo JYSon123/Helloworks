@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.spring.helloworks.model.EmpVO_KJH;
+
 @Repository
 public class EmpDAO_sj implements InterEmpDAO_sj {
 
@@ -42,8 +44,7 @@ public class EmpDAO_sj implements InterEmpDAO_sj {
 	// === 페이징 처리 x 검색어 x 전체 글목록 보여주기(수정 예정) === //
 	@Override
 	public List<BoardVO> boardListNoSearch() {
-		List<BoardVO> boardList = sqlsession2.selectList("yoosj.boardListNoSearch");
-		
+		List<BoardVO> boardList = sqlsession2.selectList("yoosj.boardListNoSearch");	
 		return boardList;
 	}
 
@@ -51,8 +52,7 @@ public class EmpDAO_sj implements InterEmpDAO_sj {
 	// 총 게시물 건수(totalCount)구하기 - 검색이 있을 때와 없을 때로 나뉜다.
 	@Override
 	public int getTotalCount(Map<String, String> paraMap) {
-		int n = sqlsession2.selectOne("yoosj.getTotalCount", paraMap);
-		
+		int n = sqlsession2.selectOne("yoosj.getTotalCount", paraMap);		
 		return n;
 	}
 
@@ -116,9 +116,31 @@ public class EmpDAO_sj implements InterEmpDAO_sj {
 	public List<String> wordSearchShow(Map<String, String> paraMap) {
 		List<String> wordList = sqlsession2.selectList("yoosj.wordSearchShow", paraMap);
 		return wordList;
+	}
+
+
+	// 원게시물에 딸린 댓글들을 조회해오는 것
+	@Override
+	public List<CommentVO_sj> getCommentList(String parentSeq) {
+		List<CommentVO_sj> commentList = sqlsession2.selectList("yoosj.getCommentList", parentSeq);
+		return commentList;
+	}
+
+
+	// 회원 한 명의 정보 불러오기
+	@Override
+	public EmpVO_sj getViewEmpOne(Map<String, String> paraMap) {
+		EmpVO_sj empvo = sqlsession2.selectOne("yoosj.getViewEmpOne", paraMap);
+		return empvo;
+	}
+
+
+	// 회원 한 명의 정보 수정하기
+	@Override
+	public int empUpdate(EmpVO_sj emp) {
+		int n = sqlsession2.update("yoosj.empUpdate", emp);
+		return n;
 	}  
-	
-	
 	
 
 }
