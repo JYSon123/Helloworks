@@ -46,12 +46,146 @@
 	
 	
 	<!-- 페이징 처리 x 검색어 x 전체 글목록 보여주기(수정 예정) -->
-	<select id="boardListNoSearch" resultType="com.spring.employees.model.BoardVO">
+	<!--   <select id="boardListNoSearch" resultType="com.spring.employees.model.BoardVO">
 		select seq, fk_empno, name, subject
 		     , readCount, to_char(regDate, 'yy-mm-dd hh24:mi') as regDate
 		from tbl_board
 		where status = 1
 		order by seq desc
 	</select>
+	-->
+	
+	<!-- 총 게시물 건수(totalCount)구하기 - 검색이 있을 때와 없을 때로 나뉜다. -->
+	<select id="getTotalCount" parameterType="HashMap" resultType="int">
+		select count(*)
+		from tbl_board
+		where status = 1
+		<if test='searchWord != ""'>
+			and lower(${searchType}) like '%'||lower(#{searchWord})||'%'
+		</if>
+	</select>
+	
+	<!-- 페이징 처리한 글목록 가져오기(검색이 있든지 없든지 모두 포함된 것) -->
+	<select id="boardListSearchWithPaging" parameterType="HashMap" resultType="com.spring.employees.model.BoardVO">
+      select seq, fk_empno, name, subject, readCount, regDate, commentCount  
+           , groupno, fk_seq, depthno
+           , fileName
+      from 
+      (
+          select rownum AS rno
+               , seq, fk_empno, name, subject, readCount, regDate, commentCount  
+               , groupno, fk_seq, depthno 
+               , fileName
+          from 
+          (
+              select seq, fk_empno, name, subject, readCount, 
+                     to_char(regDate, 'yy-mm-dd hh24:mi') AS regDate,
+                     commentCount, 
+                     groupno, fk_seq, depthno 
+                    ,fileName
+              from tbl_board
+              where status = 1 
+               <if test=' searchType != "" and searchWord != "" '>
+               and lower( ${searchType} ) like '%' || lower( #{searchWord} ) || '%'
+               </if>
+              start with fk_seq = 0 
+              connect by prior seq = fk_seq
+              order siblings by groupno desc, seq asc  
+          ) V 
+      ) T 
+      where rno between #{startRno} and #{endRno}
+	</select>
+	
+	
+	<!-- 글 한개 조회하기 -->
+	<select id="getView" parameterType="HashMap" resultType="com.spring.employees.model.BoardVO">
+		select  previousseq, previoussubject, 
+		       seq, fk_empno, name, subject, content, readCount, regDate,
+		       nextseq, nextsubject, 
+		       groupno , fk_seq, depthno
+		     , fileName, orgFilename, fileSize
+		from
+		(
+		    select lag(seq, 1) over(order by seq desc) AS previousseq
+		         , lag(subject, 1) over(order by seq desc) AS previoussubject
+		        
+		         , seq, fk_empno, name, subject, content, readCount
+		         , to_char(regDate, 'yyyy-mm-dd hh24:mi:ss') AS regDate
+		         
+		         , lead(seq, 1) over(order by seq desc) AS nextseq
+		         , lead(subject, 1) over(order by seq desc) AS nextsubject
+		    	 , groupno , fk_seq, depthno
+		    	 , fileName, orgFilename, fileSize
+		    from tbl_board
+		    where status = 1
+		    <if test='searchType != "" and searchWord != ""'>
+		    	and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+			</if>
+		) V
+		where V.seq = #{seq}
+	</select>
+	
+	
+	<!-- 조회수 1 증가하기 -->
+	<update id="setAddReadCount" parameterType="String">
+		update tbl_board set readCount = readCount + 1
+		where seq = #{seq}
+	</update>
+	
+	
+	<!-- 글 수정하기  -->
+	<update id="boardEdit" parameterType="com.spring.employees.model.BoardVO">
+		update tbl_board set subject = #{subject}
+						   , content = #{content}
+		where seq = #{seq} and pw = #{pw}
+	</update>
+	
+	
+	<!-- 글 삭제하기 -->
+	<delete id="boardDel" parameterType="HashMap">
+		delete from tbl_board
+		where seq = #{seq} and pw = #{pw}
+	</delete>
+	
+	
+	<!-- 댓글 쓰기(tbl_comment 테이블에 insert) -->
+	<insert id="addComment" parameterType="com.spring.employees.model.CommentVO_sj"  >
+		insert into tbl_comment(seq, fk_empno, name, content, regDate, parentSeq, status)
+		values(commentSeq.nextval, #{fk_empno}, #{name}, #{content}, default, #{parentSeq}, default)
+	</insert>
+	
+	
+	<!-- tbl_board 테이블에 commentCount 컬럼의 값을 1증가(update) -->
+	<update id="updateCommentCount" parameterType="String">
+		update tbl_board set commentCount = commentCount + 1
+		where seq = #{parentSeq}
+	</update>
+	
+	
+	<!-- 검색어 입력시 자동글 완성하기 -->
+	<select id="wordSearchShow" parameterType="HashMap" resultType="String">
+		<choose>
+			<when test="searchType eq 'name'" >
+				select distinct ${searchType}
+			</when>
+			<otherwise>
+				select ${searchType}
+			</otherwise>
+		</choose>	
+		from tbl_board
+		where status = 1
+		and lower( ${searchType} ) like '%' || lower( #{searchWord} ) || '%'
+		<!-- select 문에서 distinct 와 order by 절을 함께 사용할때는 조심해야 한다.
+             order by 절에는 select 문에서 사용된 컬럼만 들어올 수가 있다.
+                        또는 order by 절을 사용하지 않아야 한다.
+        -->
+		<if test="searchType neq 'name'">
+		order by seq desc
+		</if>
+	
+	</select>
+	
+	
+	
 	
 </mapper>

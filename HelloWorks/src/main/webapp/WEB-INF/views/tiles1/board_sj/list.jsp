@@ -1,10 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <% String ctxPath = request.getContextPath(); %>
 
-   
 <style type="text/css">
 	body,h1,h2,h3,h4,h5,h6 {font-family: Verdana, sans-serif;}
 	
@@ -20,28 +20,39 @@
 		font-size: 14pt;
 		
 	}
-	
-	.subjectStyle {
-		font-weight: bold;
-		color: navy;
-		cursor: pointer;
+
+	.subject:visited {
+	  color: inherit;
 	}
+	
+	.subject:hover {
+	  font-weight: normal;
+	  cursor: pointer;
+	}
+	
+	#hovertbl:hover tbody tr:hover td {
+   	  background: #f1f6fb;
+	}
+	
+	
+	#displayList { 
+		-ms-overflow-style: none; 
+	} 
+	
+	#displayList::-webkit-scrollbar { 
+		display:none; 
+	}
+
+
+	
+	
 </style>
 
 <script type="text/javascript">
 
 	$(document).ready(function(){
-		
-		$("span.subject").bind("mouseover", function(event){
-			var $target = $(event.target);
-			$target.addClass("subejctStyle");		
-		});
-		
-		$("span.subject").bind("mouseout",function(event){
-			var $target = $(event.target);
-			$target.removeClass("subjectStyle");
-		})
-		
+	
+
 		$("input#searchWord").keyup(function(event){
 			if(event.keyCode == 13){
 				// 엔터를 했을 경우
@@ -49,23 +60,109 @@
 			}
 		});
 		
+		// 검색시 검색조건 및 검색어 값 유지시키기
+		if( ${not empty requestScope.paraMap} ){
+			$("select#searchType").val("${requestScope.paraMap.searchType}");
+			$("input#searchWord").val("${requestScope.paraMap.searchWord}");	
+		}
 		
-	});
+		
+		// === 검색어 입력시 자동글 완성하기 === // 
+		$("#displayList").hide();
+		
+		$("input#searchWord").keyup(function(){
+			
+			var wordLength = $(this).val().trim().length;
+			// 검색어의 길이를 알아온다.
+			
+			if(wordLength == 0){
+				$("div#displayList").hide();
+				// 검색어가 공백이거나 검색어 입력 후 백스페이스키를 눌러서 검색어를 모두 지우면 검색된 내용이 안 나오도록 해야 한다.				
+			}
+			else{
+				$.ajax({
+					url:"<%= request.getContextPath()%>/wordSearchShow.hello2",
+					type:"GET",
+					data:{"searchType":$("select#searchType").val()
+						 ,"searchWord":$("input#searchWord").val()},
+					dataType:"JSON",
+					success:function(json){
+						
+						
+					<%-- 검색어 입력시 자동글 완성하기 --%>
+					if(json.length > 0){
+						//검색된 데이터가 있는 경우
+						
+						var html = "";
+						
+						$.each(json, function(index, item){
+							var word = item.word;
+							
+							var index = word.toLowerCase().indexOf($("input#searchWord").val().toLowerCase());
+							
+							var len = $("input#searchWord").val().length;
+							
+							var result = word.substring(0, index) + "<span style='font-weight:bold; font-size:14pt'>"+word.substr(index,len)+"</span>" + word.substr(index+len);
+							
+							html += "<span style='cursor:pointer; margin-top:10px; font-size:13pt' class='result'>"+result+"</span><br>";
+								
+						});
+						
+						var input_width = $("input#searchWord").css("width"); // 검색어 input태그 width알아오기
+						
+						$("div#displayList").css({"width":input_width});   // 검색결과 div의 width크기를 검색어 input 태그 width와 일치시키기
+						
+						$("div#displayList").html(html);
+						$("div#displayList").show();			
+						
+						}	
+						
+					}, 
+					error: function(request, status, error){
+		                alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+	            	}	
+					
+				});
+				
+			}
 
+		}); // end of $("input#searchWord").keyup(function(){})----------------------
+		
+		<%-- 검색어 입력시 자동글 완성하기 --%>
+		$(document).on("click", ".result", function(){
+			var word = $(this).text();
+			$("input#searchWord").val(word); // 텍스트박스에 검색된 결과의 문자열을 입력해준다.
+			$("div#displayList").hide();
+			goSearch();		
+		});
+
+	});// end of $(document).ready(function(){})-------------------------
+
+	// Function Declaration
+	function goView(seq){
+		var frm = document.goViewFrm;
+		frm.seq.value = seq;
+		frm.gobackURL.value = "${requestScope.gobackURL}" // 자바스크립트라서 ""
+		frm.searchType.value = "${requestScope.paraMap.searchType}";
+		frm.searchWord.value = "${requestScope.paraMap.searchWord}";
+		
+		frm.method = "GET";
+		frm.action = "<%= ctxPath%>/view.hello2";
+		frm.submit();	
+	}
+	
+	 function goSearch() {
+		var frm = document.searchFrm;
+		frm.method = "GET";
+		frm.action = "<%= request.getContextPath()%>/list.hello2";
+		frm.submit(); 
+	}// end of function goSearch(){}--------------------------
+	
+	
+	
 
 </script>
 
-<script>
-function w3_open() {
-    document.getElementById("mySidebar").style.display = "block";
-    document.getElementById("myOverlay").style.display = "block";
-}
- 
-function w3_close() {
-    document.getElementById("mySidebar").style.display = "none";
-    document.getElementById("myOverlay").style.display = "none";
-}
-</script>
 
 <!-- 좌측 고정 상세메뉴 시작 -->
 <nav class="w3-sidebar w3-collapse w3-white " style="margin-top:20px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
@@ -82,7 +179,7 @@ function w3_close() {
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%;">
 	<div style="margin-left:42px; font-size: 16pt; color:#595959">
 	  <br>
-	  <a href="<%= ctxPath %>/list.hello2"    class="w3-bar-item w3-button">자유게시판</a>
+	  <a href="<%= ctxPath %>/list.hello2"    class="w3-bar-item w3-button">사내공지</a>
   	</div>
   </div>  
 </nav>
@@ -97,30 +194,29 @@ function w3_close() {
   <div class="w3-container w3-padding-large w3-animate-opacity" style="margin-bottom: 800px;">
     
     <div style="display: flex;">
-	<div style="margin: 70px 0 0 270px; padding-left: 3%">
+	<div style="margin: 80px 0 0 270px; padding-left: 3%">
 	
 
-		<span style="color:#0070C0" class="h3"><b>자유게시판</b></span>
+		<span style="color:#0070C0" class="h2"><b>사내공지</b></span>
 		
 		<%-- === 글검색 폼 추가하기 : 글제목, 글쓴이로 검색한다. === --%>
-		<form name="searchFrom" style="margin:0 0 0 870px; font-size: 13pt">
+		<form name="searchFrm" style="margin:0 0 0 870px; font-size: 13pt">
 			<select name="searchType" id="searchType" style="height: 33px; border:none; color:#595959">
 				<option value="subject">글제목</option>
 				<option value="name">글쓴이</option>
 			</select>
-			<input type="text" name="searchWord" id="searchWord" size="40" autocomplete="off" style="height: 50px; border-radius: 50px; border: 1px solid #595959"/>
+			<input type="text" name="searchWord" id="searchWord" size="40" autocomplete="off" style="height: 50px; border-radius: 50px; border: 1px solid #595959" placeholder="게시글 검색"/>
 			<input type="text" style="display: none;"/> <%-- form 태그 내에 input태그가 오로지 1개뿐일 경우에는 엔터를 했을 경우 검색이 되어지므로 이것을 방지하고자 만든 것이다. --%>
-			<button class="btn btn-outline-light border ml-1" style=" width:50px; height:50px;  border-radius: 30px; color:black; width:47px" type="button" onClick="goSearch();">
-		    	  <i class="fa fa-search"></i>
-		     </button>
+			<button class="btn btn-outline-light border ml-1" style=" width:50px; height:50px;  border-radius: 30px; color:black; width:47px;" type="button" onClick="goSearch()">
+		    <i class="fa fa-search"></i> </button>
 		</form>
 		
-		<%-- 검색어 입력시 자동글 완성하기 --%>
-		<div id="displayList" style="border:solid 1px gray; height: 100px; overflow: auto; margin-left: 85px; margin-top: -1px; border-top: 0px;">
-		</div>
+		<%-- 검색어 입력시 자동글 완성하기--%>
+		<div id="displayList" style="border:solid 1px gray; height: 150px; overflow: auto; margin-left: 960px; margin-top: ; border-top: 0px;">
+		</div> 
 		
 
-	<table style="max-width: 1400px; margin-top:30px" class="table">
+	<table style="max-width: 1500px; margin-top:30px" class="table table-hover" id="hovertbl">
 		 <thead>
 		<tr>
 			<th style="width: 7%;">글번호</th>
@@ -136,7 +232,7 @@ function w3_close() {
 			<tr>
 				<td align="center">${boardvo.seq}</td>
 				<td align="left">
-					<span class="subject">${boardvo.subject}</span>
+					<span class="subject" id="subject" onclick="goView('${boardvo.seq}')">${boardvo.subject}</span>
 				</td>
 				<td align="center">${boardvo.name}</td>
 				<td align="center">${boardvo.regDate}</td>
@@ -147,7 +243,7 @@ function w3_close() {
 	</table>
 	
 	<%-- === 페이지바 보여주기 === --%>
-	<div aligin="center" style="width:70%; border: solid 0px gray; margin: 20px auto;">
+	<div class="table table-hover" id="hovertbl" align="center" style="width:70%; border: solid 0px gray; margin: 20px auto;">
 		${requestScope.pageBar}
 	</div>
 	
