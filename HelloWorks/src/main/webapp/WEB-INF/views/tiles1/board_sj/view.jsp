@@ -63,7 +63,7 @@
 			data:{"fk_empno":$("input#fk_empno").val()
 				 ,"name":$("input#name").val()
 				 ,"content":$("input#commentContent").val()
-				 ,"parentSeq":$("input#parenSeq").val()},
+				 ,"parentSeq":$("input#parentSeq").val()},
 		    type:"POST",
 		    dataType:"JSON",
 		    success:function(json){
@@ -97,16 +97,18 @@
 				if(json.length > 0){
 					$.each(json, function(index, item){
 						html += "<tr>";
-						html += "<td class='comment'>"+(index+1)+"</td>";
-						html += "<td>"+item.content+"</td>";
-						html += "<td class='comment'>"+item.name+"</td>";
-						html += "<td class='comment'>"+item.regDate+"</td>";
+							html += "<td class='comment' style='width:4%; color:#0070C0; height:20px'><b>"+(index+1)+"</b></td>";
+							html += "<td class='comment' style='font-weight:bold; width:10%; height:20px'>"+item.name+"</td>";
+							html += "<td class='comment' style='color:#a6a6a6; height:20px' >"+item.regDate+"</td>";
+						html += "</tr>";
+						html += "<tr>";
+							html += "<td colspan='3' style='border-top: none; height:20px'>&emsp;&emsp;"+item.content+"</td>";	
 						html += "</tr>";
 					});
 				}
 				else{
 					html += "<tr>";
-					html += "<td colspan='4' class='comment'>댓글이 없습니다</td>";
+					html += "<td colspan='4' class='comment'>댓글이 없습니다.</td>";
 					html += "</tr>";
 				}
 							
@@ -132,7 +134,7 @@
     </a>
 	<br><br>
 	
-	<button type="button" onclick="location.href='<%= ctxPath %>/add.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
+	<button type="button" onclick="location.href='<%= ctxPath %>/baordAdd.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
 				<b>글쓰기</b></button>
 	<br>
   </div>
@@ -206,46 +208,36 @@
 				</table>
 		
 		
+		
 		<%-- ==== #94. 댓글 내용 보여주기 ==== --%>
-		<div class="board_comment" style="background-color: #f2f2f2"> 
-		<table class="table" style="width: 1024px; margin-top: 2%; margin-bottom: 3%;">
-			<thead>
-			<tr>
-			   <th style="width: 6%; text-align: center;">번호</th>
-			   <th style="text-align: center;">내용</th>
-			   <th style="width: 8%; text-align: center;">작성자</th>
-			   <th style="width: 12%; text-align: center;">작성일자</th>
-			</tr>
-			</thead>
-			<tbody id="commentDisplay"></tbody>
+		<div class="board_comment" style="background-color: #f6f8f9"> 
+		<table class="table" style="width: 1024px; margin-left:40px">
+			<tbody id="commentDisplay" style="text-align:left;"></tbody>
 		</table>
 		
 		
 		
 			<%-- === #83. 댓글쓰기 폼 추가 === --%>
-			<form name="addWriteFrm" id="addWriteFrm" style="margin-top: 20px"> 
-				<table class="table" style="width: 1500px; background-color: #f2f2f2" >
-					<tr style="height: 40px">
-					   <td colspan="2">
+			<form name="addWriteFrm" id="addWriteFrm" style="margin: 20px 0 0 40px"> 
+				<table class="table" style="width: 1500px; background-color: #f6f8f9" >
+					<tr style="height: 35px">
+					   <td colspan="2"><i class="fa fa-user" style="font-size: 18pt; color:gray"></i>
 					   	  <input type="hidden" name="fk_empno" id="fk_empno" value="${sessionScope.loginEmp.empno}" />
-					   	  <input type="text" name="name" id="name" style="border:none; background-color: #f2f2f2 " value="${sessionScope.loginEmp.empname}" readonly />
+					   	  <input type="text" name="name" id="name" style="border:none; background-color: #f6f8f9" value="&nbsp;${sessionScope.loginEmp.empname}" readonly />
 					   </td>
 					</tr>
-					<tr style="height: 40px;">
-					   <td>
-					   	  <input type="text" name="content" id="commentContent" size="100" placeholder="댓글을 입력하세요." />
+					<tr style="height: 35px">
+					   <td style="border-top: none; width:77%">
+					   	  <input type="text"   name="content" id="commentContent" style="margin-left:37px; border:none; height: 40px;" size="100" placeholder="&nbsp;댓글을 입력하세요." />
 					   	  <input type="hidden" name="parentSeq" id="parentSeq" value="${requestScope.boardvo.seq}" readonly />
 					   </td>
-					   <td>
-					   
+					   <td style="border-top: none;">
 					   	  <button type="button" class="btn btn-lg mr-3 " onclick="goAddWrite()" style="background-color: white; color:#0070C0; font-size: 14pt;">등록</button> 			   	 
 					   	  <button type="reset" class="btn btn-lg mr-3 " style="background-color: white; color:#0070C0; font-size: 14pt;">취소</button>
-		
 					 </td>
 					</tr>
 				</table>
 			</form>
-
 			</div>
 	
 		
