@@ -72,26 +72,37 @@
 
 </script>
 
-<!-- 좌측 고정 상세메뉴 시작 -->
+<!-- 좌측 상세메뉴 시작 -->
 <nav class="w3-sidebar w3-collapse w3-white " style="margin-top:20px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
-  <div class="w3-container" style="background-color:#f5f5f5; margin-top:10px" >
-    <a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu">
-      <i class="fa fa-remove"></i>
-    </a>
-	<br><br>
-	
-	<button type="button" onclick="location.href='<%= ctxPath %>/boardAdd.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 240px; height:63px; color:white">
-				<b>글쓰기</b></button>
-	<br>
+  <div class="w3-container" style="background-color:#f1f3f4; margin-top:10px; color:#595959" >	
+	<button type="button" onclick="location.href='<%= ctxPath %>/boardAdd.hello2'" class="btn" id="btn1" style="background-color:#0070C0; margin:35px 0 0 14px; font-size:21px; width: 240px; height:63px; color:white">
+				<i class="fas fa-pen" style="font-size: 14pt"></i>&ensp;<b>글쓰기</b>
+	</button> <br>
   </div>
-  <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
-	<div style="margin-left:42px; font-size: 16pt; color:#595959">
+  
+  <div class="w3-bar-block" style="background-color:#f1f3f4; height: 100% ">	
+	<div style="margin-left:50px; font-size: 15pt; color:#595959">
 	  <br>
-	  <a href="<%= ctxPath %>/list.hello2" class="w3-bar-item w3-button">사내공지</a>
+	</div>
+	
+	<hr style="color: #d7dde8; height: 1px; background-color:#ebeff9">
+	
+	<div style="margin:10px 0 0 50px; font-size: 15pt; color:#595959">		  	  
+	  <h4 style="color:#6d88a4"><i class="fas fa-angle-down"></i>&ensp;게시판</h4>
+	   
+	   <a href="<%= ctxPath %>/list.hello2" class="w3-bar-item w3-button">
+	  	<i class="fas fa-clipboard" style="font-size: 14pt; color:gray"></i>&ensp;사내공지 게시판
+	   </a>
+	  
+	   <a href="<%= ctxPath %>/boardAdd.hello2" class="w3-bar-item w3-button">
+	 	 <i class="fas fa-keyboard" style="font-size: 14pt; color:gray"></i>&nbsp;공지 작성
+	   </a>
   	</div>
-  </div>  
+ </div>
+  
 </nav>
-<!-- 좌측 고정 상세메뉴 끝 -->
+<!-- 좌측 상세메뉴 끝 -->
+
 
 
 <!-- !!!!!PAGE CONTENT START!!!!!! -->

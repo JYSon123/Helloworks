@@ -676,23 +676,23 @@ public class EmpController_ce {
 			
 			// 부서번호 가져오기(다중선택가능)
 			String deptnoList = request.getParameter("deptnoList");
-			System.out.println("~~~ 확인용 deptnoList => " + deptnoList);
+			//System.out.println("~~~ 확인용 deptnoList => " + deptnoList);
 			
 			// 직위종류 가져오기 (다중선택가능) 
 			String rankingList = request.getParameter("rankingList");
-			System.out.println("~~~ 확인용 rankingList => " + rankingList);
+			//System.out.println("~~~ 확인용 rankingList => " + rankingList);
 	
 			// 입사년도 가져오기 (선택하나만 가능)
 			String hireyear = request.getParameter("hireyear");
-			System.out.println("~~~ 확인용 hireyear => " + hireyear);
+			//System.out.println("~~~ 확인용 hireyear => " + hireyear);
 			
 			// 휴직상태 가져오기 (선택하나만 가능)
 			String empstatus = request.getParameter("empstatus");
-			System.out.println("~~~ 확인용 empstatus => " + empstatus);
+			//System.out.println("~~~ 확인용 empstatus => " + empstatus);
 			
 			// 검색한 사원번호 가져오기 
 			String empno = request.getParameter("empno");
-			System.out.println("~~~ 확인용 empno => " + empno);
+			//System.out.println("~~~ 확인용 empno => " + empno);
 			
 			// 현재페이지 가져오기 
 		    String str_currentShowPageNo = request.getParameter("currentShowPageNo");
@@ -701,44 +701,49 @@ public class EmpController_ce {
 			Map<String, Object> paraMap = new HashMap<>();
 			
 			// 부서선택
-			if( deptnoList != null && !"".equals(deptnoList) ) {
+			if( deptnoList != null && !"".equals(deptnoList) && !"null".equals(deptnoList)) {
 				
 				String[] deptnoArr = deptnoList.split(",");
 				paraMap.put("deptnoArr", deptnoArr);
+				//System.out.println("부서이거찍히면 안됨");
 				
 				request.setAttribute("deptnoList", deptnoList);
 				//뷰단에서 체크되어진 값을 유지시키기 위한 것이다. 
 			}
 			
 			// 직급선택
-			if( rankingList != null && !"".equals(rankingList) ) {
+			if( rankingList != null && !"".equals(rankingList) &&  !"null".equals(rankingList)) {
 				
 				String[] rankArr = rankingList.split(",");
 				paraMap.put("rankArr", rankArr);
+				//System.out.println("직급이거찍히면 안됨");
 				
 				request.setAttribute("rankingList", rankingList);
 				//뷰단에서 체크되어진 값을 유지시키기 위한 것이다. 
 			}
 			
 			// 입사년도 선택
-			if( hireyear != null && !"".equals(hireyear) && !"0".equals(hireyear)) {
+			if( hireyear != null && !"".equals(hireyear) && !"0".equals(hireyear) && !"null".equals(hireyear)) {
 				paraMap.put("hireyear", hireyear);
 				request.setAttribute("hireyear", hireyear);
+				//System.out.println("입사년도이거찍히면 안됨");
 				//뷰단에서 선택한 값을 유지시키기 위한 것이다. 
 			}
 			
 			
 			// 휴직상태 선택
-			if(  empstatus != null && !"".equals(empstatus) && !"3".equals(empstatus)) {
+			if(  empstatus != null && !"".equals(empstatus) && !"3".equals(empstatus) && !"null".equals(empstatus)) {
 				paraMap.put("empstatus", empstatus);
 				request.setAttribute("empstatus", empstatus);
+				//System.out.println("휴직이거찍히면 안됨");
 				//뷰단에서 선택한 값을 유지시키기 위한 것이다. 
 			}
 			
 			// 사원번호 검색 받아오기 
-			if( empno != null && !"".equals(empno) && ! empno.trim().isEmpty() ) {
+			if( empno != null && !"".equals(empno) && ! empno.trim().isEmpty() && !"null".equals(empno) ) {
 				paraMap.put("empno", empno);
 				request.setAttribute("empno", empno);
+				//System.out.println("사번이거찍히면 안됨");
 				//뷰단에서 선택한 값을 유지시키기 위한 것이다. 
 			}
 			
@@ -804,7 +809,7 @@ public class EmpController_ce {
 		    //   21 22 23 24 25 26 27 28 29 30  -- 세번째 블럭의 페이지번호 시작값(pageNo)은 21 이다.
 		    
 		    String pageBar = "<ul style='list-style: none;'>";
-			String url = "emp/viewEmployee.hello2";
+			String url = "viewEmployee.hello2";
 	
 			// === [맨처음][이전] 만들기 ===
 			if( pageNo != 1) {
@@ -857,23 +862,23 @@ public class EmpController_ce {
 	 
 	    // 부서번호 가져오기(다중선택가능)
 		String deptnoList = request.getParameter("deptnoList");
-		System.out.println("~~~ 확인용 deptnoList => " + deptnoList);
+		//System.out.println("~~~ 확인용 deptnoList => " + deptnoList);
 		
 		// 직위종류 가져오기 (다중선택가능) 
 		String rankingList = request.getParameter("rankingList");
-		System.out.println("~~~ 확인용 rankingList => " + rankingList);
+		//System.out.println("~~~ 확인용 rankingList => " + rankingList);
 
 		// 입사년도 가져오기 (선택하나만 가능)
 		String hireyear = request.getParameter("hireyear");
-		System.out.println("~~~ 확인용 hireyear => " + hireyear);
+		//System.out.println("~~~ 확인용 hireyear => " + hireyear);
 		
 		// 휴직상태 가져오기 (선택하나만 가능)
 		String empstatus = request.getParameter("empstatus");
-		System.out.println("~~~ 확인용 empstatus => " + empstatus);
+		//System.out.println("~~~ 확인용 empstatus => " + empstatus);
 		
 		// 검색한 사원번호 가져오기 
 		String empno = request.getParameter("empno");
-		System.out.println("~~~ 확인용 empno => " + empno);
+		//System.out.println("~~~ 확인용 empno => " + empno);
 		
 		// 현재페이지 가져오기 
 	    String str_currentShowPageNo = request.getParameter("currentShowPageNo");
@@ -1121,7 +1126,7 @@ public class EmpController_ce {
         	bodyCell.setCellValue(empvo.getHiredate());
 
         	// 데이터 개인 이메일 표시 
-        	bodyCell = bodyRow.createCell(8);
+        	bodyCell = bodyRow.createCell(9);
         	bodyCell.setCellValue(empvo.getNoticeemail());
         	
         	
