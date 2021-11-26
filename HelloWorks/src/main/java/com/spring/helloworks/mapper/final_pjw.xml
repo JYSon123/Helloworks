@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== #29. mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.) ==== -->
+<mapper namespace="final_pjw">
+
+<!-- 개인 연락처 조회 쿼리  -->
+
+<select id="addbookList_private" resultType="com.spring.addbook.model.AddbookVO">
+    select name, email, phonenum, company
+    from tbl_addbook
+	where pbl = 1
+	order by name asc
+</select>
+	
+<!-- 공유 연락처 조회 쿼리 -->	
+
+
+<select id="addbookList_public" resultType="com.spring.addbook.model.AddbookVO">
+    select name, email, phonenum, company
+    from tbl_addbook
+	where pbl = 0
+	order by name asc
+</select>
+
+
+
+</mapper>

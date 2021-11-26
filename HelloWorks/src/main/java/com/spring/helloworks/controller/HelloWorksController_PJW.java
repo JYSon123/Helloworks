@@ -2,7 +2,7 @@ package com.spring.helloworks.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,20 +14,9 @@ import com.spring.helloworks.service.InterHelloWorksService;
 
 @Component
 @Controller
-public class HelloWorksController {
+public class HelloWorksController_PJW {
    
-   @RequestMapping(value="/test1.hello2")
-   public String test1(HttpServletRequest request) {
-      
-      String name = "이순신";
-      
-      request.setAttribute("name", name);
-      
-      return "test1";
-      
-      // 테스트 완료! 정상출력
-      
-   }
+  
    
 
    
@@ -58,7 +47,18 @@ public class HelloWorksController {
          // /WEB-INF/views/tiles1/main/index.jsp 파일을 생성한다.
       }
    
+		
+		/*
+		 * @RequestMapping(value="/reservationlist.hello2") public String
+		 * requiredLogin_reservation(HttpServletRequest request , HttpServletResponse
+		 * response) {
+		 * 
+		 * return "reservation/reservationlist.tiles1"; }
+		 */
+		  //WEB-INF/views/tiles1/reservation/index.jsp 파일을 생성한다. 
+		
    
+
    // DB 연결 확인용 메소드
       @RequestMapping(value="/template.hello2")
       public String index2(HttpServletRequest request) {
