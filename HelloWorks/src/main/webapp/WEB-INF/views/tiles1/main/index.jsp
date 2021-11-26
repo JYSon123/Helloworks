@@ -117,7 +117,7 @@ h1 {
 		</div>
 		
 		<div class="w3-quarter">
-		<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		<button type="button" onclick="location.href='<%= ctxPath %>/emp/viewAttend.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="fas fa-users" style="font-size: 34pt"></i></button>
 			  <p class="p">인사</p>
 		</div>
@@ -126,7 +126,7 @@ h1 {
 	
 	<div class="w3-row"><br>
 		<div class="w3-quarter">
-		<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		<button type="button" onclick="location.href='<%= ctxPath %>/documentMain.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="fas fa-clipboard-check" style="font-size: 34pt"></i></button>
 			  <p class="p">전자결재</p>
 		</div>

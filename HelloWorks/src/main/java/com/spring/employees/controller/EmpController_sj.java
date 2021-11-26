@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.spring.employees.model.BoardVO;
 import com.spring.employees.model.CommentVO_sj;
+import com.spring.employees.model.EmpVO_sj;
 import com.spring.employees.model.FileManager_sj;
 import com.spring.employees.service.InterEmpService_sj;
 import com.spring.helloworks.common_KJH.MyUtil;
@@ -50,6 +51,14 @@ public class EmpController_sj {
 	
 	
 	// 보드 jsp 확인용 메소드
+	@RequestMapping(value="/empUpdateTest.hello2")
+    public String empUpdate(HttpServletRequest request) {
+      
+       return "board_sj/empUpdate.tiles1";   
+	 }
+		
+	
+	// 보드 jsp 확인용 메소드
 	@RequestMapping(value="/listtest.hello2")
     public String board2(HttpServletRequest request) {
       
@@ -57,28 +66,62 @@ public class EmpController_sj {
 	 }
 		
 	
+	/*
+	// 로그인한 유저의 소속부서를 확인하는 메소드
+	@Autowired
+    private boolean checkDepartment(HttpServletRequest request, String deptnum) {
+      
+       boolean checkDepartment = false;
+      
+       HttpSession session = request.getSession();
+      
+       EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+      
+       if(loginEmp != null && (deptnum.equals(loginEmp.getFk_deptnum()) || "10".equals(loginEmp.getFk_deptnum()))) {
+         checkDepartment = true;
+       }
+      
+       return checkDepartment;
+      
+    }
+   */
+	
 	
 	// === 게시판 글쓰기 폼페이지 요청 === //
-	@RequestMapping(value="/add.hello2")
+	@RequestMapping(value="/boardAdd.hello2")
 	public ModelAndView requiredLogin_add(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
 		
 	    // getCurrentURL(request); // 로그인 또는 로그아웃을 했을 때 현재 보이던 페이지로 돌아가는 메소드 호출
 		
-		String fk_seq = request.getParameter("fk_seq");
-		String groupno = request.getParameter("groupno");
-		String depthno = request.getParameter("depthno");
-		String subject = request.getParameter("subject");
+		HttpSession session = request.getSession();
+	    EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+	    
+        if(loginEmp != null &&  ("10".equals(loginEmp.getFk_deptnum()) || "admin".equals(loginEmp.getEmpid()) ) ){
+        	String fk_seq = request.getParameter("fk_seq");
+    		String groupno = request.getParameter("groupno");
+    		String depthno = request.getParameter("depthno");
+    		String subject = request.getParameter("subject");
+    		
+    		if(fk_seq == null) { // 원글번호가 null이라면(답변글이 아닌 원글작성이라면)
+    			fk_seq = "";     // 공백을 넣어 비교한 다음  원글 or 답변글 작성 폼이 나오도록 하자	
+    		}
+    		
+    		mav.addObject("fk_seq", fk_seq);
+    		mav.addObject("groupno", groupno);
+    		mav.addObject("depthno", depthno);
+    		mav.addObject("subject", subject);
+    		
+    		mav.setViewName("board_sj/add.tiles1");
+        }
+        else {
+        	String message = "사내공지는 인사팀만 작성 가능합니다.";
+			String loc = "javascript:history.back()";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			mav.setViewName("msg_KJH");
+        }
 		
-		if(fk_seq == null) { // 원글번호가 null이라면(답변글이 아닌 원글작성이라면)
-			fk_seq = "";     // 공백을 넣어 비교한 다음  원글 or 답변글 작성 폼이 나오도록 하자	
-		}
-		
-		mav.addObject("fk_seq", fk_seq);
-		mav.addObject("groupno", groupno);
-		mav.addObject("depthno", depthno);
-		mav.addObject("subject", subject);
-		
-		mav.setViewName("board_sj/add.tiles1");
 
 		return mav;
 	}
@@ -630,6 +673,34 @@ public class EmpController_sj {
 	
 	
 	
+	// === 원게시물에 딸린 댓글들을 조회해오기(Ajax로 처리)=== // 
+	@ResponseBody
+	@RequestMapping(value="/readComment.hello2", method= {RequestMethod.GET}, produces="text/plain;charset=UTF-8")
+	public String readComment(HttpServletRequest request) {
+		
+		String parentSeq = request.getParameter("parentSeq");
+		
+		List<CommentVO_sj> commentList = service.getCommentList(parentSeq);
+		
+		JSONArray jsonArr = new JSONArray(); // []
+		
+		if(commentList != null) {
+			for(CommentVO_sj cmtvo : commentList) {
+				JSONObject jsonObj = new JSONObject();
+				jsonObj.put("content", cmtvo.getContent());
+				jsonObj.put("name", cmtvo.getName());
+				jsonObj.put("regDate", cmtvo.getRegDate());
+				
+				jsonArr.put(jsonObj);
+			}
+		}
+		
+		return jsonArr.toString();
+		
+	}
+	
+	
+	
 	// === 검색어 입력시 자동글 완성하기 === //
 	@ResponseBody
 	@RequestMapping(value="/wordSearchShow.hello2", method= {RequestMethod.GET}, produces="text/plain;charset=UTF-8")
@@ -657,9 +728,103 @@ public class EmpController_sj {
 		return jsonArr.toString();
 	}
 	
+
+		
+	
+	// === 회원정보 수정 페이지 요청 === //
+	@RequestMapping(value="/empUpdate.hello2")
+	public ModelAndView empUpdate(ModelAndView mav, HttpServletRequest request) {
+			
+		// == 관리자(admin)로 로그인 했을 때만 조회가 가능하도록 한다. == //
+		HttpSession session = request.getSession();
+	    EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
+
+        	// 수정해야 할 회원번호 가져오기
+    		String empno = request.getParameter("empno");
+    		
+    		// 수정할 한 명의 회원정보 가져오기
+    		Map<String, String> paraMap = new HashMap<>();
+    		paraMap.put("empno", empno);
+
+    		EmpVO_sj empvo = service.getViewEmpOne(paraMap);
+    		// 조회수 증가 없는 글 조회
+    
+    		if(loginEmp != null) {
+	    		
+    			if(!"10".equals(loginEmp.getFk_deptnum())) {    
+	    			// 로그인했으나 인사팀이 아닌 경우
+	    			
+	    			String message = "인사팀만 접근 가능합니다.";
+	    			String loc = "javascript:history.back()";
+	    			
+	    			mav.addObject("message", message);
+	    			mav.addObject("loc", loc);
+	    			mav.setViewName("msg_KJH");
+	    		}
+	    		else {
+	    			//인사팀의 로그인유저가 회정정보 수정을 요청할 경우
+	    			mav.addObject("empvo", empvo);
+	    			mav.setViewName("board_sj/empUpdate.tiles1");
+	    		}
+    		}
+    		else if (loginEmp == null){  // 로그인을 안 한 경우
+    			
+    			String message = "로그인 후 접근 가능합니다!";
+				String loc = request.getContextPath() + "/login.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");
+ 
+    		}
+    		return mav;		
+    	}
 	
 	
 	
 	
+	// === 회원정보 수정 페이지 완료 === //
+	@RequestMapping(value="/empUpdateEnd.hello2", method = {RequestMethod.POST})
+	public ModelAndView empUpdateEnd(ModelAndView mav, HttpServletRequest request, HttpServletResponse response) {
+		
+		// int n = service.empUpdate(empvo); // 성공하면 1값이 들어온다.	
+		
+        String empname = request.getParameter("empname");        
+        String empid = request.getParameter("empid");       
+        String email = request.getParameter("email");
+        String empno = request.getParameter("empno");        
+        String hiredate = request.getParameter("hiredate");       
+        String ranking = request.getParameter("ranking");       
+        String fk_deptnum = request.getParameter("fk_deptnum");        
+        String empstatus = request.getParameter("empstatus");   
+        String noticeemail = request.getParameter("noticeemail");
+		
+        EmpVO_sj emp = new EmpVO_sj(empname, empid, email, empno, hiredate, ranking, fk_deptnum, empstatus, noticeemail);
+		
+        int n = service.empUpdate(emp);
+        
+        
+		if(n == 1) { // 회원정보를 성공적으로 수정한 경우
+			mav.addObject("message", "회원정보를 성공적으로 수정했습니다.");
+			
+			mav.addObject("loc", request.getContextPath()+"/index.hello2");
+			
+			mav.setViewName("msg_KJH");	
+			
+			return mav;			
+		}
+		else{
+			mav.addObject("message", "정보 수정에 실패했습니다.");
+			
+			mav.addObject("loc", request.getContextPath()+"/index.hello2");
+			
+			mav.setViewName("msg_KJH");	
+			
+			return mav;
+		}
 	
+	
+	
+	}
 }

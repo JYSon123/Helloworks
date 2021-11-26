@@ -230,6 +230,40 @@ select *
 from tbl_comment;
 
 
+select empname, empid,email, empno, hiredate, ranking, fk_deptnum, empstatus
+from tbl_employee
 
+
+update tbl_employee set ranking = '1'
+                      , fk_deptnum = '10'
+                      , empstatus = '1'
+where empno = '202111081004';
+
+rollback;
+commit;
+
+select empname, empid,email, empno, hiredate, ranking, fk_deptnum, empstatus
+from tbl_employee
+where empno = '202111081004';
+
+select *
+from tbl_employee;
+
+select empname, empid,email, noticeemail, empno, hiredate, ranking, fk_deptnum, empstatus
+from tbl_employee
+where empno =  '202111081004';
+
+
+select *
+from tbl_board;
+
+update tbl_board set fk_empno = '10'
+where seq = '34';
+
+
+select NOTICEEMAIL
+from tbl_employee;
+
+desc tbl_board;
 
 

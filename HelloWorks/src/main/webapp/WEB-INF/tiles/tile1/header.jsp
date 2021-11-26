@@ -47,8 +47,8 @@
 	  <a href="#일정" onclick="#" class="w3-bar-item w3-button"><i class="far fa-check-square"></i>&emsp;일정</a>
 	  <a href="#주소록" onclick="#" class="w3-bar-item w3-button"><i class="far fa-address-book"></i>&emsp;주소록</a>
 	  <a href="#예약" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-chart-pie"></i>&emsp;예약</a>
-	  <a href="#인사" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-users"></i>&emsp;인사</a>
-	  <a href="#전자결재" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-clipboard-check"></i>&emsp;전자결재</a>
+	  <a href="<%= ctxPath %>/emp/viewAttend.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-users"></i>&emsp;인사</a>
+	  <a href="<%= ctxPath %>/documentMain.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-clipboard-check"></i>&emsp;전자결재</a>
 	  <a href="#관리" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-cog"></i>&emsp;오피스관리</a>
 	  <a href="#회계지원" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-sticky-note"></i>&emsp;회계지원</a>
  </div>
