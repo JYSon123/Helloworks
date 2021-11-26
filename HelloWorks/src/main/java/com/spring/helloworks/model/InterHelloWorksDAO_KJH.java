@@ -109,6 +109,25 @@ public interface InterHelloWorksDAO_KJH {
 	// 매월 10일 오후12시에 문서 국세청으로 전송
 	void updateStatusAlltax();
 	void updateStatusAllnotax();
+
+	// 작성문서 상태별 count
+	List<Map<String, String>> getBilltaxEditList(String thisMonth);
+	List<Map<String, String>> getBillnotaxEditList(String thisMonth);
+	List<Map<String, String>> getBilltaxStatusList(String thisMonth);
+	List<Map<String, String>> getBillnotaxStatusList(String thisMonth);
+	List<Map<String, String>> getTransactionStatusList(String thisMonth);
+
+	// 월별 매출 차트
+	List<Map<String, String>> totalSalesOfMonth();
+
+	// 월별 거래처별 거래건 수
+	List<Map<String, String>> monthOfCustomerCnt(String month);
+
+	// 연간 매출 차트
+	List<Map<String, String>> totalSalesOfYear();
+
+	// 거래처 wordcloud
+	List<String> wordcloudOfCustomer();
 	
 	
 

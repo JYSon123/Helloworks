@@ -122,6 +122,23 @@ public interface InterHelloWorksService_KJH {
 	// 거래명세서 UPDATE
 	int updateTransaction(Map<String, Object> paraMap);
 
-	
+	// 작성문서 상태별 count
+	List<Map<String, String>> getBilltaxEditList(String thisMonth);
+	List<Map<String, String>> getBillnotaxEditList(String thisMonth);
+	List<Map<String, String>> getBilltaxStatusList(String thisMonth);
+	List<Map<String, String>> getBillnotaxStatusList(String thisMonth);
+	List<Map<String, String>> getTransactionStatusList(String thisMonth);
+
+	// 월별 매출 차트
+	List<Map<String, String>> totalSalesOfMonth();
+
+	// 월별 거래처별 거래건 수
+	List<Map<String, String>> monthOfCustomerCnt(String month);
+
+	// 연간 매출 차트
+	List<Map<String, String>> totalSalesOfYear();
+
+	// 거래처 wordcloud
+	List<String> wordcloudOfCustomer();
 	
 }

@@ -251,7 +251,7 @@ create table tbl_customer
 ,customer_email varchar2(1000) -- 거래처 이메일(메일발송용도)
 ,constraint PK_tbl_customer primary key(customer_id)
 );
-
+select * from tbl_customer;
 alter table tbl_customer add customer_regdate date default sysdate not null;
 
 ------------------------------------------
@@ -411,7 +411,7 @@ where transaction_seq = 1
 
 select * from tbl_billtax;_detail;
 
-update tbl_transaction set status = 0 , empname = '테스트' where billtax_seq = 12;
+update tbl_billtax set status = 0 , empname = '테스트', empid = 'test' where billtax_seq = 9;
 commit;
 
 select nvl(C.customer_comp, '') AS customer_comp, nvl(C.customer_name, '') AS customer_name, nvl(customer_email, 'empty') AS customer_email
@@ -423,4 +423,115 @@ select * from tbl_employee
 
 select * from tbl_loginhistory
 
-select * from tbl_billtax;
+select * from tbl_billtax_detail;
+
+select empno, empname, empid, emppw, email, ranking, fk_deptnum
+	         , empstatus, empsalary, hiredate, otpkey, lastlogingap, noticeemail
+		from
+		(
+		    select empno, empname, empid, emppw, email, ranking, fk_deptnum
+		         , empstatus, empsalary, to_char(hiredate, 'yyyy-mm-dd') AS hiredate, otpkey, noticeemail
+		    from tbl_employee
+		    where empstatus != 0 -- and empid = #{empid} and emppw = #{emppw}
+		) E
+		cross join
+		(
+		    select trunc(months_between(sysdate, max(logindate))) AS lastlogingap
+		    from tbl_loginhistory
+		 --   where fk_empid = #{empid}
+		) H
+        
+        update tbl_billtax set status = 0 where billtax_seq = 12;
+        commit;
+        
+        update tbl_employee set ranking = 3 where empid = 'account';
+        commit;
+        
+        update tbl_employee set fk_deptnum = '20' where empid = 'test';
+        commit;
+        
+        update tbl_billnotax set empid = 'account', empname='나회계';
+        commit;
+        
+        alter table tbl_billtax rename column exp to bigo;
+        alter table tbl_billnotax rename column exp to bigo; 
+
+
+-- 세금계산서 문서 현황(수정인지 아닌지)
+select edit, count(*) AS cnt
+from tbl_billtax
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+group by edit
+order by edit
+
+-- 계산서 문서 현황(수정인지 아닌지)
+select edit, count(*) AS cnt
+from tbl_billnotax
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+group by edit
+
+-- 세금계산서 문서 현황(승인요청여부, 국세청전송여부)
+select status, count(*) AS cnt
+from tbl_billtax
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+group by status
+order by status;
+
+-- 계산서 문서 현황(승인요청여부, 국세청전송여부)
+select status, count(*) AS cnt
+from tbl_billnotax
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+group by status;
+
+-- 거래명세서 문서 현황(승인요청여부)
+select count(*) AS cnt
+from tbl_transaction
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm') and status = 1
+
+
+group by status;
+
+select sum(totalprice) AS sales, substr(regdate, 6) AS month
+from
+(
+select (totalprice+taxprice) AS totalprice, to_char(regdate, 'yyyy-mm') AS regdate
+from tbl_billtax
+UNION
+select totalprice, to_char(regdate, 'yyyy-mm') AS regdate
+from tbl_billnotax
+)
+where substr(regdate, 1, 4) = to_char(sysdate, 'yyyy')
+group by regdate
+order by month
+
+(
+select nvl(customer_comp, customer_name) AS customer, count(*) AS cnt
+from tbl_billtax
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy') || '-' || '10'
+group by nvl(customer_comp, customer_name)
+UNION
+select nvl(customer_comp, customer_name) AS customer, count(*) AS cnt
+from tbl_billnotax
+where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy') || '-' || '10'
+group by nvl(customer_comp, customer_name)
+)
+
+select sum(totalprice) AS sales, year
+from
+(
+select (totalprice+taxprice) AS totalprice, to_char(regdate, 'yyyy') AS year
+from tbl_billtax
+where to_char(regdate, 'yyyy') between to_char(sysdate - to_yminterval('05-00'), 'yyyy') and to_char(sysdate, 'yyyy')
+UNION
+select totalprice, to_char(regdate, 'yyyy') AS year
+from tbl_billnotax
+where to_char(regdate, 'yyyy') between to_char(sysdate - to_yminterval('05-00'), 'yyyy') and to_char(sysdate, 'yyyy')
+)
+group by year
+order by year
+
+select nvl(customer_comp, customer_name) AS customer
+from tbl_billtax
+UNION
+select nvl(customer_comp, customer_name) AS customer
+from tbl_billnotax

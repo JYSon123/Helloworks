@@ -1,22 +1,12 @@
 package com.spring.helloworks.controller;
 
+import java.io.File;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.spring.helloworks.common_KJH.*;
 import com.spring.helloworks.model.*;
 import com.spring.helloworks.service.InterHelloWorksService_KJH;
@@ -44,6 +37,9 @@ public class HelloWorksController_KJH {
 	
 	@Autowired
 	private GoogleMail gmail;
+	
+	@Autowired
+	private ExcelMaker excel;
 	
 	@RequestMapping(value="/login.hello2")
 	public ModelAndView login(ModelAndView mav, HttpServletRequest request) {
@@ -411,8 +407,68 @@ public class HelloWorksController_KJH {
 		
 		boolean checkDepartment = checkDepartment(request, "20");
 		
-		if(checkDepartment)		
+		if(checkDepartment) {
+			
+			String thisMonth = request.getParameter("thisMonth");
+			System.out.println("1번" + thisMonth);
+			if(thisMonth == null || "".equals(thisMonth)) {
+				System.out.println("널임");
+				Calendar cal = Calendar.getInstance();
+				
+				thisMonth = String.format("%1$tY-%1$tm", cal);
+				
+			}
+			
+			String[] arrMonth = thisMonth.split("-");
+			
+			if(arrMonth.length > 2) {
+				System.out.println("길다");
+				Calendar cal = Calendar.getInstance();
+				
+				thisMonth = String.format("%1$tY-%1$tm", cal);
+				
+			}
+			
+			try {
+				
+				Integer.parseInt(arrMonth[0] + arrMonth[1]);
+				
+			} catch (NumberFormatException e) {
+				System.out.println("숫자아냐");
+				Calendar cal = Calendar.getInstance();
+				
+				thisMonth = String.format("%1$tY-%1$tm", cal);
+				
+			}
+			System.out.println(thisMonth);
+			arrMonth = thisMonth.split("-");
+			
+			// 세금계산서 수정여부
+			List<Map<String, String>> billtaxEditList = service.getBilltaxEditList(thisMonth);
+			
+			// 계산서 수정여부
+			List<Map<String, String>> billnotaxEditList = service.getBillnotaxEditList(thisMonth);
+			
+			// 세금계산서 전송상태
+			List<Map<String, String>> billtaxStatusList = service.getBilltaxStatusList(thisMonth);
+			
+			// 계산서 전송상태
+			List<Map<String, String>> billnotaxStatusList = service.getBillnotaxStatusList(thisMonth);
+			
+			// 거래명세서 전송상태
+			List<Map<String, String>> transactionStatusList = service.getTransactionStatusList(thisMonth);
+						
+			mav.addObject("billtaxEditList", billtaxEditList);
+			mav.addObject("billnotaxEditList", billnotaxEditList);
+			mav.addObject("billtaxStatusList", billtaxStatusList);
+			mav.addObject("billnotaxStatusList", billnotaxStatusList);
+			mav.addObject("transactionStatusList", transactionStatusList);
+			mav.addObject("showMonth", arrMonth[1]);
+			mav.addObject("thisMonth", thisMonth);
+			
 			mav.setViewName("account/home.tiles1");
+			
+		}
 		
 		else {
 			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
@@ -1176,7 +1232,17 @@ public class HelloWorksController_KJH {
 		
 		boolean checkDepartment = checkDepartment(request, "20");
 		
-		if(checkDepartment)	{						
+		if(checkDepartment)	{
+			
+			if("POST".equalsIgnoreCase(request.getMethod())) {
+				String editRegdate = request.getParameter("editRegdate");
+				String editSeq = request.getParameter("editSeq");
+				
+				mav.addObject("editRegdate", editRegdate);
+				mav.addObject("editSeq", editSeq);
+				
+			}
+			
 			mav.setViewName("account/writeBillTax.tiles1");				
 		}
 					
@@ -1394,7 +1460,17 @@ public class HelloWorksController_KJH {
 		
 		boolean checkDepartment = checkDepartment(request, "20");
 		
-		if(checkDepartment)	{						
+		if(checkDepartment)	{		
+			
+			if("POST".equalsIgnoreCase(request.getMethod())) {
+				String editRegdate = request.getParameter("editRegdate");
+				String editSeq = request.getParameter("editSeq");
+				
+				mav.addObject("editRegdate", editRegdate);
+				mav.addObject("editSeq", editSeq);
+				
+			}
+			
 			mav.setViewName("account/writeBillNotax.tiles1");				
 		}
 					
@@ -1987,17 +2063,9 @@ public class HelloWorksController_KJH {
 			
 			int n = 0;
 			
-			List<CustomerVO_KJH> cvoList = new ArrayList<> ();
-			
 			for(String seq : seqArr) {
-				
 				paraMap.put("seq", seq);
-				
-				n = service.updateStatus(paraMap);
-				
-				if("1".equals(status))
-					cvoList.add(service.getEmail(paraMap));
-				
+				n = service.updateStatus(paraMap);				
 			}
 						
 			if(n != 0) {
@@ -2005,38 +2073,51 @@ public class HelloWorksController_KJH {
 				// 고객들에게 승인요청 메일 발송하기
 				if("1".equals(status)) {
 					
-					for(CustomerVO_KJH cvo : cvoList) {
+					for(String seq : seqArr) {
+						
+						paraMap.put("seq", seq);
+						
+						CustomerVO_KJH cvo = service.getEmail(paraMap);
 						
 						if(cvo != null && !"empty".equalsIgnoreCase(cvo.getCustomer_email())) {
 							
 							String reciever = (!"".equals(cvo.getCustomer_comp()))?cvo.getCustomer_comp():cvo.getCustomer_name();
 							
-							String content = "[" + reciever + "]님께 문서 승인 요청 드립니다. <br>확인해 보신 후 <strong>10일 이전</strong>까지 승인 바랍니다.";
+							String emailContents = "[" + reciever + "]님께 문서 승인 요청 드립니다.\n첨부파일을 확인하신 후 10일 이전까지 승인 부탁드립니다.\n\n\nhelloworks와 함께해주셔서 감사합니다.";
+														
+							String[] seqArr2 = {seq};
 							
-							StringBuilder sb = new StringBuilder();
-	        	        	
-				        	sb.append("<div style='width: 70%; padding: 0px auto; border: solid 4px #003399; border-radius: 20px; word-break: break-all;'>");
-				        	
-				        	sb.append("<div style='text-align: center; background-color: white; border-radius: 20px 20px 0 0; width: 100%; padding: 40px auto;'><br><br><img src='http://127.0.0.1:9090/helloworks/resources/images/maillogo.png' style='margin 10px auto; width: 60%;'><br><br><br></div>");
-				        	
-				        	sb.append("<div style='width: 100%; background-color: #e6eeff; border-radius: 0 0 20px 20px; padding: 20px 0;'>");
-				        	
-				        	sb.append("<p style='width: 100%; text-align: center;'>" + content + "</p>");
-				        	        	
-				        	sb.append("<br><br><br><br><p style='width: 100%; text-align: center; color: #002b80; font-size: 15pt;'><strong>helloworks</strong>와 함께해주셔서 감사합니다.</p>");
-				        	
-				        	sb.append("</div>");
-				        	
-				        	sb.append("</div>");
-				        	
-				        	String emailContents = sb.toString();
-				        	
-				        	try {								
-				        		gmail.sendmail_customer(cvo.getCustomer_email(), reciever, emailContents);																								
-							} catch (Exception e) {
-								
-							}
+							SXSSFWorkbook workbook = null;
 							
+							if("tbl_billtax".equalsIgnoreCase(tabName))
+								workbook = excel.excelOfBilltax(seqArr2);
+							
+							else if("tbl_billnotax".equalsIgnoreCase(tabName))
+								workbook = excel.excelOfBillnotax(seqArr2);
+							
+							else
+								workbook = excel.excelOfTransaction(seqArr2);
+														
+							FileManager fm = new FileManager();
+							
+							Map<String, Object> excelMap = new HashMap<> ();
+							
+							excelMap.put("locale", Locale.KOREA);
+							excelMap.put("workbookName", reciever + "_승인요청문서_helloworks");
+							excelMap.put("header", request.getHeader("User-Agent"));
+							
+							HttpSession session = request.getSession();
+							String root = session.getServletContext().getRealPath("/"); 
+							String path = root + "resources" + File.separator +"excelStorage";
+							
+							excelMap.put("path", path);
+							excelMap.put("workbook", workbook);
+							
+							try {
+								File file = fm.excelUpload(excelMap);								
+								gmail.sendmail_customer_withAttach(cvo.getCustomer_email(), reciever, emailContents, file);
+							} catch (Exception e) {}
+				        								
 						}
 						
 					}// end of for------------------------------------
@@ -2117,13 +2198,7 @@ public class HelloWorksController_KJH {
 			
 			paraMap.put("tabName", tabName);
 			paraMap.put("colName", colName);
-			
-			HttpSession session = request.getSession();
-			
-			EmpVO_KJH loginEmp = (EmpVO_KJH)session.getAttribute("loginEmp");
-			
-			paraMap.put("empid", loginEmp.getEmpid());
-			
+						
 			int n = 0;
 						
 			for(String seq : seqArr) {
@@ -2147,7 +2222,7 @@ public class HelloWorksController_KJH {
 			}
 			
 			else {
-				String message = "다른 직원이 작성한 문서는 삭제가 불가합니다.";
+				String message = "문서 삭제에 실패하였습니다.";
 				String loc = request.getContextPath() + "/account/listBill.hello2?tabName=" + tabName;
 				
 				mav.addObject("message", message);
@@ -2171,7 +2246,70 @@ public class HelloWorksController_KJH {
 		return mav;
 		
 	}
-
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/account/docExcelDownload.hello2", method= {RequestMethod.POST})
+	public String requiredLogin_docExcelDownload(HttpServletRequest request, HttpServletResponse response, Model model) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{						
+			
+			String seqes = request.getParameter("seq");
+			String[] seqArr = seqes.split(",");
+			
+			String tabName = request.getParameter("tabName2");
+			String colName = "";
+			
+			if("tbl_billtax".equalsIgnoreCase(tabName))
+				colName = "billtax_seq";
+			
+			else if("tbl_billnotax".equalsIgnoreCase(tabName))
+				colName = "billnotax_seq";
+			
+			else
+				colName = "transaction_seq";
+			
+			String fk_colName = "fk_" + colName;
+			
+			Map<String, String> paraMap = new HashMap<> ();
+			
+			paraMap.put("tabName", tabName);
+			paraMap.put("colName", colName);
+			paraMap.put("fk_colName", fk_colName);
+			
+			SXSSFWorkbook workbook = null;
+			
+			if("tbl_billtax".equalsIgnoreCase(tabName))				
+				workbook = excel.excelOfBilltax(seqArr);				
+							
+			else if("tbl_billnotax".equalsIgnoreCase(tabName))
+				workbook = excel.excelOfBillnotax(seqArr);
+			
+			else
+				workbook = excel.excelOfTransaction(seqArr);
+			
+			model.addAttribute("locale", Locale.KOREA);
+			model.addAttribute("workbook", workbook);
+	        model.addAttribute("workbookName", "helloWorksDocument");
+			
+	        return "excelDownloadView";
+	        
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "msg_KJH";	
+		}
+				
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	@RequestMapping(value="/account/viewBill.hello2")
@@ -2288,1236 +2426,86 @@ public class HelloWorksController_KJH {
 	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
-	@RequestMapping(value="/account/docExcelDownload.hello2", method= {RequestMethod.POST})
-	public String requiredLogin_docExcelDownload(HttpServletRequest request, HttpServletResponse response, Model model) {
+	@RequestMapping(value="/account/editBilltax.hello2")
+	public ModelAndView requiredLogin_editBilltax_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
 		
 		boolean checkDepartment = checkDepartment(request, "20");
 		
-		if(checkDepartment)	{						
+		if(checkDepartment)	{
 			
-			String seqes = request.getParameter("seq");
-			String[] seqArr = seqes.split(",");
+			mav.setViewName("account/editBilltax.tiles1");
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
 			
-			String tabName = request.getParameter("tabName2");
-			String colName = "";
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
 			
-			if("tbl_billtax".equalsIgnoreCase(tabName))
-				colName = "billtax_seq";
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/account/editBillnotax.hello2")
+	public ModelAndView requiredLogin_editBillnotax_requiredComp(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{
+			mav.addObject("seq", request.getParameter("seq"));
+			mav.addObject("original_regdate", request.getParameter("regdate"));
+			mav.setViewName("account/editBillnotax.tiles1");
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
 			
-			else if("tbl_billnotax".equalsIgnoreCase(tabName))
-				colName = "billnotax_seq";
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
 			
-			else
-				colName = "transaction_seq";
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@ResponseBody
+	@RequestMapping(value="/account/totalSalesOfMonth.hello2", produces="text/plain;charset=UTF-8")
+	public String requiredLogin_totalSalesOfMonth(HttpServletRequest request, HttpServletResponse response) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
 			
-			String fk_colName = "fk_" + colName;
+			List<Map<String, String>> totalSalesOfMonthList = service.totalSalesOfMonth();
 			
-			Map<String, String> paraMap = new HashMap<> ();
+			Gson gson = new Gson();
 			
-			paraMap.put("tabName", tabName);
-			paraMap.put("colName", colName);
-			paraMap.put("fk_colName", fk_colName);
+			JsonArray gsonArr = new JsonArray();
 			
-			SXSSFWorkbook workbook = new SXSSFWorkbook();
-			
-			String sheetName = "";
-			
-			int cnt = 1;
-			
-			for(String seq : seqArr) {
+			for(Map<String, String> map : totalSalesOfMonthList) {
 				
-				paraMap.put("seq", seq);
+				JsonObject gsonObj = new JsonObject();
 				
-				if("tbl_billtax".equalsIgnoreCase(tabName)) {
-					
-					BilltaxVO_KJH doc = service.getBilltaxDoc(paraMap);
-					
-					List<BilltaxDetailVO_KJH> detailList = service.getDetailBilltaxList(paraMap);
-					
-					sheetName = (!"".equals(doc.getCustomer_comp()))?"세금계산서_" + doc.getCustomer_comp() + cnt:"세금계산서" + doc.getCustomer_name() + cnt;
-					
-					cnt++;
-					
-					SXSSFSheet sheet = workbook.createSheet(sheetName);
-					
-					sheet.setColumnWidth(0, 5000);
-					sheet.setColumnWidth(1, 5000);
-					sheet.setColumnWidth(2, 1000);
-					sheet.setColumnWidth(3, 3000);
-					sheet.setColumnWidth(4, 4000);
-					sheet.setColumnWidth(5, 5000);
-					sheet.setColumnWidth(6, 5000);
-					sheet.setColumnWidth(7, 8000);
-					
-					int rowLocation = 0;
-					
-					// 제목부분
-					Font titleFont = workbook.createFont();
-					titleFont.setFontHeight((short)500);
-					titleFont.setColor(IndexedColors.RED.getIndex());
-					titleFont.setBold(true);
-					
-					Font redFont = workbook.createFont();
-					redFont.setColor(IndexedColors.RED.getIndex());
-					redFont.setBold(true);
-					
-					CellStyle titleStyle = workbook.createCellStyle();
-					titleStyle.setAlignment(HorizontalAlignment.CENTER);
-					titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					titleStyle.setFont(titleFont);
-					titleStyle.setBorderTop(BorderStyle.THIN);
-					titleStyle.setBorderBottom(BorderStyle.THIN);
-					titleStyle.setBorderLeft(BorderStyle.THIN);
-					titleStyle.setBorderRight(BorderStyle.THIN);
-					titleStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-					titleStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-					titleStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-					titleStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-					
-					CellStyle normalStyle = workbook.createCellStyle();
-					normalStyle.setAlignment(HorizontalAlignment.CENTER);
-					normalStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					normalStyle.setFont(redFont);
-					normalStyle.setBorderTop(BorderStyle.THIN);
-					normalStyle.setBorderBottom(BorderStyle.THIN);
-					normalStyle.setBorderLeft(BorderStyle.THIN);
-					normalStyle.setBorderRight(BorderStyle.THIN);
-					normalStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-					normalStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-					normalStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-					normalStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-					
-					CellStyle valStyle = workbook.createCellStyle(); // 2칸 합칠 것
-					valStyle.setAlignment(HorizontalAlignment.CENTER);
-					valStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					valStyle.setBorderTop(BorderStyle.THIN);
-					valStyle.setBorderBottom(BorderStyle.THIN);
-					valStyle.setBorderLeft(BorderStyle.THIN);
-					valStyle.setBorderRight(BorderStyle.THIN);
-					valStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-					valStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-					valStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-					valStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-					
-					CellStyle moneyStyle = workbook.createCellStyle();
-			        moneyStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
-			        moneyStyle.setAlignment(HorizontalAlignment.CENTER);
-			        moneyStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-			        moneyStyle.setBorderTop(BorderStyle.THIN);
-			        moneyStyle.setBorderBottom(BorderStyle.THIN);
-			        moneyStyle.setBorderLeft(BorderStyle.THIN);
-			        moneyStyle.setBorderRight(BorderStyle.THIN);
-			        moneyStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-			        moneyStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-			        moneyStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-			        moneyStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-			        
-					Cell cell;
-					
-					Row row1 = sheet.createRow(rowLocation);
-					
-					for(int i=0; i<5; i++) {
-						cell = row1.createCell(i);
-						
-						cell.setCellStyle(titleStyle);
-						cell.setCellValue("세금계산서");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0, 4));
-					
-					cell = row1.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("일련번호");
-					
-					
-					for(int i=6; i<8; i++) {
-						cell = row1.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("HELLOWORKS-" + doc.getBilltax_seq());
-					}
-					
-					///////////////////////////////////////////////////////	
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					Row row2 = sheet.createRow(++rowLocation);
-					
-					for(int i=0; i<5; i++) {
-						cell = row2.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급자");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0, 4));
-					
-					for(int i=5; i<8; i++) {
-						cell = row2.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급받는자");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 7));
-					
-					Row row3 = sheet.createRow(++rowLocation);
-					
-					cell = row3.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("등록번호");
-					
-					for(int i=1; i<5; i++) {
-						cell = row3.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row3.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("등록번호");
-					
-					for(int i=6; i<8; i++) {
-						cell = row3.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-
-					Row row4 = sheet.createRow(++rowLocation);
-					
-					cell = row4.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("상호(업체명)");
-					
-					for(int i=1; i<5; i++) {
-						cell = row4.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_comp());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row4.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("상호(업체명)");
-					
-					for(int i=6; i<8; i++) {
-						cell = row4.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_comp());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-
-					Row row5 = sheet.createRow(++rowLocation);
-					
-					cell = row5.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("성명");
-					
-					for(int i=1; i<5; i++) {
-						cell = row5.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_name());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row5.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("성명");
-					
-					for(int i=6; i<8; i++) {
-						cell = row5.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_name());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					Row row6 = sheet.createRow(++rowLocation);
-					
-					cell = row6.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("사업장주소");
-					
-					for(int i=1; i<5; i++) {
-						cell = row6.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_addr());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row6.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("사업장주소");
-					
-					for(int i=6; i<8; i++) {
-						cell = row6.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_addr());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-
-					Row row7 = sheet.createRow(++rowLocation);
-					
-					cell = row7.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("업종");
-					
-					for(int i=1; i<5; i++) {
-						cell = row7.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row7.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("업종");
-					
-					for(int i=6; i<8; i++) {
-						cell = row7.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					///////////////////////////////////////////////////////
-					
-					Row row8 = sheet.createRow(++rowLocation);
-					
-					cell = row8.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("작성일");
-					
-					for(int i=1; i<5; i++) {
-						cell = row8.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급가액");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					for(int i=5; i<6; i++) {
-						cell = row8.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("세액");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 6));
-					
-					cell = row8.createCell(7);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("비고");
-					
-					Row row9 = sheet.createRow(++rowLocation);
-					
-					cell = row9.createCell(0);
-					cell.setCellStyle(valStyle);
-					cell.setCellValue(doc.getRegdate().substring(0,10));
-					
-					for(int i=1; i<5; i++) {
-						cell = row9.createCell(i);
-						
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(doc.getTotalprice());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					for(int i=5; i<7; i++) {
-						cell = row9.createCell(i);
-						
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(doc.getTaxprice());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 6));
-					
-					cell = row9.createCell(7);
-					cell.setCellStyle(valStyle);
-					cell.setCellValue("");
-					
-					
-					
-					////////////////////////////////////////////////////////////////////////
-					
-					Row bodyRow = null;
-					
-					bodyRow = sheet.createRow(++rowLocation);
-					
-					cell = bodyRow.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("공급일자");
-					
-					cell = bodyRow.createCell(1);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("품목");
-					
-					cell = bodyRow.createCell(2);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("규격");
-					
-					cell = bodyRow.createCell(3);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("수량");
-					
-					cell = bodyRow.createCell(4);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("단가");
-					
-					cell = bodyRow.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("공급가액");
-					
-					cell = bodyRow.createCell(6);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("세액");
-					
-					cell = bodyRow.createCell(7);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("비고");
-					
-					for(int i=0; i<detailList.size(); i++) {
-						
-						BilltaxDetailVO_KJH dvo = detailList.get(i);
-						
-						bodyRow = sheet.createRow(++rowLocation);
-						
-						cell = bodyRow.createCell(0);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSelldate().substring(0,10));
-						
-						cell = bodyRow.createCell(1);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSellprod());
-						
-						cell = bodyRow.createCell(2);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						cell = bodyRow.createCell(3);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSellamount());
-						
-						cell = bodyRow.createCell(4);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelloneprice()));
-						
-						cell = bodyRow.createCell(5);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelltotalprice()));
-						
-						cell = bodyRow.createCell(6);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelltax()));
-						
-						cell = bodyRow.createCell(7);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-					}
-					
-				}
-								
-				else if("tbl_billnotax".equalsIgnoreCase(tabName)) {
-
-					BillnotaxVO_KJH doc = service.getBillnotaxDoc(paraMap);
-					
-					List<BillnotaxDetailVO_KJH> detailList = service.getDetailBillnotaxList(paraMap);
-					
-					sheetName = (!"".equals(doc.getCustomer_comp()))?"계산서_" + doc.getCustomer_comp() + cnt:"계산서" + doc.getCustomer_name() + cnt;
-					
-					cnt++;
-					
-					SXSSFSheet sheet = workbook.createSheet(sheetName);
-					
-					sheet.setColumnWidth(0, 5000);
-					sheet.setColumnWidth(1, 5000);
-					sheet.setColumnWidth(2, 1000);
-					sheet.setColumnWidth(3, 3000);
-					sheet.setColumnWidth(4, 4000);
-					sheet.setColumnWidth(5, 5000);
-					sheet.setColumnWidth(6, 5000);
-					sheet.setColumnWidth(7, 8000);
-					
-					int rowLocation = 0;
-					
-					// 제목부분
-					Font titleFont = workbook.createFont();
-					titleFont.setFontHeight((short)500);
-					titleFont.setColor(IndexedColors.RED.getIndex());
-					titleFont.setBold(true);
-					
-					Font redFont = workbook.createFont();
-					redFont.setColor(IndexedColors.RED.getIndex());
-					redFont.setBold(true);
-					
-					CellStyle titleStyle = workbook.createCellStyle();
-					titleStyle.setAlignment(HorizontalAlignment.CENTER);
-					titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					titleStyle.setFont(titleFont);
-					titleStyle.setBorderTop(BorderStyle.THIN);
-					titleStyle.setBorderBottom(BorderStyle.THIN);
-					titleStyle.setBorderLeft(BorderStyle.THIN);
-					titleStyle.setBorderRight(BorderStyle.THIN);
-					titleStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-					titleStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-					titleStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-					titleStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-					
-					CellStyle normalStyle = workbook.createCellStyle();
-					normalStyle.setAlignment(HorizontalAlignment.CENTER);
-					normalStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					normalStyle.setFont(redFont);
-					normalStyle.setBorderTop(BorderStyle.THIN);
-					normalStyle.setBorderBottom(BorderStyle.THIN);
-					normalStyle.setBorderLeft(BorderStyle.THIN);
-					normalStyle.setBorderRight(BorderStyle.THIN);
-					normalStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-					normalStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-					normalStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-					normalStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-					
-					CellStyle valStyle = workbook.createCellStyle(); // 2칸 합칠 것
-					valStyle.setAlignment(HorizontalAlignment.CENTER);
-					valStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					valStyle.setBorderTop(BorderStyle.THIN);
-					valStyle.setBorderBottom(BorderStyle.THIN);
-					valStyle.setBorderLeft(BorderStyle.THIN);
-					valStyle.setBorderRight(BorderStyle.THIN);
-					valStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-					valStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-					valStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-					valStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-					
-					CellStyle moneyStyle = workbook.createCellStyle();
-			        moneyStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
-			        moneyStyle.setAlignment(HorizontalAlignment.CENTER);
-			        moneyStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-			        moneyStyle.setBorderTop(BorderStyle.THIN);
-			        moneyStyle.setBorderBottom(BorderStyle.THIN);
-			        moneyStyle.setBorderLeft(BorderStyle.THIN);
-			        moneyStyle.setBorderRight(BorderStyle.THIN);
-			        moneyStyle.setTopBorderColor(IndexedColors.RED.getIndex());
-			        moneyStyle.setBottomBorderColor(IndexedColors.RED.getIndex());
-			        moneyStyle.setLeftBorderColor(IndexedColors.RED.getIndex());
-			        moneyStyle.setRightBorderColor(IndexedColors.RED.getIndex());
-			        
-					Cell cell;
-					
-					Row row1 = sheet.createRow(rowLocation);
-					
-					for(int i=0; i<5; i++) {
-						cell = row1.createCell(i);
-						
-						cell.setCellStyle(titleStyle);
-						cell.setCellValue("계산서");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0, 4));
-					
-					cell = row1.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("일련번호");
-					
-					
-					for(int i=6; i<8; i++) {
-						cell = row1.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("HELLOWORKS-" + doc.getBillnotax_seq());
-					}
-					
-					///////////////////////////////////////////////////////	
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					Row row2 = sheet.createRow(++rowLocation);
-					
-					for(int i=0; i<5; i++) {
-						cell = row2.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급자");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0, 4));
-					
-					for(int i=5; i<8; i++) {
-						cell = row2.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급받는자");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 7));
-					
-					Row row3 = sheet.createRow(++rowLocation);
-					
-					cell = row3.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("등록번호");
-					
-					for(int i=1; i<5; i++) {
-						cell = row3.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row3.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("등록번호");
-					
-					for(int i=6; i<8; i++) {
-						cell = row3.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-
-					Row row4 = sheet.createRow(++rowLocation);
-					
-					cell = row4.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("상호(업체명)");
-					
-					for(int i=1; i<5; i++) {
-						cell = row4.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_comp());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row4.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("상호(업체명)");
-					
-					for(int i=6; i<8; i++) {
-						cell = row4.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_comp());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-
-					Row row5 = sheet.createRow(++rowLocation);
-					
-					cell = row5.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("성명");
-					
-					for(int i=1; i<5; i++) {
-						cell = row5.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_name());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row5.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("성명");
-					
-					for(int i=6; i<8; i++) {
-						cell = row5.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_name());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					Row row6 = sheet.createRow(++rowLocation);
-					
-					cell = row6.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("사업장주소");
-					
-					for(int i=1; i<5; i++) {
-						cell = row6.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_addr());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row6.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("사업장주소");
-					
-					for(int i=6; i<8; i++) {
-						cell = row6.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_addr());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-
-					Row row7 = sheet.createRow(++rowLocation);
-					
-					cell = row7.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("업종");
-					
-					for(int i=1; i<5; i++) {
-						cell = row7.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row7.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("업종");
-					
-					for(int i=6; i<8; i++) {
-						cell = row7.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					///////////////////////////////////////////////////////
-					
-					Row row8 = sheet.createRow(++rowLocation);
-					
-					cell = row8.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("작성일");
-					
-					for(int i=1; i<5; i++) {
-						cell = row8.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급가액");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					for(int i=5; i<8; i++) {
-						cell = row8.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("비고");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 7));
-										
-					Row row9 = sheet.createRow(++rowLocation);
-					
-					cell = row9.createCell(0);
-					cell.setCellStyle(valStyle);
-					cell.setCellValue(doc.getRegdate().substring(0,10));
-					
-					for(int i=1; i<5; i++) {
-						cell = row9.createCell(i);
-						
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(doc.getTotalprice());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					for(int i=5; i<8; i++) {
-						cell = row9.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 7));
-										
-					////////////////////////////////////////////////////////////////////////
-					
-					Row bodyRow = null;
-					
-					bodyRow = sheet.createRow(++rowLocation);
-					
-					cell = bodyRow.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("공급일자");
-					
-					cell = bodyRow.createCell(1);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("품목");
-					
-					cell = bodyRow.createCell(2);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("규격");
-					
-					cell = bodyRow.createCell(3);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("수량");
-					
-					cell = bodyRow.createCell(4);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("단가");
-					
-					cell = bodyRow.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("공급가액");
-					
-					cell = bodyRow.createCell(6);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("비고");
-					
-					cell = bodyRow.createCell(7);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("비고");
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					for(int i=0; i<detailList.size(); i++) {
-						
-						BillnotaxDetailVO_KJH dvo = detailList.get(i);
-						
-						bodyRow = sheet.createRow(++rowLocation);
-						
-						cell = bodyRow.createCell(0);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSelldate().substring(0,10));
-						
-						cell = bodyRow.createCell(1);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSellprod());
-						
-						cell = bodyRow.createCell(2);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						cell = bodyRow.createCell(3);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSellamount());
-						
-						cell = bodyRow.createCell(4);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelloneprice()));
-						
-						cell = bodyRow.createCell(5);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelltotalprice()));
-						
-						cell = bodyRow.createCell(6);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						cell = bodyRow.createCell(7);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-						
-					}
-					
-				}
+				gsonObj.addProperty("sales", map.get("sales"));
+				gsonObj.addProperty("month", map.get("month"));
 				
-				else {
-
-					TransactionVO_KJH doc = service.getTransactionDoc(paraMap);
-					
-					List<TransactionDetailVO_KJH> detailList = service.getDetailTransactionList(paraMap);
-					
-					sheetName = (!"".equals(doc.getCustomer_comp()))?"거래명세서_" + doc.getCustomer_comp() + cnt:"거래명세서" + doc.getCustomer_name() + cnt;
-					
-					cnt++;
-					
-					SXSSFSheet sheet = workbook.createSheet(sheetName);
-					
-					sheet.setColumnWidth(0, 5000);
-					sheet.setColumnWidth(1, 5000);
-					sheet.setColumnWidth(2, 1000);
-					sheet.setColumnWidth(3, 3000);
-					sheet.setColumnWidth(4, 4000);
-					sheet.setColumnWidth(5, 5000);
-					sheet.setColumnWidth(6, 5000);
-					sheet.setColumnWidth(7, 8000);
-					
-					int rowLocation = 0;
-					
-					// 제목부분
-					Font titleFont = workbook.createFont();
-					titleFont.setFontHeight((short)500);
-					titleFont.setColor(IndexedColors.BLUE.getIndex());
-					titleFont.setBold(true);
-					
-					Font redFont = workbook.createFont();
-					redFont.setColor(IndexedColors.BLUE.getIndex());
-					redFont.setBold(true);
-					
-					CellStyle titleStyle = workbook.createCellStyle();
-					titleStyle.setAlignment(HorizontalAlignment.CENTER);
-					titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					titleStyle.setFont(titleFont);
-					titleStyle.setBorderTop(BorderStyle.THIN);
-					titleStyle.setBorderBottom(BorderStyle.THIN);
-					titleStyle.setBorderLeft(BorderStyle.THIN);
-					titleStyle.setBorderRight(BorderStyle.THIN);
-					titleStyle.setTopBorderColor(IndexedColors.BLUE.getIndex());
-					titleStyle.setBottomBorderColor(IndexedColors.BLUE.getIndex());
-					titleStyle.setLeftBorderColor(IndexedColors.BLUE.getIndex());
-					titleStyle.setRightBorderColor(IndexedColors.BLUE.getIndex());
-					
-					CellStyle normalStyle = workbook.createCellStyle();
-					normalStyle.setAlignment(HorizontalAlignment.CENTER);
-					normalStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					normalStyle.setFont(redFont);
-					normalStyle.setBorderTop(BorderStyle.THIN);
-					normalStyle.setBorderBottom(BorderStyle.THIN);
-					normalStyle.setBorderLeft(BorderStyle.THIN);
-					normalStyle.setBorderRight(BorderStyle.THIN);
-					normalStyle.setTopBorderColor(IndexedColors.BLUE.getIndex());
-					normalStyle.setBottomBorderColor(IndexedColors.BLUE.getIndex());
-					normalStyle.setLeftBorderColor(IndexedColors.BLUE.getIndex());
-					normalStyle.setRightBorderColor(IndexedColors.BLUE.getIndex());
-					
-					CellStyle valStyle = workbook.createCellStyle(); // 2칸 합칠 것
-					valStyle.setAlignment(HorizontalAlignment.CENTER);
-					valStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-					valStyle.setBorderTop(BorderStyle.THIN);
-					valStyle.setBorderBottom(BorderStyle.THIN);
-					valStyle.setBorderLeft(BorderStyle.THIN);
-					valStyle.setBorderRight(BorderStyle.THIN);
-					valStyle.setTopBorderColor(IndexedColors.BLUE.getIndex());
-					valStyle.setBottomBorderColor(IndexedColors.BLUE.getIndex());
-					valStyle.setLeftBorderColor(IndexedColors.BLUE.getIndex());
-					valStyle.setRightBorderColor(IndexedColors.BLUE.getIndex());
-					
-					CellStyle moneyStyle = workbook.createCellStyle();
-			        moneyStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
-			        moneyStyle.setAlignment(HorizontalAlignment.CENTER);
-			        moneyStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-			        moneyStyle.setBorderTop(BorderStyle.THIN);
-			        moneyStyle.setBorderBottom(BorderStyle.THIN);
-			        moneyStyle.setBorderLeft(BorderStyle.THIN);
-			        moneyStyle.setBorderRight(BorderStyle.THIN);
-			        moneyStyle.setTopBorderColor(IndexedColors.BLUE.getIndex());
-			        moneyStyle.setBottomBorderColor(IndexedColors.BLUE.getIndex());
-			        moneyStyle.setLeftBorderColor(IndexedColors.BLUE.getIndex());
-			        moneyStyle.setRightBorderColor(IndexedColors.BLUE.getIndex());
-			        
-					Cell cell;
-					
-					Row row1 = sheet.createRow(rowLocation);
-					
-					for(int i=0; i<5; i++) {
-						cell = row1.createCell(i);
-						
-						cell.setCellStyle(titleStyle);
-						cell.setCellValue("거래명세표");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0, 4));
-					
-					cell = row1.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("작성일자");
-					
-					
-					for(int i=6; i<8; i++) {
-						cell = row1.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getRegdate().substring(0,10));
-					}
-					
-					///////////////////////////////////////////////////////	
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					Row row2 = sheet.createRow(++rowLocation);
-					
-					for(int i=0; i<5; i++) {
-						cell = row2.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급자");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 0, 4));
-					
-					for(int i=5; i<8; i++) {
-						cell = row2.createCell(i);
-						
-						cell.setCellStyle(normalStyle);
-						cell.setCellValue("공급받는자");
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 5, 7));
-					
-					Row row3 = sheet.createRow(++rowLocation);
-					
-					cell = row3.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("등록번호");
-					
-					for(int i=1; i<5; i++) {
-						cell = row3.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row3.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("등록번호");
-					
-					for(int i=6; i<8; i++) {
-						cell = row3.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-
-					Row row4 = sheet.createRow(++rowLocation);
-					
-					cell = row4.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("상호(업체명)");
-					
-					for(int i=1; i<5; i++) {
-						cell = row4.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_comp());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row4.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("상호(업체명)");
-					
-					for(int i=6; i<8; i++) {
-						cell = row4.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_comp());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-
-					Row row5 = sheet.createRow(++rowLocation);
-					
-					cell = row5.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("성명");
-					
-					for(int i=1; i<5; i++) {
-						cell = row5.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_name());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row5.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("성명");
-					
-					for(int i=6; i<8; i++) {
-						cell = row5.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_name());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					Row row6 = sheet.createRow(++rowLocation);
-					
-					cell = row6.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("사업장주소");
-					
-					for(int i=1; i<5; i++) {
-						cell = row6.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_addr());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row6.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("사업장주소");
-					
-					for(int i=6; i<8; i++) {
-						cell = row6.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_addr());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-
-					Row row7 = sheet.createRow(++rowLocation);
-					
-					cell = row7.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("업종");
-					
-					for(int i=1; i<5; i++) {
-						cell = row7.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getMycompany_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 1, 4));
-					
-					cell = row7.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("업종");
-					
-					for(int i=6; i<8; i++) {
-						cell = row7.createCell(i);
-						
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(doc.getCustomer_id());
-					}
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					///////////////////////////////////////////////////////
-					
-					Row bodyRow = null;
-					
-					bodyRow = sheet.createRow(++rowLocation);
-					
-					cell = bodyRow.createCell(0);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("공급일자");
-					
-					cell = bodyRow.createCell(1);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("품목");
-					
-					cell = bodyRow.createCell(2);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("규격");
-					
-					cell = bodyRow.createCell(3);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("수량");
-					
-					cell = bodyRow.createCell(4);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("단가");
-					
-					cell = bodyRow.createCell(5);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("금액");
-					
-					cell = bodyRow.createCell(6);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("비고");
-					
-					cell = bodyRow.createCell(7);
-					cell.setCellStyle(normalStyle);
-					cell.setCellValue("비고");
-					
-					sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-					
-					for(int i=0; i<detailList.size(); i++) {
-						
-						TransactionDetailVO_KJH dvo = detailList.get(i);
-						
-						bodyRow = sheet.createRow(++rowLocation);
-						
-						cell = bodyRow.createCell(0);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSelldate().substring(0,10));
-						
-						cell = bodyRow.createCell(1);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSellprod());
-						
-						cell = bodyRow.createCell(2);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						cell = bodyRow.createCell(3);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue(dvo.getSellamount());
-						
-						cell = bodyRow.createCell(4);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelloneprice()));
-						
-						cell = bodyRow.createCell(5);
-						cell.setCellStyle(moneyStyle);
-						cell.setCellValue(Long.parseLong(dvo.getSelltotalprice()));
-						
-						cell = bodyRow.createCell(6);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						cell = bodyRow.createCell(7);
-						cell.setCellStyle(valStyle);
-						cell.setCellValue("");
-						
-						sheet.addMergedRegion(new CellRangeAddress(rowLocation, rowLocation, 6, 7));
-						
-					}
-				}
-								
+				gsonArr.add(gsonObj);
+				
 			}
-
-			model.addAttribute("locale", Locale.KOREA);
-			model.addAttribute("workbook", workbook);
-	        model.addAttribute("workbookName", "helloWorksDocument");
 			
-	        return "excelDownloadView";
-	        
+			return gson.toJson(gsonArr);
+						
 		}
 					
 		else {
@@ -3527,11 +2515,143 @@ public class HelloWorksController_KJH {
 			request.setAttribute("message", message);
 			request.setAttribute("loc", loc);
 			
-			return "msg_KJH";	
+			return "msg_KJH";			
 		}
 				
-	}	
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@ResponseBody
+	@RequestMapping(value="/account/totalSalesOfYear.hello2", produces="text/plain;charset=UTF-8")
+	public String requiredLogin_totalSalesOfYear(HttpServletRequest request, HttpServletResponse response) {
 		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			List<Map<String, String>> totalSalesOfYearList = service.totalSalesOfYear();
+			
+			Gson gson = new Gson();
+			
+			JsonArray gsonArr = new JsonArray();
+			
+			for(Map<String, String> map : totalSalesOfYearList) {
+				
+				JsonObject gsonObj = new JsonObject();
+				
+				gsonObj.addProperty("sales", map.get("sales"));
+				gsonObj.addProperty("year", map.get("year"));
+				
+				gsonArr.add(gsonObj);
+				
+			}
+			
+			return gson.toJson(gsonArr);
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "msg_KJH";			
+		}
+				
+	}
+		
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@ResponseBody
+	@RequestMapping(value="/account/wordcloudOfCustomer.hello2", produces="text/plain;charset=UTF-8")
+	public String requiredLogin_wordcloudOfCustomer(HttpServletRequest request, HttpServletResponse response) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			List<String> wordcloudOfCustomerList = service.wordcloudOfCustomer();
+			
+			StringBuilder sb = new StringBuilder();
+			
+			for(int i=0; i<wordcloudOfCustomerList.size(); i++) {
+				
+				if(i == 0)
+					sb.append(wordcloudOfCustomerList.get(i));
+				
+				else
+					sb.append("," + wordcloudOfCustomerList.get(i));
+				
+			}
+			
+			JSONObject jsonObj = new JSONObject();
+			
+			jsonObj.put("customer", sb.toString());
+			
+			return jsonObj.toString();
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "msg_KJH";			
+		}
+				
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@ResponseBody
+	@RequestMapping(value="/account/monthOfCustomerCnt.hello2", produces="text/plain;charset=UTF-8", method= {RequestMethod.POST})
+	public String requiredLogin_monthOfCustomerCnt(HttpServletRequest request, HttpServletResponse response) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			String month = request.getParameter("month");
+			
+			List<Map<String, String>> mapList = service.monthOfCustomerCnt(month);
+			
+			Gson gson = new Gson();
+			
+			JsonArray gsonArr = new JsonArray();
+			
+			for(Map<String, String> map : mapList) {
+				
+				JsonObject gsonObj = new JsonObject();
+				
+				gsonObj.addProperty("customer", map.get("customer"));
+				gsonObj.addProperty("cnt", map.get("cnt"));
+				
+				gsonArr.add(gsonObj);
+				
+			}
+			
+			return gson.toJson(gsonArr);
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			request.setAttribute("message", message);
+			request.setAttribute("loc", loc);
+			
+			return "msg_KJH";			
+		}
+				
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	// 로그인한 유저의 소속부서를 확인하는 메소드

@@ -422,6 +422,74 @@ public class HelloWorksDAO_KJH implements InterHelloWorksDAO_KJH {
 	public void updateStatusAllnotax() {		
 		sqlsession2.update("jihee.updateStatusAllnotax");		
 	}
+
+	////////////////////////////////////////////////////////////////////
+	
+	@Override
+	public List<Map<String, String>> getBilltaxEditList(String thisMonth) {
+		List<Map<String, String>> billtaxEditList = sqlsession2.selectList("jihee.getBilltaxEditList", thisMonth);
+		return billtaxEditList;
+	}
+
+	@Override
+	public List<Map<String, String>> getBillnotaxEditList(String thisMonth) {
+		List<Map<String, String>> billnotaxEditList = sqlsession2.selectList("jihee.getBillnotaxEditList", thisMonth);
+		return billnotaxEditList;
+	}
+
+	@Override
+	public List<Map<String, String>> getBilltaxStatusList(String thisMonth) {
+		List<Map<String, String>> billtaxStatusList = sqlsession2.selectList("jihee.getBilltaxStatusList", thisMonth);
+		return billtaxStatusList;
+	}
+
+	@Override
+	public List<Map<String, String>> getBillnotaxStatusList(String thisMonth) {
+		List<Map<String, String>> billnotaxStatusList = sqlsession2.selectList("jihee.getBillnotaxStatusList", thisMonth);
+		return billnotaxStatusList;
+	}
+
+	@Override
+	public List<Map<String, String>> getTransactionStatusList(String thisMonth) {
+		List<Map<String, String>> transactionStatusList = sqlsession2.selectList("jihee.getTransactionStatusList", thisMonth);
+		return transactionStatusList;
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	
+	// 월별 매출 차트
+	@Override
+	public List<Map<String, String>> totalSalesOfMonth() {
+		List<Map<String, String>> totalSalesOfMonth = sqlsession2.selectList("jihee.totalSalesOfMonth");
+		return totalSalesOfMonth;
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	
+	// 월별 거래처별 거래건 수
+	@Override
+	public List<Map<String, String>> monthOfCustomerCnt(String month) {
+		List<Map<String, String>> mapList = sqlsession2.selectList("jihee.monthOfCustomerCnt", month);
+		return mapList;
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	
+	// 연간 매출 차트
+	@Override
+	public List<Map<String, String>> totalSalesOfYear() {
+		List<Map<String, String>> totalSalesOfYearList = sqlsession2.selectList("jihee.totalSalesOfYear");
+		return totalSalesOfYearList;
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 wordcloud
+	@Override
+	public List<String> wordcloudOfCustomer() {
+		List<String> wordcloudOfCustomerList = sqlsession2.selectList("jihee.wordcloudOfCustomer");
+		return wordcloudOfCustomerList;
+	}
 	
 	
 	

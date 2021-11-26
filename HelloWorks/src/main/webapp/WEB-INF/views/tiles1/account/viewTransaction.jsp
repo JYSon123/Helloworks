@@ -486,7 +486,7 @@
 			<c:if test="${doc.status ne 1}">
 				<button type="button" id="" class="btn btn-secondary btn-sm" onclick="goPermission()">승인요청</button>
 			</c:if>
-			<c:if test="${doc.status eq 0 and sessionScope.loginEmp.empid eq doc.empid}">
+			<c:if test="${doc.status eq 0 and (sessionScope.loginEmp.empid eq doc.empid or sessionScope.loginEmp.ranking >= 3)}">
 				<button type="button" id="" class="btn btn-success btn-sm" onclick="startModify()">수정</button>
 				<button type="button" id="" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-backdrop="static">삭제</button>
 			</c:if>

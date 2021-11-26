@@ -509,7 +509,8 @@
     
     <div class="container" style="margin-top: 70px;">
     	    		
-   		<h4>계산서</h4>
+   		<c:if test="${doc.edit ne 1}"><h4>계산서</h4></c:if>    		
+   		<c:if test="${doc.edit eq 1}"><h4>수정계산서</h4></c:if> 
    		
    		<hr>
    		
@@ -521,9 +522,12 @@
 			<c:if test="${doc.status ne 2}">
 				<button type="button" id="" class="btn btn-dark btn-sm" onclick="goHometax()">국세청전송</button>
 			</c:if>
-			<c:if test="${doc.status eq 0 and sessionScope.loginEmp.empid eq doc.empid}">
+			<c:if test="${doc.status eq 0 and (sessionScope.loginEmp.empid eq doc.empid or sessionScope.loginEmp.ranking >= 3)}">
 				<button type="button" id="" class="btn btn-success btn-sm" onclick="startModify()">수정</button>
 				<button type="button" id="" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-backdrop="static">삭제</button>
+			</c:if>
+			<c:if test="${doc.status eq 2}">
+				<button type="button" id="" class="btn btn-info btn-sm" onclick="location.href='<%=ctxPath%>/account/editBillnotax.hello2?seq=${doc.billnotax_seq}'">수정계산서작성</button>
 			</c:if>
 			<span style="float: right;"><button type="button" class="btn" onclick="location.href='<%=ctxPath%>/account/listBill.hello2?tabName=tbl_billnotax'"  style="border: solid 1px gray; background-color: #ebf0fa; border-radius: 5px; font-size: 10pt; padding: 3px 8px;">목록으로</button></span>
 			<span style="display: none; float: none;"></span>
@@ -542,7 +546,11 @@
 			<table class="mytbl">
 				
 				<tr>
-					<td rowspan="2" colspan="9" style="width: 53.1%;"><h2>전자계산서</h2><span>(공급자보관용)</span></td>
+					<td rowspan="2" colspan="9" style="width: 53.1%;">
+						<c:if test="${doc.edit ne 1}"><h2>전자계산서</h2></c:if>
+						<c:if test="${doc.edit eq 1}"><h2>수정전자계산서</h2></c:if>
+						<span>(공급자보관용)</span>
+					</td>
 					<td colspan="1" style="width: 20%;">책번호</td>
 					<td colspan="1" style="width: 20%; text-align: right;">권</td>
 					<td colspan="2" style="text-align: right;">호</td>					

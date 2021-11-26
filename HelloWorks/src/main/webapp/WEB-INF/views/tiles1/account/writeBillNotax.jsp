@@ -188,6 +188,19 @@
         
 		///////////////////////////////////////////////////////////////////////////
 		
+		// 숫자 중간에 -가 올 수 없도록
+		$("input.onlyNum").blur(function() {
+			
+			var valArr = $(this).val().split("-");
+			
+			if($(this).val().substr(0,1) == "-") 
+				$(this).val("-" + valArr.join(""));
+			
+			else
+				$(this).val(valArr.join(""));
+			
+		});
+		
 		// 단가입력
 		$("input.selloneprice").blur(function() {			
 				
@@ -456,7 +469,8 @@
     
     <div class="container" style="margin-top: 70px;">
     	    		
-   		<h4>계산서 작성</h4>
+   		<c:if test="${editRegdate eq null}"><h4>계산서 작성</h4></c:if>
+   		<c:if test="${editRegdate ne null}"><h4>수정계산서 작성</h4></c:if>
    		
    		<hr>
    		
@@ -465,7 +479,10 @@
 			<table class="mytbl">
 				
 				<tr>
-					<td rowspan="2" colspan="9" style="width: 53.1%;"><h2>전자계산서</h2><span>(공급자보관용)</span></td>
+					<td rowspan="2" colspan="9" style="width: 53.1%;">
+						<c:if test="${editRegdate eq null}"><h2>전자계산서</h2><span>(공급자보관용)</span></c:if>
+						<c:if test="${editRegdate ne null}"><h2>수정전자계산서</h2><span>(공급자보관용)</span></c:if>
+					</td>
 					<td colspan="1" style="width: 20%;">책번호</td>
 					<td colspan="1" style="width: 20%; text-align: right;">권</td>
 					<td colspan="2" style="text-align: right;">호</td>					
@@ -538,7 +555,8 @@
 				<tr>
 					<td style="width: 15.35%;"><input type="text" class="datepicker" name="regdate" class="form-control" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 34.65%;"><input type="text" name="totalprice" class="form-control" readonly/></td>
-					<td></td>
+					<c:if test="${editRegdate eq null}"><td><input type="hidden" name="bigo" value=""></td></c:if>
+   					<c:if test="${editRegdate ne null}"><td style="font-size: 8pt;"><input type="hidden" name="bigo" value="${editSeq}/${editRegdate}">${editRegdate}에 작성한 일련번호 ${editSeq}번 문서 수정신고 분</td></c:if>
 				</tr>
 				
 			</table>
@@ -559,9 +577,9 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
 					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -569,9 +587,9 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
 					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -579,9 +597,9 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
 					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -589,9 +607,9 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
 					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -599,9 +617,9 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
 					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -609,9 +627,9 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker selldate" style="width:80%; margin-right: 2%;"></td>
 					<td style="width: 11.65%;"><input type="text" class="sellprod form-control"/></td>
 					<td style="width: 5%;"></td>
-					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
-					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/></td>
+					<td style="width: 8%;"><input type="text" class="sellamount onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 10%;"><input type="text" class="selloneprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
+					<td style="width: 20%;"><input type="text" class="selltotalprice onlyNum form-control" autocomplete="off" oninput="this.value = this.value.replace(/[^\-?0-9]/g, '').replace(/(\--*)\-/g, '$1');"/></td>
 					<td></td>
 				</tr>
 				
@@ -622,7 +640,10 @@
 					<td style="width: 8%;"><input type="text" name="sellamount"/></td>
 					<td style="width: 10%;"><input type="text" name="selloneprice"/></td>
 					<td style="width: 20%;"><input type="text" name="selltotalprice"/></td>
-					<td></td>
+					<td>
+						<c:if test="${editRegdate eq null}"><input type="text" name="edit" value="0"/></c:if>
+						<c:if test="${editRegdate ne null}"><input type="text" name="edit" value="1"/></c:if>
+					</td>
 				</tr>
 				
 			</table>
