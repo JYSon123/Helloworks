@@ -8,7 +8,6 @@
 <% String ctxPath = request.getContextPath(); %> 
 
 
-
 <!-- 좌측 고정 상세메뉴 시작 -->
 <nav class="w3-sidebar w3-collapse w3-white " style="margin-top:-55px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
   <div class="w3-container" style="background-color:#f5f5f5; margin-top:10px" >
@@ -16,13 +15,13 @@
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:21pt; margin:100px 0 30px 40px ; font-weight:bolder; color:#3399ff"><b>DOCUMENT</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#0070C0"><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
-	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
+	  <button type="button"  class="w3-button w3-margin-bottom" style="width: 180px; height: 50px; background-color : #0070C0; color:white; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
 	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록</a>
 	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
 	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록(결재)<br></a>

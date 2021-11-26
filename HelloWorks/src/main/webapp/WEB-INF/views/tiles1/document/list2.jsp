@@ -90,13 +90,13 @@
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#3399ff"><b>DOCUMENT</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#0070C0"><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
-	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
+	  <button type="button"  class="w3-button w3-margin-bottom" style="width: 180px; height: 50px; background-color : #0070C0; color:white; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
 	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록</a>
 	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
 	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록(결재)<br></a>
@@ -117,7 +117,7 @@
  <div style="display: flex;">
 <div style="margin: auto; padding-left: 10%;">
 
-   <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;">전체문서목록</h2>
+   <h2 style="width: 1050px; margin-top:120px; margin-bottom: 20px;"><b>전체문서목록</b></h2>
    <div style="height: 800px;">
    <table style="width: 1250px;" class="table table-bordered">
       <thead>
@@ -203,7 +203,7 @@
      	<option value="1">승인</option>
      	<option value="2">반려</option>
      </select>
-     <button onclick="button()" class="btn btn-info btn-sm" style="margin-left: 10px; margin-bottom: 3px;">검색</button>
+     <button onclick="button()" class="btn btn-sm" style="margin-left: 10px; margin-bottom: 3px; background-color: #0070C0; color: white;">검색</button>
      
       <input type="hidden" name="searchWord" id="searchWord" size="106" autocomplete="off"/>
       <input type="hidden" style="display: none;"/> <%-- form 태그 내에 input태그가 오로지 1개뿐일 경우에는 엔터를 했을 경우 검색이 되어지므로 이것을 방지하고자 만든 것이다. --%>
