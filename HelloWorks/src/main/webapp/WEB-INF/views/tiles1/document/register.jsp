@@ -380,7 +380,7 @@
 	 		</tr>
 	      <tr>
 	         <td colspan="2" style="line-height: 90px;" class="text-center">
-	            <button type="button" id="btnRegister" class="btn btn-primary  float-left " onClick="goRegister()" style="border-radius: 3px; margin: 10px 0 60px 0"><h6>등록하기</h6></button> 
+	            <button type="button" id="btnRegister" class="btn btn-primary  float-left " onClick="goRegister()" style="border-radius: 3px; margin: 10px 0 60px 0; background-color: #0070C0; color: white;"><h6>등록하기</h6></button> 
 	         
 	         </td>
 	      </tr>

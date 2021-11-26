@@ -10,6 +10,7 @@
   .rest { display: none; }
 
 
+
 </style>
 
 <script type="text/javascript">
@@ -100,13 +101,13 @@
       <i class="fa fa-remove"></i>
     </a>
 	<br><br>
-    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#3399ff""><b>DOCUMENT</b></span>
+    <span style="font-size:20pt; margin:100px 0 30px 40px ; color:#0070C0"><b>DOCUMENT</b></span>
   </div>
   <div class="w3-bar-block" style="background-color:#f5f5f5; height: 100%">
 	<div style="margin-left:42px; font-size: 13pt">
 	  <br>
 	  <%-- <a href="<%= ctxPath %>/write.hello2"  class="w3-bar-item w3-button" >기안하기</a> --%>
-	  <button type="button" class="w3-button w3-blue w3-margin-bottom" style="width: 180px; height: 50px; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
+	  <button type="button"  class="w3-button w3-margin-bottom" style="width: 180px; height: 50px; background-color : #0070C0; color:white; margin-left: 13px;"onclick="javascript:location.href='<%= request.getContextPath()%>/write.hello2'"><i class="fa fa-paper-plane w3-margin-right"></i>기안하기</button>
 	  <a href="<%= ctxPath %>/myDocumentlist.hello2"    class="w3-bar-item w3-button">나의 기안목록</a>
 	  <a href="<%= ctxPath %>/viewBreak.hello2"    class="w3-bar-item w3-button">나의 휴가캘린더</a> <!-- (남은연차개수, 연차내역조회, 연차내기) -->
 	  <a href="<%= ctxPath %>/documentlist.hello2"   class="w3-bar-item w3-button">전체문서목록(결재)<br></a>
@@ -118,7 +119,7 @@
 <div style="display: flex; padding-top: 50px; ">
 <div style="margin: auto; padding-left: 3%;">
 
-    <h2 style="margin-bottom: 30px; margin-top:100px;">기안하기</h2>
+    <h2 style="margin-bottom: 30px; margin-top:100px;" ><b>기안하기</b></h2>
    
 <!-- <form name="addFrm"> -->
 <!-- === #149. 파일첨부하기 === 
@@ -127,18 +128,18 @@
 -->
 
      <form name="addFrm" enctype="multipart/form-data">
-      <table style="width: 1050px; margin-top:30px;" class="table table-bordered">
+      <table style="width: 1050px; margin-top:30px;" class="table" >
          <tr>
-            <th style="width: 15%; background-color: #e6f5ff">성명</th>
+            <th style="width: 15%;" >성명</th>
             <td>
                <input type="hidden" name="fk_empno" value="${sessionScope.loginEmp.empno}" />
                <input type="hidden" name="fk_deptnum" value="${sessionScope.loginEmp.fk_deptnum}" />
                <input type="hidden" name="fk_userid" value="${sessionScope.loginEmp.empid}" />
-               <input type="text" name="empname" value="${sessionScope.loginEmp.empname}" readonly /> 
+               <input type="text" name="empname" value="${sessionScope.loginEmp.empname}" readonly style="border: none;" /> 
             </td>
          </tr>
          <tr>
-            <th style="width: 15%; background-color: #e6f5ff " >문서종류</th>
+            <th style="width: 15%; " >문서종류</th>
             <td>
 			     <select onchange="form1(value)" name="documentKind" id="documentKind"  style="width: 15%; height: 30px;">
 			     	<option value="0">선택</option>
@@ -168,22 +169,22 @@
             </td>
          </tr>
          <tr>
-            <th style="width: 15%; background-color: #e6f5ff" >제목</th>
+            <th style="width: 15%; " >제목</th>
             <td>
                <%-- 원글쓰기인 경우 --%>
-			     <input type="text" name="subject" id="subject" size="100"/>
+			     <input type="text" name="subject" id="subject" size="100" style="border: none;"/>
             </td>
          </tr>
          <tr>
-            <th style="width: 15%; background-color: #e6f5ff; vertical-align: middle;">내용</th>
+            <th style="width: 15%; vertical-align: middle; border-right: none; ">내용</th>
             <td>
-               <textarea style="width: 100%; height: 412px;" name="content" id="content"></textarea> 
+               <textarea style="width: 100%; height: 412px; border: none;" name="content" id="content"></textarea> 
             </td>
          </tr>
          
         <%-- === # 150. 파일첨부 타입 추가하기 === --%> 
          <tr>
-            <th style="width: 25%; background-color: #e6f5ff">증빙첨부</th>
+            <th style="width: 25%;">증빙첨부</th>
             <td>
                <input type="file" name="attach" /> 
             </td>
@@ -198,8 +199,8 @@
       <%-- === 답변글쓰기가 추가된 경우 끝 ===  --%>
       
       <div style=" margin-top: 30px;">
-         <button type="button" class="btn btn-info  mr-3" id="btnWrite">기안하기</button>
-         <button type="button" class="btn btn-info " onclick="javascript:history.back()">취소</button> 
+         <button type="button" class="btn mr-3" id="btnWrite" style="background-color: #0070C0; color: white;">기안하기</button>
+         <button type="button" class="btn" style="background-color: #0070C0; color: white;" onclick="javascript:history.back()">취소</button> 
       </div>
       
       <div style="margin-bottom: 150px;"></div>
