@@ -675,7 +675,10 @@
 					<td style="width: 8%;"><input type="text" name="sellamount"/></td>
 					<td style="width: 10%;"><input type="text" name="selloneprice"/></td>
 					<td style="width: 20%;"><input type="text" name="selltotalprice"/></td>
-					<td></td>
+					<td>
+						<c:if test="${doc.bigo eq null || doc.bigo == ''}"><input type="text" name="edit" value="0"/></c:if>
+						<c:if test="${doc.bigo ne null && doc.bigo != ''}"><input type="text" name="edit" value="1"/></c:if>
+					</td>
 				</tr>
 				
 			</table>
