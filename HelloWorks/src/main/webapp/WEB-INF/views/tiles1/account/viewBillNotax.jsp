@@ -627,7 +627,7 @@
 				<tr>
 					<td style="width: 15.35%;"><input type="text" class="datepicker" name="regdate" class="form-control" style="width:80%; margin-right: 2%;" value="${fn:substring(doc.regdate, 0, 11)}" disabled></td>
 					<td style="width: 34.65%;"><input type="text" name="totalprice" class="form-control" value="${doc.totalprice}" disabled readonly/></td>
-					<td></td>
+					<td><input type="text" name="bigo" class="form-control" value="${doc.bigo}" readonly disabled/></td>
 				</tr>
 				
 			</table>

@@ -249,7 +249,10 @@
 		(
 		    select row_number() over(order by ${seq} desc) AS rno
 		         , ${seq} AS seq, to_char(regdate, 'yyyy-mm-dd') AS regdate
-		         , customer_id, customer_comp, customer_name, empname, empid, totalprice, status, edit
+		         , customer_id, customer_comp, customer_name, empname, empid, 
+		         <if test="tabName eq 'tbl_billtax'">(totalprice+taxprice) AS totalprice</if>
+		         <if test="tabName neq 'tbl_billtax'">totalprice</if>		         
+		         , status, edit
 		    from ${tabName}
 		    where 1 = 1
 		    <if test="startDate neq null and lastDate neq null">

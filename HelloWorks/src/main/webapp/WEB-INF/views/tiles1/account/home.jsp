@@ -330,7 +330,7 @@
 					        name: 'Occurrences'
 					    }],
 					    title: {
-					        text: ''
+					        text: '주요 거래처'
 				    	}
 					});
 				}

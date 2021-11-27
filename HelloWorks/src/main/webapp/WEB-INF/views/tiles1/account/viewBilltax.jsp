@@ -690,7 +690,7 @@
 					<td style="width: 15.35%;"><input type="text" class="datepicker" name="regdate" class="form-control" style="width:80%; margin-right: 2%;" value="${fn:substring(doc.regdate, 0, 11)}" disabled></td>
 					<td style="width: 34.65%;"><input type="text" name="totalprice" class="form-control" value="${doc.totalprice}" disabled readonly/></td>
 					<td style="width: 34.65%;"><input type="text" name="taxprice" class="form-control" value="${doc.taxprice}" disabled readonly/></td>
-					<td></td>
+					<td><input type="text" name="bigo" class="form-control" value="${doc.bigo}" readonly disabled/></td>
 				</tr>
 				
 			</table>
@@ -742,7 +742,10 @@
 					<td style="width: 10%;"><input type="text" name="selloneprice"/></td>
 					<td style="width: 20%;"><input type="text" name="selltotalprice"/></td>
 					<td style="width: 14.65%;"><input type="text" name="selltax"/></td>
-					<td></td>
+					<td>
+						<c:if test="${doc.bigo eq null || doc.bigo == ''}"><input type="text" name="edit" value="0"/></c:if>
+						<c:if test="${doc.bigo ne null && doc.bigo != ''}"><input type="text" name="edit" value="1"/></c:if>
+					</td>
 				</tr>
 				
 			</table>
