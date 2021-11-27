@@ -643,6 +643,15 @@ public class HelloWorksService_KJH implements InterHelloWorksService_KJH {
 		return wordcloudOfCustomerList;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 다중 DELETE
+	@Override
+	public int multiDelCustomer(Map<String, String[]> paraMap) {
+		int n = dao.multiDelCustomer(paraMap);
+		return n;
+	}
+
 	
 	
 	

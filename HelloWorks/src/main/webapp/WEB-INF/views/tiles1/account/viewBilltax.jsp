@@ -594,7 +594,7 @@
 				</form>
 				<button type="button" id="" class="btn btn-info btn-sm" onclick="document.editFrm.submit()">수정세금계산서작성</button>
 			</c:if>
-			<span style="float: right;"><button type="button" class="btn" onclick="location.href='<%=ctxPath%>/account/listBill.hello2?tabName=tbl_billtax'"  style="border: solid 1px gray; background-color: #ebf0fa; border-radius: 5px; font-size: 10pt; padding: 3px 8px;">목록으로</button></span>
+			<span style="float: right;"><button type="button" class="btn" onclick="location.href='<%=ctxPath%>/account/listBill.hello2?tabName=tbl_billtax'" style="border: solid 1px gray; background-color: #ebf0fa; border-radius: 5px; font-size: 10pt; padding: 3px 8px;">목록으로</button></span>
 			<span style="display: none; float: none;"></span>
     	</div>
     	

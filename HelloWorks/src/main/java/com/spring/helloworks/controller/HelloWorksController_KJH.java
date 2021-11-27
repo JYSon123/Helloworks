@@ -1,13 +1,24 @@
 package com.spring.helloworks.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +27,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.google.gson.Gson;
@@ -395,6 +408,24 @@ public class HelloWorksController_KJH {
 			mav.setViewName("msg_KJH");
 			
 		}
+		
+		return mav;
+		
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/logout.hello2")
+	public ModelAndView logout(HttpServletRequest request, ModelAndView mav) {
+		
+		HttpSession session = request.getSession();
+		
+		session.invalidate();
+		
+		mav.addObject("message", "로그아웃 되었습니다.");
+		mav.addObject("loc", request.getContextPath() + "/login.hello2");
+		
+		mav.setViewName("msg_KJH");
 		
 		return mav;
 		
@@ -993,7 +1024,195 @@ public class HelloWorksController_KJH {
 		return mav;
 		
 	}
+		
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/account/regCustomerExcel.hello2", method= {RequestMethod.POST})
+	public ModelAndView requiredLogin_regCustomerExcel(MultipartHttpServletRequest mrequest, HttpServletResponse response, ModelAndView mav) throws IOException {
+		
+		boolean checkDepartment = checkDepartment(mrequest, "20");
+		
+		if(checkDepartment)	{			
+			
+			MultipartFile file = mrequest.getFile("excelFile");
+			
+			List<CustomerVO_KJH> cvoList = new ArrayList<> ();
+			
+			Workbook workbook = null;
+			
+			String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+			
+			if (!extension.equals("xlsx") && !extension.equals("xls")) {
+				throw new IOException("엑셀파일만 업로드 해주세요.");
+			}
+			
+		    if (extension.equals("xlsx")) {
+		    	workbook = new XSSFWorkbook(file.getInputStream());
+		    } else if (extension.equals("xls")) {
+		    	workbook = new HSSFWorkbook(file.getInputStream());
+		    }
+		    
+		    Sheet worksheet = workbook.getSheetAt(0);
+		    
+		    for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
 
+				Row row = worksheet.getRow(i);
+				
+				try {
+					
+					if(row.getCell(0) != null && !"".equals(row.getCell(0).getStringCellValue())) {
+						
+						String customer_id = row.getCell(0).getStringCellValue();
+						
+						String[] idArr = customer_id.split("-");
+						
+						String checkId = "" + idArr[0] + idArr[1] + idArr[2];
+												
+						if(idArr.length == 3 && checkId.length() == 10) {
+																					
+							Long.parseLong(checkId);							
+							
+							int isExist = service.verifyId(row.getCell(0).getStringCellValue());
+							
+							if(isExist == 0) {					
+								CustomerVO_KJH cvo = new CustomerVO_KJH();
+								
+								cvo.setCustomer_id(row.getCell(0).getStringCellValue());
+								
+								if(row.getCell(1) != null && !"".equals(row.getCell(1).getStringCellValue())) cvo.setCustomer_comp(row.getCell(1).getStringCellValue());
+								if(row.getCell(2) != null && !"".equals(row.getCell(2).getStringCellValue())) cvo.setCustomer_name(row.getCell(2).getStringCellValue());
+								if(row.getCell(3) != null && !"".equals(row.getCell(3).getStringCellValue())) cvo.setCustomer_addr(row.getCell(3).getStringCellValue());
+								if(row.getCell(4) != null && !"".equals(row.getCell(4).getStringCellValue())) cvo.setCustomer_email(row.getCell(4).getStringCellValue());
+								
+								cvoList.add(cvo);
+								
+							}
+							
+						}
+											
+					}
+					
+				} catch (Exception e) {}
+				
+		    }		    
+			
+			int n = 0; 
+			
+			for(CustomerVO_KJH customer : cvoList) {
+				n = service.insertCustomer(customer);
+			}
+			
+			if(n != 0) {
+								
+				String message = "거래처 등록이 완료되었습니다.";
+				String loc = mrequest.getContextPath() + "/account/manageCustomer.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");
+				
+			}
+			
+			else {
+				
+				String message = "거래처 등록에 실패하였습니다.";
+				String loc = mrequest.getContextPath() + "/account/manageCustomer.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");
+				
+			}
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = mrequest.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/account/explainImg.hello2")
+	public String explainImg(HttpServletRequest request, HttpServletResponse response) {
+		return "explainImg";
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	@RequestMapping(value="/account/excelFormDownload.hello2")
+	public void excelFormDownload(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		
+		HttpSession session = request.getSession();
+		
+		String filepath = "C:/git/Helloworks/HelloWorks/src/main/webapp/resources/excelForm/사업자등록양식.xlsx";
+		
+		File file = new File(filepath);
+		
+		ServletContext svlCtx = session.getServletContext();
+		
+		String mimeType = svlCtx.getMimeType(filepath);
+		
+		if(mimeType == null) {
+			mimeType = "application/octet-stream";
+		}
+		
+		response.setContentType(mimeType);
+		
+		String header = request.getHeader("User-Agent");
+		
+		String downloadFileName = "";
+		
+		if (header.contains("Edge")){
+            downloadFileName = URLEncoder.encode("사업자등록양식.xlsx", "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition", "attachment;filename=" + downloadFileName);
+         } else if (header.contains("MSIE") || header.contains("Trident")) { // IE 11버전부터는 Trident로 변경됨.
+            downloadFileName = URLEncoder.encode("사업자등록양식.xlsx", "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition", "attachment;filename=" + downloadFileName);
+        } else if (header.contains("Chrome")) {
+           downloadFileName = new String("사업자등록양식.xlsx".getBytes("UTF-8"), "ISO-8859-1");
+            response.setHeader("Content-Disposition", "attachment; filename=" + downloadFileName);
+        } else if (header.contains("Opera")) {
+           downloadFileName = new String("사업자등록양식.xlsx".getBytes("UTF-8"), "ISO-8859-1");
+            response.setHeader("Content-Disposition", "attachment; filename=" + downloadFileName);
+        } else if (header.contains("Firefox")) {
+           downloadFileName = new String("사업자등록양식.xlsx".getBytes("UTF-8"), "ISO-8859-1");
+           response.setHeader("Content-Disposition", "attachment; filename=" + downloadFileName);
+        }
+		
+		// *** 다운로드할 요청 파일을 읽어서 클라이언트로 파일을 전송하기 *** //
+		FileInputStream finStream = new FileInputStream(file);
+		// 1byte 기반 파일 입력 노드스트림 생성
+		
+		ServletOutputStream srvOutStream = response.getOutputStream();
+		// 1byte 기반 파일 출력 노드스트림 생성 
+        // ServletOutputStream 은 바이너리 데이터를 웹 브라우저로 전송할 때 사용함.
+		
+		byte arrb[] = new byte[4096];
+        int data = 0;
+        while ((data = finStream.read(arrb, 0, arrb.length)) != -1) {
+           srvOutStream.write(arrb, 0, data);
+        }// end of while---------------------------
+        
+        srvOutStream.flush();
+        
+        srvOutStream.close();
+        
+        finStream.close();
+				
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	// 거래처 수정 페이지 요청
@@ -1149,6 +1368,66 @@ public class HelloWorksController_KJH {
 		return mav;
 		
 	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 다중 DELETE
+	@RequestMapping(value="/account/multiDel.hello2", method= {RequestMethod.POST})
+	public ModelAndView requiredLogin_multiDel(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			String customer_id = request.getParameter("customer_id");
+			
+			String[] idArr = customer_id.split(",");
+			
+			Map<String, String[]> paraMap = new HashMap<> ();
+			
+			paraMap.put("idArr", idArr);
+			
+			int n = service.multiDelCustomer(paraMap);
+			
+			if(n != 0) {
+								
+				String message = "거래처 삭제가 완료되었습니다.";
+				String loc = request.getContextPath() + "/account/manageCustomer.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");
+				
+			}
+			
+			else {
+				
+				String message = "거래처 삭제에 실패하였습니다.";
+				String loc = request.getContextPath() + "/account/manageCustomer.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");
+				
+			}
+						
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////
 	
@@ -1169,19 +1448,15 @@ public class HelloWorksController_KJH {
 			        	
         	StringBuilder sb = new StringBuilder();
         	        	
-        	sb.append("<div style='width: 70%; padding: 0px auto; border: solid 4px #003399; border-radius: 20px; word-break: break-all;'>");
-        	
-        	sb.append("<div style='text-align: center; background-color: white; border-radius: 20px 20px 0 0; width: 100%; padding: 40px auto;'><br><br><img src='http://127.0.0.1:9090/helloworks/resources/images/maillogo.png' style='margin 10px auto; width: 60%;'><br><br><br></div>");
-        	
-        	sb.append("<div style='width: 100%; background-color: #e6eeff; border-radius: 0 0 20px 20px; padding: 20px 0;'>");
-        	
-        	sb.append("<p style='width: 100%; text-align: center;'>" + content + "</p>");
-        	        	
-        	sb.append("<br><br><br><br><p style='width: 100%; text-align: center; color: #002b80; font-size: 15pt;'><strong>helloworks</strong>와 함께해주셔서 감사합니다.</p>");
-        	
-        	sb.append("</div>");
-        	
-        	sb.append("</div>");
+        	sb.append("<div style='max-width: 512px; padding: 50px auto; border: solid 4px #003399; border-radius: 20px; word-break: break-all; min-height: 500px;'>" + 
+      			  	  "    		<div style='text-align: center; min-height: 400px; position: relative; word-break: break-all;'>" + 
+      			  	  "    			<p style='text-align: center; width: 100%;'><span style='font-size: 4rem; font-weight: bold; color: #003399; padding: 0 10px;'>helloworks</span></p>" + 
+      			  	  "    			<br><br>" +
+      			  	  "				<p style='text-align: left; position: absolute; top: 20px; padding-left: 60px; padding-right: 50px; width: 100%; word-break: break-all;'>" + content + "</p>" + 
+      			  	  "    			<br><br>" + 
+      			  	  "    		</div>" + 
+      			  	  "    		<p style='text-align: center; margin-bottom: 10px; margin-top: 10px; width: 100%;'><strong>helloworks와 함께해주셔서 감사합니다.</strong></p>" + 
+      			  	  "</div>");
 			
         	String emailContents = sb.toString();
         	
@@ -1225,6 +1500,84 @@ public class HelloWorksController_KJH {
 		
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래처에 메일발송
+	@RequestMapping(value="/account/multiMail.hello2", method= {RequestMethod.POST})
+	public ModelAndView requiredLogin_multiMail(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
+		
+		boolean checkDepartment = checkDepartment(request, "20");
+		
+		if(checkDepartment)	{			
+			
+			String rec_company = request.getParameter("rec_company");
+			String rec_name = request.getParameter("rec_name");
+			
+			String[] rec_companyArr = rec_company.split(",");
+			String[] rec_nameArr = rec_name.split(",");
+			
+			String content = request.getParameter("content");
+			
+			content = content.replaceAll("\r\n", "<br>");
+			        	
+        	StringBuilder sb = new StringBuilder();
+        	        	
+        	sb.append("<div style='max-width: 512px; padding: 50px auto; border: solid 4px #003399; border-radius: 20px; word-break: break-all; min-height: 500px;'>" + 
+    			  	  "    		<div style='text-align: center; min-height: 400px; position: relative; word-break: break-all;'>" + 
+    			  	  "    			<p style='text-align: center; width: 100%;'><span style='font-size: 4rem; font-weight: bold; color: #003399; padding: 0 10px;'>helloworks</span></p>" + 
+    			  	  "    			<br><br>" +
+    			  	  "				<p style='text-align: left; position: absolute; top: 20px; padding-left: 60px; padding-right: 50px; width: 100%; word-break: break-all;'>" + content + "</p>" + 
+    			  	  "    			<br><br>" + 
+    			  	  "    		</div>" + 
+    			  	  "    		<p style='text-align: center; margin-bottom: 10px; margin-top: 10px; width: 100%;'><strong>helloworks와 함께해주셔서 감사합니다.</strong></p>" + 
+    			  	  "</div>");
+			
+        	String emailContents = sb.toString();
+        	
+        	try {
+				
+        		for(int i=0; i<rec_companyArr.length; i++) {
+        			
+        			gmail.sendmail_customer(rec_companyArr[i], rec_nameArr[i], emailContents);
+        		
+        		}
+        		
+				String message = "메일이 전송되었습니다.";
+				String loc = request.getContextPath() + "/account/manageCustomer.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");				
+				
+			} catch (Exception e) {
+				
+				String message = "메일 전송이 실패하였습니다.";
+				String loc = request.getContextPath() + "/account/manageCustomer.hello2";
+				
+				mav.addObject("message", message);
+				mav.addObject("loc", loc);
+				
+				mav.setViewName("msg_KJH");
+				
+			}
+        							
+		}
+					
+		else {
+			String message = "해당 부서 소속의 직원만 접근 가능합니다.";
+			String loc = request.getContextPath() + "/index.hello2";
+			
+			mav.addObject("message", message);
+			mav.addObject("loc", loc);
+			
+			mav.setViewName("msg_KJH");	
+		}
+		
+		return mav;
+		
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	@RequestMapping(value="/account/writeBillTax.hello2")

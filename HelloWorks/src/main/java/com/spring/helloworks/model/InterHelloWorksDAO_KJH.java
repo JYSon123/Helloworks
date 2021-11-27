@@ -128,6 +128,9 @@ public interface InterHelloWorksDAO_KJH {
 
 	// 거래처 wordcloud
 	List<String> wordcloudOfCustomer();
+
+	// 거래처 다중 DELETE
+	int multiDelCustomer(Map<String, String[]> paraMap);
 	
 	
 

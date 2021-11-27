@@ -431,9 +431,9 @@
     				<button type="button" class="btn btn-sm" onclick="nextMonth();"><i class="fas fa-chevron-right" style="color:gray; font-size: 18pt;"></i></button>
     				<input type="hidden"/>
     				<hr style="width: 100%;" class="mt-3">
-    				<div style="min-height: 732px;">
+    				<div style="min-height: 739px;">
     				<table style="width: 90%;" class="table table-bordered mx-auto">
-    					<c:if test="${empty billtaxEditList}">
+    					<c:if test="${not empty billtaxEditList}">
 	    					<c:forEach var="map" items="${billtaxEditList}">
 	    						<c:if test="${map.edit eq 0}">
 	    							<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">세금계산서</td><td>${map.cnt}&nbsp;건</td></tr>
@@ -442,6 +442,12 @@
 	    							<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">수정세금계산서</td><td>${map.cnt}&nbsp;건</td></tr>
 	    						</c:if>
 	    					</c:forEach>
+	    				</c:if>
+	    				<c:if test="${empty billtaxEditList}">				
+	    					<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">세금계산서</td><td>0&nbsp;건</td></tr>
+	    					<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">수정세금계산서</td><td>0&nbsp;건</td></tr>
+	    				</c:if>
+	    				<c:if test="${not empty billnotaxEditList}">
 	    					<c:forEach var="map" items="${billnotaxEditList}">
 	    						<c:if test="${map.edit eq 0}">
 	    							<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">계산서</td><td>${map.cnt}&nbsp;건</td></tr>
@@ -451,6 +457,10 @@
 	    						</c:if>
 	    					</c:forEach>
     					</c:if>
+    					<c:if test="${empty billnotaxEditList}">				
+	    					<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">계산서</td><td>0&nbsp;건</td></tr>
+	    					<tr style="height: 40px;"><td style="text-align: left; width: 50%; padding-left: 10px; background-color: #ebf0fa;">수정계산서</td><td>0&nbsp;건</td></tr>
+	    				</c:if>
     				</table>
     				<table style="width: 90%;" class="table table-bordered mx-auto">    					
     					<c:forEach var="map" items="${billtaxStatusList}" varStatus="status">

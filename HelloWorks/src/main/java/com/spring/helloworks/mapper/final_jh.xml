@@ -442,4 +442,13 @@
 		from tbl_billnotax
 	</select>
 	
+	<!-- 거래처 다중 DELETE -->
+	<delete id="multiDelCustomer" parameterType="HashMap">
+		delete from tbl_customer
+		where customer_id IN
+		<foreach collection="idArr" index="i" open="(" separator="," close=")">
+			'${idArr[i]}'
+		</foreach>
+	</delete>
+	
 </mapper>

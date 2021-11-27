@@ -527,7 +527,11 @@
 				<button type="button" id="" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-backdrop="static">삭제</button>
 			</c:if>
 			<c:if test="${doc.status eq 2}">
-				<button type="button" id="" class="btn btn-info btn-sm" onclick="location.href='<%=ctxPath%>/account/editBillnotax.hello2?seq=${doc.billnotax_seq}'">수정계산서작성</button>
+				<form style="display: none;" name="editFrm" method="post" action="<%=ctxPath%>/account/writeBillNotax.hello2">
+					<input type="hidden" name="editRegdate" value="${fn:substring(doc.regdate, 0, 11)}">
+					<input type="hidden" name="editSeq" value="${doc.billnotax_seq}">
+				</form>
+				<button type="button" id="" class="btn btn-info btn-sm" onclick="document.editFrm.submit()">수정계산서작성</button>
 			</c:if>
 			<span style="float: right;"><button type="button" class="btn" onclick="location.href='<%=ctxPath%>/account/listBill.hello2?tabName=tbl_billnotax'"  style="border: solid 1px gray; background-color: #ebf0fa; border-radius: 5px; font-size: 10pt; padding: 3px 8px;">목록으로</button></span>
 			<span style="display: none; float: none;"></span>

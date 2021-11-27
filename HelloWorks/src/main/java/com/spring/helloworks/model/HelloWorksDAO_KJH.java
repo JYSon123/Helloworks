@@ -490,6 +490,15 @@ public class HelloWorksDAO_KJH implements InterHelloWorksDAO_KJH {
 		List<String> wordcloudOfCustomerList = sqlsession2.selectList("jihee.wordcloudOfCustomer");
 		return wordcloudOfCustomerList;
 	}
+
+	////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 다중 DELETE
+	@Override
+	public int multiDelCustomer(Map<String, String[]> paraMap) {
+		int n = sqlsession2.delete("jihee.multiDelCustomer", paraMap);
+		return n;
+	}
 	
 	
 	
