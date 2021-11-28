@@ -223,7 +223,7 @@ public class ScheduleController_HJE {
       
    // 캘린더 추가
    @RequestMapping(value = "/addCalendar.hello2", method= {RequestMethod.POST})
-   public ModelAndView addCalendar(ModelAndView mav, HttpServletRequest request, HttpServletResponse response) {
+   public ModelAndView requiredLogin_addCalendar(HttpServletRequest request, HttpServletResponse response, ModelAndView mav) {
 	   
 	   String calname = request.getParameter("calname");
 	   String color = request.getParameter("color");
@@ -262,7 +262,7 @@ public class ScheduleController_HJE {
    // 전체 캘린더 리스트 ajax로 받아오기
    @ResponseBody
    @RequestMapping(value = "/showCalendarList.hello2", method= {RequestMethod.POST}, produces="text/plain;charset=UTF-8")
-   public String showCalendarList(HttpServletRequest request) {
+   public String requiredLogin_showCalendarList(HttpServletRequest request, HttpServletResponse response) {
 	   
 	   HttpSession session = request.getSession();
 	   EmpVO_KJH loginEmp =  (EmpVO_KJH) session.getAttribute("loginEmp");
@@ -295,7 +295,7 @@ public class ScheduleController_HJE {
    
    // ajax를 사용한 일정 추가
    @RequestMapping(value="/addSchedule.hello2", method= {RequestMethod.POST})
-   public String addSchedule(HttpServletRequest request) {
+   public String requiredLogin_addSchedule(HttpServletRequest request, HttpServletResponse response) {
 	   
 	   HttpSession session = request.getSession();
 	   EmpVO_KJH loginEmp =  (EmpVO_KJH) session.getAttribute("loginEmp");
@@ -381,7 +381,7 @@ public class ScheduleController_HJE {
    
    // 공유 캘린더 수정 및 삭제
    @RequestMapping(value = "/changeShare.hello2", method= {RequestMethod.POST})
-   public String changeShare(HttpServletRequest request, HttpServletResponse response) {
+   public String requiredLogin_changeShare(HttpServletRequest request, HttpServletResponse response) {
 	   
 	   HttpSession session = request.getSession();
 	   EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
@@ -462,7 +462,7 @@ public class ScheduleController_HJE {
    
    // 일정 수정 및 삭제
    @RequestMapping(value = "/changeSchedule.hello2", method= {RequestMethod.POST})
-   public String changeSchedule(HttpServletRequest request, HttpServletResponse response) {
+   public String requiredLogin_changeSchedule(HttpServletRequest request, HttpServletResponse response) {
 	   
 	   HttpSession session = request.getSession();
 	   EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
@@ -528,11 +528,11 @@ public class ScheduleController_HJE {
 		   
 		   if( "1".equals(changeOption) ) {	// 수정
 			   
-//			   service.updateSchedule(paraMap);
+			   service.updateSchedule(paraMap);
 		   }
 		   if( "2".equals(changeOption) ) { // 삭제
 			   
-//			   service.deleteSchedule(paraMap);
+			   service.deleteSchedule(paraMap);
 		   }
 		   
 		   return "redirect:"+goBackURL;
@@ -819,7 +819,7 @@ public class ScheduleController_HJE {
 	// 캘린더명 중복검사 확인
 	@ResponseBody
 	@RequestMapping(value = "/calnameDuplicateCheck.hello2", method = {RequestMethod.POST})
-	public String calnameDuplicateCheck (HttpServletRequest request) {
+	public String requiredLogin_calnameDuplicateCheck (HttpServletRequest request, HttpServletResponse response) {
 			
 		HttpSession session = request.getSession();
 		EmpVO_KJH loginEmp = (EmpVO_KJH) session.getAttribute("loginEmp");
@@ -849,7 +849,7 @@ public class ScheduleController_HJE {
 	
 	// 선택된 카테고리에 해당하는 일정만 보여주기 
 	@RequestMapping("/showChkCalList.hello2")
-	public String showChkCalList(HttpServletRequest request) {
+	public String requiredLogin_showChkCalList(HttpServletRequest request, HttpServletResponse response) {
 		
 		Map<String,Object> paraMap = new HashMap<>();
 		

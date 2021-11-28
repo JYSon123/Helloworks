@@ -14,7 +14,6 @@ import com.spring.helloworks.common.GoogleMail_HJE;
 import com.spring.helloworks.model.EmpVO_HJE;
 import com.spring.schedule.model.CalendarVO_HJE;
 import com.spring.schedule.model.InterScheduleDAO_HJE;
-import com.spring.schedule.model.ScheduleVO_HJE;
 
 // 트랜잭션 처리 담당, DB담당
 @Service

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.spring.schedule.model.CalendarVO_HJE;
-import com.spring.schedule.model.ScheduleVO_HJE;
 
 public interface InterScheduleService_HJE {
 

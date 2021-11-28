@@ -249,7 +249,13 @@
 		where calname= #{calname} and shareemp like '%'|| #{empid} || '%'
 	</select>
 	
-	
+	<!-- 채팅에 접속한 직원의 부서명 구하기 -->
+	<select id="getDeptName" parameterType="String" resultType="String">
+		select deptname
+		from tbl_employee E JOIN tbl_department D
+		on E.fk_deptnum = D.deptnum
+		where empid = #{empid}
+	</select>
 	
 	
 	

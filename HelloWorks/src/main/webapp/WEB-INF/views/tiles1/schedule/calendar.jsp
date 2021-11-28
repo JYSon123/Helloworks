@@ -777,7 +777,7 @@
 		<br>
 		<div class="w3-container" style="background-color: #f5f5f5; margin-top: 10px;">
 			<a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu"><i class="fa fa-remove"></i></a> <br><br>
-			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray"><b><a href="<%= ctxPath %>/schedule.hello2">일정</a></b></span>
+			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray;"><b><a href="<%= ctxPath %>/schedule.hello2">일정</a></b></span>
 		</div>
 		<div class="w3-bar-block" style="background-color: #f5f5f5; padding-bottom: 150px;"><br>
 			
@@ -1024,7 +1024,7 @@
 									<tr>
 										<td style="width: 20%;" id="title">일정 제목&nbsp;<span class="star">*</span></td>
 										<td style="width: 80%;">
-											<input type="text" id="c_fk_cno" name="fk_cno" class="form-control" value="" />
+											<input type="hidden" id="c_fk_cno" name="fk_cno" class="form-control" value="" />
 											<input type="hidden" id="c_sno" name="sno" class="form-control" value="" />
 											<input type="text" id="c_title" name="title" class="form-control" value="" />
 										</td>
