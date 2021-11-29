@@ -80,7 +80,7 @@ function w3_close() {
 	  </c:if>
 	  
 	  <%-- 부가세 계산기 --%>	  
-	  <div style="background-color: #2648A3; margin-right: 10%; height: 230px; border-radius: 20px;" class="w-80 my-3 text-center py-3">
+	  <div style="background-color: #456bd3; margin-right: 10%; height: 230px; border-radius: 20px;" class="w-80 my-3 text-center py-3">
 	  	
 	  	<h5 class="text-center" style="color: white;"><i class="fas fa-calculator"></i>&nbsp;부가세 계산기</h5>
 	  	<hr>

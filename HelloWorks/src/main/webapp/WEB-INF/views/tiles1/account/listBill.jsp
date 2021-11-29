@@ -20,7 +20,7 @@
 	}
 	
 	.tblue {
-		color: blue;
+		color: #b30000;
 	}
 	
 </style>
@@ -176,12 +176,17 @@
 		var checkCnt = 0;
 		var selectSeq = "";
 		var flagReturn = false;
-		
+		var loginEmpid = "${sessionScope.loginEmp.empid}";
+		var ranking = Number("${sessionScope.loginEmp.ranking}");
+				
 		$(".selectdoc").each(function(index, item) {
 			
 			if($(this).prop("checked") == true) {
 				
-				if($(this).parent().parent().find("p.status").text() == "승인요청전") {
+				var regEmpid = $(this).parent().parent().find("span.empid").text();
+								
+				if($(this).parent().parent().find("p.status").text() == "승인요청전" 
+						&& (loginEmpid == regEmpid || ranking >= 3)) {
 					
 					if(checkCnt == 0) 
 						selectSeq += $(this).parent().parent().find("p.seq").text().trim();
@@ -193,8 +198,14 @@
 				
 				}
 				
-				else {
+				else if($(this).parent().parent().find("p.status").text() != "승인요청전") {
 					alert("이미 승인요청이 완료되었거나 국세청으로 전송된 문서는 삭제가 불가합니다.");
+					flagReturn = true;
+					return false;
+				}
+				
+				else {
+					alert("다른 직원이 작성한 문서는 관리자가 이외에는 삭제가 불가합니다.");
 					flagReturn = true;
 					return false;
 				}
@@ -463,15 +474,15 @@
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_id tblue">${doc.customer_id}</p></td>
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_comp tblue">${doc.customer_comp}</p></td>
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_name tblue">${doc.customer_name}</p></td>
-										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname tblue">${doc.empname}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname tblue">${doc.empname}<span class="empid" style="display: none;">${doc.empid}</span></p></td>
 										
 										<fmt:parseNumber var="totalprice" value="${doc.totalprice}" integerOnly="true" />
-										<td class="click" style="text-align: left; border-right: solid 1px #e6e6e6;"><p class="my-2 totalprice pl-4 tblue"><fmt:formatNumber value="${totalprice}" type="currency"/></p></td>
+										<td class="click" style="text-align: left; border-right: solid 1px #e6e6e6;"><p class="my-2 totalprice pl-4 tblue"><fmt:formatNumber value="${totalprice}" type="currency"/>&nbsp;<span class="tblue" style="background-color: #ffff99;">[수정]</span></p></td>
 										
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;">
 											<c:choose>
 												<c:when test="${doc.status == 0}"><p class="my-2 status tblue">승인요청전</p></c:when>
-												<c:when test="${doc.status == 1}"><p class="my-2 status tblue">승인완료</p></c:when>
+												<c:when test="${doc.status == 1}"><p class="my-2 status tblue">승인요청완료</p></c:when>
 												<c:otherwise><p class="my-2 status tblue">국세청전송완료</p></c:otherwise>
 											</c:choose>
 										</td>
@@ -484,7 +495,7 @@
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_id">${doc.customer_id}</p></td>
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_comp">${doc.customer_comp}</p></td>
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 customer_name">${doc.customer_name}</p></td>
-										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname">${doc.empname}</p></td>
+										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;"><p class="my-2 empname">${doc.empname}<span class="empid" style="display: none;">${doc.empid}</span></p></td>
 										
 										<fmt:parseNumber var="totalprice" value="${doc.totalprice}" integerOnly="true" />
 										<td class="click" style="text-align: left; border-right: solid 1px #e6e6e6;"><p class="my-2 totalprice pl-4"><fmt:formatNumber value="${totalprice}" type="currency"/></p></td>
@@ -492,7 +503,7 @@
 										<td class="click" style="text-align: center; border-right: solid 1px #e6e6e6;">
 											<c:choose>
 												<c:when test="${doc.status == 0}"><p class="my-2 status">승인요청전</p></c:when>
-												<c:when test="${doc.status == 1}"><p class="my-2 status">승인완료</p></c:when>
+												<c:when test="${doc.status == 1}"><p class="my-2 status">승인요청완료</p></c:when>
 												<c:otherwise><p class="my-2 status">국세청전송완료</p></c:otherwise>
 											</c:choose>
 										</td>

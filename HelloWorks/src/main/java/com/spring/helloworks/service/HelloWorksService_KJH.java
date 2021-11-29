@@ -574,6 +574,85 @@ public class HelloWorksService_KJH implements InterHelloWorksService_KJH {
 		return n*m;
 		
 	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	
+	@Override
+	public List<Map<String, String>> getBilltaxEditList(String thisMonth) {
+		List<Map<String, String>> billtaxEditList = dao.getBilltaxEditList(thisMonth);
+		return billtaxEditList;
+	}
+
+	@Override
+	public List<Map<String, String>> getBillnotaxEditList(String thisMonth) {
+		List<Map<String, String>> billnotaxEditList = dao.getBillnotaxEditList(thisMonth);
+		return billnotaxEditList;
+	}
+
+	@Override
+	public List<Map<String, String>> getBilltaxStatusList(String thisMonth) {
+		List<Map<String, String>> billtaxStatusList = dao.getBilltaxStatusList(thisMonth);
+		return billtaxStatusList;
+	}
+
+	@Override
+	public List<Map<String, String>> getBillnotaxStatusList(String thisMonth) {
+		List<Map<String, String>> billnotaxStatusList = dao.getBillnotaxStatusList(thisMonth);
+		return billnotaxStatusList;
+	}
+
+	@Override
+	public List<Map<String, String>> getTransactionStatusList(String thisMonth) {
+		List<Map<String, String>> transactionStatusList = dao.getTransactionStatusList(thisMonth);
+		return transactionStatusList;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	// 월별 매출 차트
+	@Override
+	public List<Map<String, String>> totalSalesOfMonth() {
+		List<Map<String, String>> totalSalesOfMonth = dao.totalSalesOfMonth();
+		return totalSalesOfMonth;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	// 월별 거래처별 거래건 수
+	@Override
+	public List<Map<String, String>> monthOfCustomerCnt(String month) {
+		List<Map<String, String>> mapList = dao.monthOfCustomerCnt(month);
+		return mapList;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	// 연간 매출 차트
+	@Override
+	public List<Map<String, String>> totalSalesOfYear() {
+		List<Map<String, String>> totalSalesOfYearList = dao.totalSalesOfYear();
+		return totalSalesOfYearList;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 wordcloud
+	@Override
+	public List<String> wordcloudOfCustomer() {
+		List<String> wordcloudOfCustomerList = dao.wordcloudOfCustomer();
+		return wordcloudOfCustomerList;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+	
+	// 거래처 다중 DELETE
+	@Override
+	public int multiDelCustomer(Map<String, String[]> paraMap) {
+		int n = dao.multiDelCustomer(paraMap);
+		return n;
+	}
+
+	
 	
 	
 	

@@ -84,13 +84,13 @@ h1 {
 		</div>
 		
 		<div class="w3-quarter">
-		  <button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		  <button type="button" onclick="location.href='<%= ctxPath %>/chat/multichat.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="far fa-comment" style="font-size: 34pt"></i></button>
 			  <p class="p">채팅</p>
 		</div>
 		
 		<div class="w3-quarter">
-		 <button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		 <button type="button" onclick="location.href='<%= ctxPath %>/account/home.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="fas fa-calculator" style="font-size: 34pt"></i></button>
 			  <p class="p">전자세금계산서</p>
 		</div>
@@ -99,7 +99,7 @@ h1 {
 	
 	<div class="w3-row"><br>
 		<div class="w3-quarter">
-		<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		<button type="button" onclick="location.href='<%= ctxPath %>/schedule.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="far fa-check-square" style="font-size: 34pt"></i></button>
 			  <p class="p">일정</p>
 		</div>

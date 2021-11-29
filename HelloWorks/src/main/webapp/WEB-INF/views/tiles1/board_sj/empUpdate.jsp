@@ -251,7 +251,7 @@
 		   <button type="button"  class="btn" id="empUpdate" style="background-color:#0070C0; margin-left:14px; font-size:21px; width: 130px; height:50px; color:white">
 					<b>저장</b>
 		   </button>
-		   <button type="button"  onclick="location.href='<%= ctxPath %>/index.hello2'" class="btn" id="btn1" style="background-color:white; margin-left:60px; font-size:21px; width: 130px; height:50px; color:#595959; border-color:#e6e6e6">
+		   <button type="button"  onclick="location.href='<%= ctxPath %>/emp/viewEmployee.hello2'" class="btn" id="btn1" style="background-color:white; margin-left:60px; font-size:21px; width: 130px; height:50px; color:#595959; border-color:#e6e6e6">
 					<b>취소</b>
 		   </button>
 	   </div>

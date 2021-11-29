@@ -3,10 +3,10 @@ package com.spring.helloworks.model;
 public class CustomerVO_KJH {
 
 	private String customer_id;
-	private String customer_comp;
-	private String customer_name;
-	private String customer_addr;
-	private String customer_email;
+	private String customer_comp = "";
+	private String customer_name = "";
+	private String customer_addr = "";
+	private String customer_email = "";
 	
 	public CustomerVO_KJH() {}
 	

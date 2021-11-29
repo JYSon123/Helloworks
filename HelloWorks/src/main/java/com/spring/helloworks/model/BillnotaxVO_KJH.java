@@ -18,12 +18,13 @@ public class BillnotaxVO_KJH {
 	private String mycompany_comp;
 	private String mycompany_name;
 	private String mycompany_addr;
+	private String bigo;
 	
 	public BillnotaxVO_KJH() {}
 
 	public BillnotaxVO_KJH(String billnotax_seq, String customer_id, String customer_comp, String customer_name,
 			String customer_addr, String regdate, int totalprice, int status, int edit, String payment, String empid,
-			String empname, String mycompany_id, String mycompany_comp, String mycompany_name, String mycompany_addr) {
+			String empname, String mycompany_id, String mycompany_comp, String mycompany_name, String mycompany_addr, String bigo) {
 		super();
 		this.billnotax_seq = billnotax_seq;
 		this.customer_id = customer_id;
@@ -41,6 +42,7 @@ public class BillnotaxVO_KJH {
 		this.mycompany_comp = mycompany_comp;
 		this.mycompany_name = mycompany_name;
 		this.mycompany_addr = mycompany_addr;
+		this.bigo = bigo;
 	}
 
 	public String getBillnotax_seq() {
@@ -169,6 +171,14 @@ public class BillnotaxVO_KJH {
 
 	public void setMycompany_addr(String mycompany_addr) {
 		this.mycompany_addr = mycompany_addr;
+	}
+
+	public String getBigo() {
+		return bigo;
+	}
+
+	public void setBigo(String bigo) {
+		this.bigo = bigo;
 	}
 	
 	

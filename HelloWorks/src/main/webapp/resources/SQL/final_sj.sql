@@ -261,3 +261,9 @@ update tbl_board set fk_empno = '10'
 where seq = '34';
 
 
+select NOTICEEMAIL
+from tbl_employee;
+
+desc tbl_board;
+
+

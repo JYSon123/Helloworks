@@ -42,9 +42,9 @@
       <span style="color:#0070C0" class="ml-3"><b>전체메뉴</b></span><br><br>
 	  <a href="#메일" onclick="#" class="w3-bar-item w3-button"><i class="far fa-envelope"></i>&emsp;메일</a>
 	  <a href="<%= ctxPath %>/list.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-clipboard"></i>&emsp;게시판</a>
-	  <a href="#채팅" onclick="#" class="w3-bar-item w3-button"><i class="far fa-comment"></i>&emsp;채팅</a>
-	  <a href="#전자세금" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-calculator"></i>&emsp;전자세금계산서</a>
-	  <a href="#일정" onclick="#" class="w3-bar-item w3-button"><i class="far fa-check-square"></i>&emsp;일정</a>
+	  <a href="<%= ctxPath  %>/chat/multichat.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-comment"></i>&emsp;채팅</a>
+	  <a href="<%= ctxPath %>/account/home.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-calculator"></i>&emsp;전자세금계산서</a>
+	  <a href="<%= ctxPath %>/schedule.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-check-square"></i>&emsp;일정</a>
 	  <a href="#주소록" onclick="#" class="w3-bar-item w3-button"><i class="far fa-address-book"></i>&emsp;주소록</a>
 	  <a href="#예약" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-chart-pie"></i>&emsp;예약</a>
 	  <a href="<%= ctxPath %>/emp/viewAttend.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-users"></i>&emsp;인사</a>
@@ -94,7 +94,7 @@
 	     		 <tr>
 	     			<td></td><td></td>
 	     		 	<td>
-	     		 		<button type="button" class="btn btn-light" id="btnMy" style=" background-color:#f5f5f5; margin-top:19px; margin-left:10px; border-radius: 50px; font-size:16px; width: 110px; height:53px">
+	     		 		<button type="button" onclick="location.href='<%= ctxPath %>/logout.hello2'" class="btn btn-light btn-sm" id="btnMy" style=" background-color:#f5f5f5; margin-top:19px; margin-left:0px; border-radius: 50px; font-size:15px; width: 85px; height:53px">
 	           				<b>로그아웃</b>
 	           			</button>
 	           		</td>
