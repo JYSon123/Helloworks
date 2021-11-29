@@ -735,6 +735,30 @@
 	
 	// 일정 수정 및 삭제
 	function changeSch(i){
+		
+		// 유효성 검사하기
+		var boolFlag = false;
+		
+		$("input.c_requiredInfo").each(function(index,item){
+			 var data = $(this).val().trim();
+			 if(data == "") {
+				alert("* 표시된 필수입력사항을 모두 입력해주세요.");
+				boolFlag = true;
+				return false;
+			 }
+		});
+ 		
+		if( ($("#c_startTime").val()=="" || $("#c_endTime").val()=="") && !$("input:checkbox[name='allDay']").is(":checked") ) {
+			alert("시간은 필수입력사항입니다.");
+			boolFlag = true;
+			return false;
+		}
+		
+		if(boolFlag) {
+			return;
+		}
+		
+		
 		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
 			$("input#changeSchOption").val("1"); 
 		}
@@ -1026,20 +1050,20 @@
 										<td style="width: 80%;">
 											<input type="hidden" id="c_fk_cno" name="fk_cno" class="form-control" value="" />
 											<input type="hidden" id="c_sno" name="sno" class="form-control" value="" />
-											<input type="text" id="c_title" name="title" class="form-control" value="" />
+											<input type="text" id="c_title" name="title" class="c_requiredInfo form-control" value="" />
 										</td>
 									</tr>
 									<tr>
 										<td style="width: 20%;" id="title">시작&nbsp;<span class="star">*</span></td>
 										<td style="width: 99%; margin-left: 1px;" class="row">
-											<input type="date" id="c_startDay" name="startDay" class="form-control col-7" value="" />
+											<input type="date" id="c_startDay" name="startDay" class="c_requiredInfo form-control col-7" value="" />
 											<input type="time" id="c_startTime" name="startTime" class="form-control col-5" value="" />
 										</td>
 									</tr>
 									<tr>
 										<td style="width: 20%;" id="title">종료&nbsp;<span class="star">*</span></td>
 										<td style="width: 99%; margin-left: 1px;" class="row">
-											<input type="date" id="c_endDay" name="endDay" class="form-control col-7" value="" />
+											<input type="date" id="c_endDay" name="endDay" class="c_requiredInfo form-control col-7" value="" />
 											<input type="time" id="c_endTime" name="endTime" class="form-control col-5" value="" />
 										</td>
 									</tr>
