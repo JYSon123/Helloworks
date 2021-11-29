@@ -108,10 +108,11 @@
        <result property="location"      column="location"    javaType="String" />
        <result property="status"      	column="status"      javaType="String" />
        <result property="fk_cno"      	column="fk_cno"      javaType="String" />
+       <result property="notice"      	column="notice"      javaType="String" />
     </resultMap>
 	<!-- 일정검사 -->
 	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
 		from tbl_calendar C JOIN tbl_schedule S
 		ON C.CALNO = S.FK_CALNO
 		where SHAREEMP like '%'|| #{empid} ||'%'
@@ -129,11 +130,11 @@
 	
 	<!-- 페이징처리한 일정 -->
 	<select id="searchPagingSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
 		from 
 		(
 			select row_number() over (order by sno desc) AS rno,
-	               title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
+	               title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
 			from tbl_calendar C JOIN tbl_schedule S
 			ON C.CALNO = S.FK_CALNO
 			where SHAREEMP like '%'|| #{empid} ||'%'
@@ -153,7 +154,7 @@
 	
 	<!-- 선택된 카테고리에 해당하는 일정만 보여주기 -->
 	<select id="showChkCalList" resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
 		from tbl_calendar C JOIN tbl_schedule S
 		ON C.CALNO = S.FK_CALNO
 		where SHAREEMP like '%'|| #{empid} ||'%'
