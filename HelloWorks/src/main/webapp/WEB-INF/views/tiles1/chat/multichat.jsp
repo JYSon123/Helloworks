@@ -299,7 +299,8 @@
 					}
 					
 // 					html += "<div style='background-color:#fff; width: 100%; padding: 2px 0;' >"+$(local).text()+"&nbsp;<img src='/helloworks/resources/images/weather/"+icon+".png' />&nbsp;"+ $(local).attr("desc") +"&nbsp;"+ $(local).attr("ta")+"℃</div>";
-					html += "<div style='background-color:#fff; height: 60px; width: 100%; padding: 5px 0;' ><div style='background-color:#fff; width: 60%; margin: 0 auto;'><img src='/helloworks/resources/images/weather/"+icon+".png' style='width: 30%; float: left;' /><small style='font-weight: bold; float: right; margin-right: 10px;'>&lt;"+$(local).text()+"&gt;</small><strong style='float: right; margin-right: 10px;'>"+ $(local).attr("desc") +"&nbsp;&nbsp;"+ $(local).attr("ta")+"℃</strong></div></div>"
+					html += "<div style='background-color:#fff; height: 60px; width: 100%; padding: 5px 0;' ><div style='background-color:#fff; width: 65%; margin: 0 auto;'><img src='/helloworks/resources/images/weather/"+icon+".png' style='margin-left: 10px; width: 25%; float: left;' /><small style='font-weight: bold; float: right; margin-right: 10px;'>&lt;"+$(local).text()+"&gt;</small><strong style='float: right; margin-right: 10px;'>"+ $(local).attr("desc") +"&nbsp;&nbsp;"+ $(local).attr("ta")+"℃</strong></div></div>"
+					console.log(i+". "+icon +$(local).text()+$(local).attr("desc") + $(local).attr("ta"));
 					
 					html += "</div>";
 				}// end of for--------------------------
