@@ -184,7 +184,7 @@ commit;
 
 
 
-
+------------XXX 못함 --------------
 [휴가, 연차 테이블] tbl_break
 
 create table tbl_break
