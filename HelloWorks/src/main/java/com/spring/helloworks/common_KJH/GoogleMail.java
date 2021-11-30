@@ -1,10 +1,16 @@
 package com.spring.helloworks.common_KJH;
 
+import java.io.File;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.*;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class GoogleMail {
 
 	   public void sendmail(String recipient, String certificationCode) throws Exception {
@@ -68,7 +74,7 @@ public class GoogleMail {
 	          
 	   }// end of sendmail(String recipient, String certificationCode)-----------------   
 	   
-	   public void sendmail_customer(String recipient, String name, String emailContents) throws Exception {
+	public void sendmail_customer(String recipient, String name, String emailContents) throws Exception {
            
 		   	// recipient : 받는 사람 이메일
 		    // certificationCode : 인증코드
@@ -127,6 +133,65 @@ public class GoogleMail {
 	          // 메일 발송하기
 	          Transport.send(msg);
 	          
-	       }// end of sendmail_OrderFinish(String recipient, String name, String emailContents)---   
-
+	}// end of sendmail_OrderFinish(String recipient, String name, String emailContents)---   
+	
+	public void sendmail_customer_withAttach(String recipient, String name, String emailContents, File file) throws Exception {
+		
+		Properties prop = new Properties(); 
+		
+		prop.put("mail.smtp.user", "helloworks3@gmail.com");
+		
+		prop.put("mail.smtp.host", "smtp.gmail.com");
+		
+		prop.put("mail.smtp.port", "465");
+        prop.put("mail.smtp.starttls.enable", "true");
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.debug", "true");
+        prop.put("mail.smtp.socketFactory.port", "465");
+        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        prop.put("mail.smtp.socketFactory.fallback", "false");
+        
+        prop.put("mail.smtp.ssl.enable", "true");
+        prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        
+        Authenticator smtpAuth = new MySMTPAuthenticator();
+        Session ses = Session.getInstance(prop, smtpAuth);
+        
+        ses.setDebug(true);
+        
+        MimeMessage msg = new MimeMessage(ses);
+        
+        String subject = "helloworks에서 소중한 가족 " + name + "님께 승인요청 드립니다.";
+        msg.setSubject(subject);
+        
+        String sender = "helloworks3@gmail.com";
+        Address fromAddr = new InternetAddress(sender);
+        msg.setFrom(fromAddr);
+        
+        Address toAddr = new InternetAddress(recipient);
+        msg.addRecipient(Message.RecipientType.TO, toAddr);
+        
+        MimeBodyPart attach = new MimeBodyPart();
+        
+        FileDataSource fds = new FileDataSource(file.getAbsolutePath());
+        
+        attach.setDataHandler(new DataHandler(fds));
+        
+        attach.setFileName(fds.getName());
+        
+        MimeBodyPart contents = new MimeBodyPart();
+        
+        contents.setText(emailContents);
+        
+        Multipart mp = new MimeMultipart();
+        
+        mp.addBodyPart(attach);
+        mp.addBodyPart(contents);
+        
+        msg.setContent(mp);
+        
+        Transport.send(msg);
+		
+	}
+	
 }

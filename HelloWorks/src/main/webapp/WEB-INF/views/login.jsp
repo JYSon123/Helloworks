@@ -53,7 +53,11 @@
 		if(saveEmpid != null) {
 			$("input#empid").val(saveEmpid);
 			$("input:checkbox[id=saveid]").prop('checked', true);
+			$("input#emppw").focus();
 		}
+		
+		else
+			$("input#empid").focus();
 		
 		/////////////////////////////////////////////////////////////////////////////////
 		

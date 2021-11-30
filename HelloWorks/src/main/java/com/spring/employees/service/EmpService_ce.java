@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.employees.model.AttendanceVO_ce;
 import com.spring.employees.model.DepartmentVO_ce;
+import com.spring.employees.model.EmpVO_LCE;
 import com.spring.employees.model.EmployeeVO_ce;
 import com.spring.employees.model.InterEmpDAO_ce;
 import com.spring.helloworks.model.EmpVO_KJH;
@@ -318,6 +319,20 @@ public class EmpService_ce implements InterEmpService_ce {
 		List<AttendanceVO_ce> attendanceList = dao.excelattendancevo(fk_empno);
 		
 		return attendanceList;
+	}
+
+	// 사원정보 건수 조회
+	@Override
+	public int getTotalCount_ce(Map<String, Object> paraMap) {
+		int totalCount = dao.getTotalCount_ce(paraMap);
+		return totalCount;
+	}
+
+	// 검색, 페이징처리한 사원정보 조회 
+	@Override
+	public List<EmpVO_LCE> empListSearchWithPaging_ce(Map<String, Object> paraMap) {
+		List<EmpVO_LCE> empList = dao.empListSearchWithPaging_ce(paraMap);
+		return empList;
 	}
 	
 	

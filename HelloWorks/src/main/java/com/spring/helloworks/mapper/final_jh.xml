@@ -10,11 +10,11 @@
 	<select id="getLoginEmp" parameterType="HashMap" resultType="com.spring.helloworks.model.EmpVO_KJH">
 		
 		select empno, empname, empid, emppw, email, ranking, fk_deptnum
-	         , empstatus, empsalary, hiredate, otpkey, lastlogingap
+	         , empstatus, empsalary, hiredate, otpkey, lastlogingap, noticeemail
 		from
 		(
 		    select empno, empname, empid, emppw, email, ranking, fk_deptnum
-		         , empstatus, empsalary, to_char(hiredate, 'yyyy-mm-dd') AS hiredate, otpkey
+		         , empstatus, empsalary, to_char(hiredate, 'yyyy-mm-dd') AS hiredate, otpkey, noticeemail
 		    from tbl_employee
 		    where empstatus != 0 and empid = #{empid} and emppw = #{emppw}
 		) E
@@ -144,6 +144,314 @@
 		delete from tbl_customer
 		where customer_id = #{customer_id}
 		
+	</delete>
+	
+	<!-- 특정 거래처 존재하는지 확인 -->
+	<select id="verifyId" parameterType="String" resultType="int">
+		
+		select count(customer_id)
+		from tbl_customer
+		where customer_id = #{compid}
+		
+	</select>
+	
+	<!-- 거래처 목록 SELECT -->
+	<select id="getCustomerListNoPaging" resultType="com.spring.helloworks.model.CustomerVO_KJH">
+		select customer_id, nvl(customer_comp, ' ') AS customer_comp, nvl(customer_name, ' ') AS customer_name, nvl(customer_addr, ' ') AS customer_addr
+		from tbl_customer
+		order by customer_id
+	</select>
+	
+	<!-- 세금계산서 시퀀스 채번 -->
+	<select id="getBillTaxSeq" resultType="String">
+		select billtax_seq.nextval
+		from dual
+	</select>
+	
+	<!-- 세금계산서 INSERT -->
+	<insert id="insertBillTax" parameterType="com.spring.helloworks.model.BilltaxVO_KJH">
+		insert into tbl_billtax(billtax_seq, customer_id, customer_comp, customer_name, customer_addr, regdate, totalprice, taxprice, payment, empid, empname, mycompany_id, mycompany_comp, mycompany_name, mycompany_addr, edit, bigo)
+		values(#{billtax_seq}, #{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{regdate}, #{totalprice}, #{taxprice}, #{payment}, #{empid}, #{empname}, #{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr}, #{edit}, #{bigo})
+	</insert>
+	
+	<!-- 세금계산서상세 INSERT -->
+	<insert id="insertBillTaxDetail" parameterType="com.spring.helloworks.model.BilltaxDetailVO_KJH">
+		insert into tbl_billtax_detail(billtax_detail_seq, fk_billtax_seq, selldate, sellprod, sellamount, selloneprice, selltotalprice, selltax)
+		values(billtax_detail_seq.nextval, #{fk_billtax_seq}, #{selldate}, #{sellprod}, #{sellamount}, #{selloneprice}, #{selltotalprice}, #{selltax})
+	</insert>
+	
+	<!-- 계산서 시퀀스 채번 -->
+	<select id="getBillNoTaxSeq" resultType="String">
+		select billnotax_seq.nextval
+		from dual
+	</select>
+	
+	<!-- 계산서 INSERT -->
+	<insert id="insertBillNoTax" parameterType="com.spring.helloworks.model.BillnotaxVO_KJH">
+		insert into tbl_billnotax(billnotax_seq, customer_id, customer_comp, customer_name, customer_addr, regdate, totalprice, payment, empid, empname, mycompany_id, mycompany_comp, mycompany_name, mycompany_addr, edit, bigo)
+		values(#{billnotax_seq}, #{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{regdate}, #{totalprice}, #{payment}, #{empid}, #{empname}, #{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr}, #{edit}, #{bigo})
+	</insert>
+	
+	<!-- 계산서상세 INSERT -->
+	<insert id="insertBillNoTaxDetail" parameterType="com.spring.helloworks.model.BillnotaxDetailVO_KJH">
+		insert into tbl_billnotax_detail(billnotax_detail_seq, fk_billnotax_seq, selldate, sellprod, sellamount, selloneprice, selltotalprice)
+		values(billnotax_detail_seq.nextval, #{fk_billnotax_seq}, #{selldate}, #{sellprod}, #{sellamount}, #{selloneprice}, #{selltotalprice})
+	</insert>
+	
+	<!-- 거래명세서 시퀀스 채번 -->
+	<select id="getTransactionSeq" resultType="String">
+		select transaction_seq.nextval
+		from dual	
+	</select>
+	
+	<!-- 거래명세서 INSERT -->
+	<insert id="insertTransaction" parameterType="com.spring.helloworks.model.TransactionVO_KJH">
+		insert into tbl_transaction(transaction_seq, customer_id, customer_comp, customer_name, customer_addr, regdate, totalprice, billtax_yn, empid, empname, mycompany_id, mycompany_comp, mycompany_name, mycompany_addr)
+		values(#{transaction_seq}, #{customer_id}, #{customer_comp}, #{customer_name}, #{customer_addr}, #{regdate}, #{totalprice}, #{billtax_yn}, #{empid}, #{empname}, #{mycompany_id}, #{mycompany_comp}, #{mycompany_name}, #{mycompany_addr})
+	</insert>
+	
+	<!-- 거래명세서상세 INSERT -->
+	<insert id="insertTransactionDetail" parameterType="com.spring.helloworks.model.TransactionDetailVO_KJH">
+		insert into tbl_transaction_detail(transaction_detail_seq, fk_transaction_seq, selldate, sellprod, sellamount, selloneprice, selltotalprice)
+		values(transaction_detail_seq.nextval, #{fk_transaction_seq}, #{selldate}, #{sellprod}, #{sellamount}, #{selloneprice}, #{selltotalprice})
+	</insert>
+	
+	<!-- 총 작성문서 수 알아오기 -->
+	<select id="getTotalDocument" parameterType="HashMap" resultType="int">
+		select count(*)
+		from ${tabName}
+		where 1 = 1
+		<if test="startDate neq null and lastDate neq null">
+			and to_char(regdate, 'yyyymmdd') between #{startDate} and #{lastDate}
+		</if>
+		<if test="searchType != '' and searchWord != ''">
+			and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+		</if> 
+	</select>
+	
+	<resultMap type="HashMap" id="docMap">
+		<result property="seq" column="seq" javaType="String"/>
+		<result property="regdate" column="regdate" javaType="String"/>
+		<result property="customer_id" column="customer_id" javaType="String"/>
+		<result property="customer_comp" column="customer_comp" javaType="String"/>
+		<result property="customer_name" column="customer_name" javaType="String"/>
+		<result property="empname" column="empname" javaType="String"/>
+		<result property="empid" column="empid" javaType="String"/>
+		<result property="totalprice" column="totalprice" javaType="String"/>
+		<result property="status" column="status" javaType="String"/>
+		<result property="edit" column="edit" javaType="String"/>
+	</resultMap>
+	
+	<!-- 작성문서 SELECT -->
+	<select id="getDocumentList" parameterType="HashMap" resultMap="docMap">
+		select seq, regdate, customer_id, customer_comp, customer_name, empname, empid, totalprice, status, edit
+		from
+		(
+		    select row_number() over(order by ${seq} desc) AS rno
+		         , ${seq} AS seq, to_char(regdate, 'yyyy-mm-dd') AS regdate
+		         , customer_id, customer_comp, customer_name, empname, empid, 
+		         <if test="tabName eq 'tbl_billtax'">(totalprice+taxprice) AS totalprice</if>
+		         <if test="tabName neq 'tbl_billtax'">totalprice</if>		         
+		         , status, edit
+		    from ${tabName}
+		    where 1 = 1
+		    <if test="startDate neq null and lastDate neq null">
+		          and to_char(regdate, 'yyyymmdd') between #{startDate} and #{lastDate}
+		    </if>
+			<if test="searchType != '' and searchWord != ''">     
+		          and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+          	</if>
+		) V
+		where rno between #{startRno} and #{endRno}
+		order by rno
+	</select>
+	
+	<!-- 작성문서 상태 UPDATE -->
+	<update id="updateStatus" parameterType="HashMap">
+		update ${tabName} set status = #{status}
+		where ${colName} = #{seq}
+	</update>
+	
+	<!-- 메일 발송을 위한 거래처 이메일 SELECT -->
+	<select id="getEmail" parameterType="HashMap" resultType="com.spring.helloworks.model.CustomerVO_KJH">
+		select nvl(C.customer_comp, '') AS customer_comp, nvl(C.customer_name, '') AS customer_name, nvl(customer_email, 'empty') AS customer_email
+		from ${tabName} A JOIN tbl_customer C
+		ON A.customer_id = C.customer_id
+		where ${colName}  = #{seq}
+	</select>
+	
+	<!--=======================================================-->
+	
+	<select id="getBilltaxDoc" parameterType="HashMap" resultType="com.spring.helloworks.model.BilltaxVO_KJH">
+		select * from tbl_billtax where billtax_seq = #{seq}
+	</select>
+	
+	<select id="getDetailBilltaxList" parameterType="HashMap" resultType="com.spring.helloworks.model.BilltaxDetailVO_KJH">
+		select * from tbl_billtax_detail where fk_billtax_seq = #{seq}
+	</select>
+	
+	<select id="getBillnotaxDoc" parameterType="HashMap" resultType="com.spring.helloworks.model.BillnotaxVO_KJH">
+		select * from tbl_billnotax where billnotax_seq = #{seq}
+	</select>
+	
+	<select id="getDetailBillnotaxList" parameterType="HashMap" resultType="com.spring.helloworks.model.BillnotaxDetailVO_KJH">
+		select * from tbl_billnotax_detail where fk_billnotax_seq = #{seq}
+	</select>
+	
+	<select id="getTransactionDoc" parameterType="HashMap" resultType="com.spring.helloworks.model.TransactionVO_KJH">
+		select * from tbl_transaction where transaction_seq = #{seq}
+	</select>
+	
+	<select id="getDetailTransactionList" parameterType="HashMap" resultType="com.spring.helloworks.model.TransactionDetailVO_KJH">
+		select * from tbl_transaction_detail where fk_transaction_seq = #{seq}
+	</select>	
+	
+	<!--=======================================================-->
+	
+	<!-- 문서 DELETE -->
+	<delete id="deleteDoc" parameterType="HashMap">
+		delete from ${tabName} where ${colName} = #{seq}
+	</delete>
+	
+	<!-- 매월 10일 오후12시에 문서 국세청으로 전송 -->
+	<update id="updateStatusAlltax">
+		update tbl_billtax set status = 2
+		where status = 1
+	</update>
+	<update id="updateStatusAllnotax">
+		update tbl_billnotax set status = 2
+		where status = 1
+	</update>
+	
+	<!--========================================================-->
+	
+	<resultMap type="HashMap" id="editMap">
+		<result property="cnt" column="cnt" javaType="String"/>
+		<result property="edit" column="edit" javaType="String"/>
+	</resultMap>
+	
+	<resultMap type="HashMap" id="stateMap">
+		<result property="cnt" column="cnt" javaType="String"/>
+		<result property="state" column="status" javaType="String"/>
+	</resultMap>
+	
+	<select id="getBilltaxEditList" resultMap="editMap" parameterType="String">
+		select edit, count(*) AS cnt
+		from tbl_billtax
+		where to_char(regdate, 'yyyy-mm') = #{thisMonth}
+		group by edit
+		order by edit
+	</select>
+	
+	<select id="getBillnotaxEditList" resultMap="editMap" parameterType="String">
+		select edit, count(*) AS cnt
+		from tbl_billnotax
+		where to_char(regdate, 'yyyy-mm') = #{thisMonth}
+		group by edit
+		order by edit	
+	</select>
+	
+	<select id="getBilltaxStatusList" resultMap="stateMap" parameterType="String">
+		select status, count(*) AS cnt
+		from tbl_billtax
+		where to_char(regdate, 'yyyy-mm') = #{thisMonth}
+		group by status
+		order by status
+	</select>
+	
+	<select id="getBillnotaxStatusList" resultMap="stateMap" parameterType="String">
+		select status, count(*) AS cnt
+		from tbl_billnotax
+		where to_char(regdate, 'yyyy-mm') = #{thisMonth}
+		group by status
+		order by status
+	</select>
+	
+	<select id="getTransactionStatusList" resultMap="stateMap" parameterType="String">
+		select status, count(*) AS cnt
+		from tbl_transaction
+		where to_char(regdate, 'yyyy-mm') = #{thisMonth}
+		group by status
+		order by status
+	</select>
+	
+	<!-- 월별 매출 차트 -->
+	<resultMap type="HashMap" id="totalSalesOfMonthMap">
+		<result property="sales" column="sales" javaType="String"/>
+		<result property="month" column="month" javaType="String"/>
+	</resultMap>
+	
+	<select id="totalSalesOfMonth" resultMap="totalSalesOfMonthMap">
+		select sum(totalprice) AS sales, substr(regdate, 6) AS month
+		from
+		(
+		select (totalprice+taxprice) AS totalprice, to_char(regdate, 'yyyy-mm') AS regdate
+		from tbl_billtax
+		UNION ALL
+		select totalprice, to_char(regdate, 'yyyy-mm') AS regdate
+		from tbl_billnotax
+		)
+		where substr(regdate, 1, 4) = to_char(sysdate, 'yyyy')
+		group by regdate
+		order by month
+	</select>
+	
+	<!-- 월별 거래처별 거래건 수 -->
+	<resultMap type="HashMap" id="monthOfCustomerCntMap">
+		<result property="customer" column="customer" javaType="String"/>
+		<result property="cnt" column="cnt" javaType="String"/>
+	</resultMap>
+	
+	<select id="monthOfCustomerCnt" resultMap="monthOfCustomerCntMap">
+		select nvl(customer_comp, customer_name) AS customer, count(*) AS cnt
+		from tbl_billtax
+		where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy') || '-' || #{month}
+		group by nvl(customer_comp, customer_name)
+		UNION ALL
+		select nvl(customer_comp, customer_name) AS customer, count(*) AS cnt
+		from tbl_billnotax
+		where to_char(regdate, 'yyyy-mm') = to_char(sysdate, 'yyyy') || '-' || #{month}
+		group by nvl(customer_comp, customer_name)
+	</select>
+	
+	<!-- 연간 매출 차트 -->
+	<resultMap type="HashMap" id="totalSalesOfYearMap">
+		<result property="sales" column="sales" javaType="String"/>
+		<result property="year" column="year" javaType="String"/>
+	</resultMap>
+	
+	<select id="totalSalesOfYear" resultMap="totalSalesOfYearMap">
+		select sum(totalprice) AS sales, year
+		from
+		(
+		select (totalprice+taxprice) AS totalprice, to_char(regdate, 'yyyy') AS year
+		from tbl_billtax
+		where to_char(regdate, 'yyyy') between to_char(sysdate - to_yminterval('05-00'), 'yyyy') and to_char(sysdate, 'yyyy')
+		UNION ALL
+		select totalprice, to_char(regdate, 'yyyy') AS year
+		from tbl_billnotax
+		where to_char(regdate, 'yyyy') between to_char(sysdate - to_yminterval('05-00'), 'yyyy') and to_char(sysdate, 'yyyy')
+		)
+		group by year
+		order by year
+	</select>
+	
+	<!-- 거래처 wordcloud -->
+	<select id="wordcloudOfCustomer" resultType="String">
+		select nvl(customer_comp, customer_name) AS customer
+		from tbl_billtax
+		UNION ALL
+		select nvl(customer_comp, customer_name) AS customer
+		from tbl_billnotax
+	</select>
+	
+	<!-- 거래처 다중 DELETE -->
+	<delete id="multiDelCustomer" parameterType="HashMap">
+		delete from tbl_customer
+		where customer_id IN
+		<foreach collection="idArr" index="i" open="(" separator="," close=")">
+			'${idArr[i]}'
+		</foreach>
 	</delete>
 	
 </mapper>

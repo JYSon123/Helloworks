@@ -26,6 +26,7 @@
 		select calno, calname, color, fk_cno, shareemp
 		from tbl_calendar
 		where shareemp like '%'|| #{empid} ||'%'
+		order by fk_cno, calno desc
 	</select>
 	
 	
@@ -53,6 +54,9 @@
 			<if test="location != ''">
 				, location
 			</if>
+			<if test="notice != ''">
+				, notice
+			</if>
 		)
 		values (snoSeq.nextval, #{fk_calno}, #{title}, #{startDate}, #{endDate}, 0
 			<if test="content != ''">
@@ -60,6 +64,9 @@
 			</if>
 			<if test="location != ''">
 				, #{location}
+			</if>
+			<if test="notice != ''">
+				, #{notice}
 			</if>
 		)
 	</insert>
@@ -100,10 +107,12 @@
        <result property="content"      	column="content"     javaType="String" />
        <result property="location"      column="location"    javaType="String" />
        <result property="status"      	column="status"      javaType="String" />
+       <result property="fk_cno"      	column="fk_cno"      javaType="String" />
+       <result property="notice"      	column="notice"      javaType="String" />
     </resultMap>
 	<!-- 일정검사 -->
 	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
-		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
 		from tbl_calendar C JOIN tbl_schedule S
 		ON C.CALNO = S.FK_CALNO
 		where SHAREEMP like '%'|| #{empid} ||'%'
@@ -114,9 +123,64 @@
 		</if>
 		
 		<if test="searchType != 'term'">
-			and ${searchType} like '%'|| #{searchWord} ||'%'
+			and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%'
 		</if>
-		
+		order by enddate desc
+	</select>
+	
+	<!-- 페이징처리한 일정 -->
+	<select id="searchPagingSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
+		from 
+		(
+			select row_number() over (order by sno desc) AS rno,
+	               title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
+			from tbl_calendar C JOIN tbl_schedule S
+			ON C.CALNO = S.FK_CALNO
+			where SHAREEMP like '%'|| #{empid} ||'%'
+			
+			<if test="searchType == 'term'">
+				and (to_date(substr(startDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate}
+				or to_date(substr(endDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate})
+			</if>
+			
+			<if test="searchType != 'term'">
+				and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%'
+			</if>
+			order by enddate desc
+		)
+		where rno between #{startRno} and #{endRno}
+	</select>
+	
+	<!-- 선택된 카테고리에 해당하는 일정만 보여주기 -->
+	<select id="showChkCalList" resultMap="searchSchduleMap"  parameterType="HashMap">
+		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+		<if test="calNoArr != null">
+	    	and calNo in 
+	    	<foreach collection="calNoArr" index="i" open="(" separator="," close=")">
+	    		'${calNoArr[i]}'
+	    	</foreach>
+	    </if>
+		order by enddate desc
+	</select>
+	
+	
+	<!-- 검색결과에 대한 총 일정 건수 -->
+	<select id="getTotalCount" parameterType="HashMap" resultType="int">
+		select count(*)
+		from tbl_calendar C JOIN tbl_schedule S
+		ON C.CALNO = S.FK_CALNO
+		where SHAREEMP like '%'|| #{empid} ||'%'
+		<if test="searchWord != '' ">
+			and lower(${searchType}) like '%'|| lower(#{searchWord}) ||'%'
+		</if> 
+		<if test="searchType == 'term'">
+			and (to_date(substr(startDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate}
+			or to_date(substr(endDate,0,10),'yyyy-mm-dd') between #{startDate} and #{endDate})
+		</if>
 	</select>
 	
 	<!-- 자동완성 -->	
@@ -130,7 +194,7 @@
 	
 	<!-- 일정 수정하기 -->
 	<update id="updateSchedule" parameterType="HashMap">
-		update tbl_schedule set title=#{title}, location=#{location}, content=#{content}, status=#{status}, startDate=#{startDate}, endDate=#{endDate}
+		update tbl_schedule set title=#{title}, location=#{location}, content=#{content}, status=#{status}, startDate=#{startDate}, endDate=#{endDate}, notice= #{notice}
 		where sno = #{sno}
 	</update>
 	
@@ -140,6 +204,59 @@
 		where sno = #{sno}
 	</delete>
 	
+	<!-- 대상인원에 해당하는 직원 찾기 -->
+	<resultMap type="HashMap" id="shareEmpMap">
+       <result property="empname"   column="empname"       javaType="String" />
+       <result property="empid"		column="empid"   javaType="String" />
+       <result property="deptname"  column="deptname"     javaType="String" />
+    </resultMap>
+	<select id="searchShareEmp" resultMap="shareEmpMap" parameterType="String">
+		select empname, empid, deptname
+		from tbl_employee E JOIN tbl_department D
+		on E.fk_deptnum = D.deptnum
+		where empname like '%'|| #{employee}||'%'
+	</select>
+	
+	<!-- 스프링스케줄러로 알림메일 보내기 -->
+	<resultMap type="HashMap" id="emailSchMap">
+       <result property="title"   	column="title"      javaType="String" />
+       <result property="content"	column="content"   	javaType="String" />
+       <result property="location"  column="location"   javaType="String" />
+       <result property="startdate" column="startdate"  javaType="String" />
+       <result property="enddate"  	column="enddate"    javaType="String" />
+       <result property="shareemp"  column="shareemp"   javaType="String" />
+    </resultMap>
+	<select id="getEmailSchList" resultMap="emailSchMap">
+		select title, content, nvl(location,' ') as location, startdate, enddate, shareemp
+		from tbl_schedule S JOIN tbl_calendar C
+		ON S.FK_CALNO = c.CALNO
+		where notice like '%' || 'email' and substr(startdate,1,10) = to_char(sysdate+1, 'yyyy-mm-dd')
+	</select>
+	
+	<!-- 공유대상에 포함된 직원의 이메일 알아오기 -->
+	<select id="getShareEmpEmail" parameterType="HashMap" resultType="com.spring.helloworks.model.EmpVO_HJE" >
+		select nvl(noticeemail, 'empty') as noticeemail
+		from tbl_employee
+		where empid in 
+		<foreach collection="shareempArr" index="i" open="(" separator="," close=")">
+			'${shareempArr[i]}'
+		</foreach>
+	</select>
+	
+	<!-- 캘린더명 중복체크하기 -->
+	<select id="calnameDuplicateCheck" parameterType="HashMap" resultType="int">
+		select count(*)
+		from tbl_calendar
+		where calname= #{calname} and shareemp like '%'|| #{empid} || '%'
+	</select>
+	
+	<!-- 채팅에 접속한 직원의 부서명 구하기 -->
+	<select id="getDeptName" parameterType="String" resultType="String">
+		select deptname
+		from tbl_employee E JOIN tbl_department D
+		on E.fk_deptnum = D.deptnum
+		where empid = #{empid}
+	</select>
 	
 	
 	
