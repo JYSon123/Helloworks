@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.spring.helloworks.common_KJH.FileManager;
 import com.spring.helloworks.model.EmpVO_KJH;
 import com.spring.helloworks.model.InterMailDAO_JDH;
 import com.spring.helloworks.model.MailVO_JDH;
-import com.spring.helloworks.util.FileManager;
+
 
 @Service
 public class MailService_JDH implements InterMailService_JDH {

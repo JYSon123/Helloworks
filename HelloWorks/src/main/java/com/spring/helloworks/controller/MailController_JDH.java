@@ -19,9 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.spring.helloworks.common_KJH.FileManager;
 import com.spring.helloworks.model.EmpVO_KJH;
 import com.spring.helloworks.model.MailVO_JDH;
-import com.spring.helloworks.util.FileManager;
+
 import com.spring.helloworks.util.MyUtil;
 import com.spring.mail.service.InterMailService_JDH;
 
