@@ -535,3 +535,11 @@ from tbl_billtax
 UNION
 select nvl(customer_comp, customer_name) AS customer
 from tbl_billnotax
+
+select * from tbl_employee;
+
+update tbl_employee set ranking = 3, fk_deptnum = '20' where empid = 'account';
+commit;
+
+update tbl_employee set fk_deptnum = '00' where empid = 'kimzhee94';
+commit;

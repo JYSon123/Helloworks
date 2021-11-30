@@ -334,6 +334,8 @@
     		<div class="text-center mx-auto px-auto" style="width: 80%;">
     			<p>현재 등록된 거래처가 존재하지 않습니다.<br><br>신규 거래처를 등록하세요.</p>
     			<button type="button" class="btn btn-success" onclick="location.href='<%=request.getContextPath()%>/account/registerCustomer.hello2'">거래처 등록</button>    		
+    			<button type="button" class="btn btn-info" id="btn_customerRegModal" data-toggle="modal" data-target="#customerRegModal">거래처등록(엑셀)</button>
+    			<button type="button" class="btn btn-warning" onclick="formPopup();">엑셀양식다운</button>
     		</div>
     		
     	</c:if>
@@ -446,15 +448,11 @@
 								<h4 class="modal-title mx-auto" id="customer_comp"></h4>
 								<h6 class="modal-title mx-auto" id="customer_id"></h6>
 								
-								<hr>
-								
-						      	<form name="customer_action">
-						      		<input type="hidden" name="customer_id"/>
-						      		<input type="hidden" name="customer_email"/>      		
-						      		<button type="button" class="btn btn-sm btn-success update mx-1" onclick="goUpdate()">수정</button>
-						      		<button type="button" class="btn btn-sm btn-danger delete mx-1" onclick="goDelete()">삭제</button>
-						      		<button type="button" class="btn btn-sm btn-primary sendemail mx-1" onclick="goEmail()">메일전송</button>
-								</form>
+								<hr>								
+						      	     		
+					      		<button type="button" class="btn btn-sm btn-success update mx-1" onclick="goUpdate()">수정</button>
+					      		<button type="button" class="btn btn-sm btn-danger delete mx-1" onclick="goDelete()">삭제</button>
+					      		<button type="button" class="btn btn-sm btn-primary sendemail mx-1" onclick="goEmail()">메일전송</button>								
 														
 							</div>
 					     				      
@@ -465,6 +463,11 @@
 				</div>
 				
 				<%--=========================================--%>
+				
+				<form name="customer_action">
+					<input type="hidden" name="customer_id"/>
+					<input type="hidden" name="customer_email"/> 
+				</form>
 				
 				<%-- 삭제모달 --%>
         		<div class="modal fade" id="deleteModal">
@@ -591,7 +594,14 @@
 				
 				<%--=========================================--%>
     			
-		    	<%-- 거래처엑셀등록모달 --%>
+		    	
+				
+				<%--=========================================--%>	
+    			
+    		</div>
+    		
+    	</c:if>
+    	<%-- 거래처엑셀등록모달 --%>
 		    	<div class="modal fade" id="customerRegModal">
 					  
 					  <div class="modal-dialog modal-dialog-scrollable modal modal-dialog-centered">
@@ -624,14 +634,7 @@
 					    
 					  </div>
 					  
-				</div>
-				
-				<%--=========================================--%>	
-    			
-    		</div>
-    		
-    	</c:if>
-    			    	
+				</div>	    	
     </div>
     
   </div>

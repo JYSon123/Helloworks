@@ -441,9 +441,9 @@ public class HelloWorksController_KJH {
 		if(checkDepartment) {
 			
 			String thisMonth = request.getParameter("thisMonth");
-			System.out.println("1번" + thisMonth);
+			
 			if(thisMonth == null || "".equals(thisMonth)) {
-				System.out.println("널임");
+				
 				Calendar cal = Calendar.getInstance();
 				
 				thisMonth = String.format("%1$tY-%1$tm", cal);
@@ -453,7 +453,7 @@ public class HelloWorksController_KJH {
 			String[] arrMonth = thisMonth.split("-");
 			
 			if(arrMonth.length > 2) {
-				System.out.println("길다");
+				
 				Calendar cal = Calendar.getInstance();
 				
 				thisMonth = String.format("%1$tY-%1$tm", cal);
@@ -465,13 +465,13 @@ public class HelloWorksController_KJH {
 				Integer.parseInt(arrMonth[0] + arrMonth[1]);
 				
 			} catch (NumberFormatException e) {
-				System.out.println("숫자아냐");
+				
 				Calendar cal = Calendar.getInstance();
 				
 				thisMonth = String.format("%1$tY-%1$tm", cal);
 				
 			}
-			System.out.println(thisMonth);
+			
 			arrMonth = thisMonth.split("-");
 			
 			// 세금계산서 수정여부
@@ -1079,10 +1079,14 @@ public class HelloWorksController_KJH {
 								
 								cvo.setCustomer_id(row.getCell(0).getStringCellValue());
 								
-								if(row.getCell(1) != null && !"".equals(row.getCell(1).getStringCellValue())) cvo.setCustomer_comp(row.getCell(1).getStringCellValue());
-								if(row.getCell(2) != null && !"".equals(row.getCell(2).getStringCellValue())) cvo.setCustomer_name(row.getCell(2).getStringCellValue());
-								if(row.getCell(3) != null && !"".equals(row.getCell(3).getStringCellValue())) cvo.setCustomer_addr(row.getCell(3).getStringCellValue());
-								if(row.getCell(4) != null && !"".equals(row.getCell(4).getStringCellValue())) cvo.setCustomer_email(row.getCell(4).getStringCellValue());
+								if(row.getCell(1) != null && !"".equals(row.getCell(1).getStringCellValue())) 
+									cvo.setCustomer_comp(row.getCell(1).getStringCellValue());
+								if(row.getCell(2) != null && !"".equals(row.getCell(2).getStringCellValue())) 
+									cvo.setCustomer_name(row.getCell(2).getStringCellValue());
+								if(row.getCell(3) != null && !"".equals(row.getCell(3).getStringCellValue())) 
+									cvo.setCustomer_addr(row.getCell(3).getStringCellValue());
+								if(row.getCell(4) != null && !"".equals(row.getCell(4).getStringCellValue())) 
+									cvo.setCustomer_email(row.getCell(4).getStringCellValue());
 								
 								cvoList.add(cvo);
 								
@@ -1326,7 +1330,7 @@ public class HelloWorksController_KJH {
 		if(checkDepartment)	{			
 			
 			String customer_id = request.getParameter("customer_id");
-			
+			System.out.println("확인용 : " + customer_id);
 			int n = service.deleteCustomer(customer_id);
 			
 			if(n != 0) {

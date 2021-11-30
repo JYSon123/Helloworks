@@ -316,11 +316,11 @@
 	<!-- 매월 10일 오후12시에 문서 국세청으로 전송 -->
 	<update id="updateStatusAlltax">
 		update tbl_billtax set status = 2
-		where status != 2
+		where status = 1
 	</update>
 	<update id="updateStatusAllnotax">
 		update tbl_billnotax set status = 2
-		where status != 2
+		where status = 1
 	</update>
 	
 	<!--========================================================-->
