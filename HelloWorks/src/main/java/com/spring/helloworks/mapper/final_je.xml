@@ -26,7 +26,7 @@
 		select calno, calname, color, fk_cno, shareemp
 		from tbl_calendar
 		where shareemp like '%'|| #{empid} ||'%'
-		order by fk_cno
+		order by fk_cno, calno desc
 	</select>
 	
 	
