@@ -349,7 +349,7 @@ public class ScheduleController_HJE {
    
    // 개인 캘린더 수정 및 삭제
    @RequestMapping(value = "/changePersonal.hello2", method= {RequestMethod.POST})
-   public String changePersonal(HttpServletRequest request, HttpServletResponse response) {
+   public String requiredLogin_changePersonal(HttpServletRequest request, HttpServletResponse response) {
 	   
 	   HttpSession session = request.getSession();
 	   String goBackURL = (String) session.getAttribute("goBackURL");
