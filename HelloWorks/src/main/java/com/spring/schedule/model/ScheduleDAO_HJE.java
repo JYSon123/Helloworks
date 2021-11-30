@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.spring.helloworks.model.EmpVO_HJE;
+
 @Repository
 public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 	
@@ -110,6 +112,63 @@ public class ScheduleDAO_HJE implements InterScheduleDAO_HJE {
 	public void deleteSchedule(Map<String, String> paraMap) {
 		sqlsession2.delete("hje.deleteSchedule",paraMap);
 	}
+
+	// 대상인원에 해당하는 직원찾기
+	@Override
+	public List<Map<String, String>> searchShareEmp(String employee) {
+		List<Map<String, String>> empList = sqlsession2.selectList("hje.searchShareEmp",employee);
+		return empList;
+	}
+
+
+	// 검색결과에 대한 총 일정 건수
+	@Override
+	public int getTotalCount(Map<String, String> paraMap) {
+		int count = sqlsession2.selectOne("hje.getTotalCount",paraMap);
+		return count;
+	}
+
+	// 페이징 처리한 일정
+	@Override
+	public List<Map<String, String>> searchPagingSchedule(Map<String, String> paraMap) {
+		List<Map<String, String>> pagingSchList = sqlsession2.selectList("hje.searchPagingSchedule",paraMap);
+		return pagingSchList;
+	}
+
+	
+	// 스프링스케줄러로 알림메일 보내기
+	@Override
+	public List<Map<String, String>> getEmailSchList() {
+		List<Map<String, String>> emailSchList = sqlsession2.selectList("hje.getEmailSchList");
+		return emailSchList;
+	}
+
+
+	// 공유대상에 포함된 직원의 이메일 알아오기
+	@Override
+	public List<EmpVO_HJE> getShareEmpEmail(Map<String, String[]> paraMap) {
+		List<EmpVO_HJE> shareEmpEmailList = sqlsession2.selectList("hje.getShareEmpEmail",paraMap);
+		return shareEmpEmailList;
+	}
+
+	
+	// 캘린더명 중복체크
+	@Override
+	public int calnameDuplicateCheck(Map<String, String> paraMap) {
+		int count = sqlsession2.selectOne("hje.calnameDuplicateCheck",paraMap);
+		return count;
+	}
+
+
+	// 선택된 카테고리에 해당하는 일정만 보여주기 
+	@Override
+	public List<Map<String, String>> showChkCalList(Map<String, Object> paraMap) {
+		List<Map<String, String>> chkCalList = sqlsession2.selectList("hje.showChkCalList",paraMap);
+		return chkCalList;
+	}
+
+
+	
 
 	
 	

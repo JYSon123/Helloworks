@@ -9,7 +9,7 @@
 
 
 <!-- 좌측 고정 상세메뉴 시작 -->
-<nav class="w3-sidebar w3-collapse w3-white " style="margin-top:-55px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
+<nav class="w3-sidebar w3-collapse w3-white " style="margin-top:-54px; z-index:0; width:300px;background-color:#f5f5f5; overflow: hidden" id="mySidebar"><br>
   <div class="w3-container" style="background-color:#f5f5f5; margin-top:10px" >
     <a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu">
       <i class="fa fa-remove"></i>

@@ -367,9 +367,9 @@
 			    </td>
 	 		</tr>	
 	 		<tr>
-	 		    <td style="width: 20%; font-weight: bold;">계약연봉&nbsp;</td>
+	 		    <td style="width: 20%; font-weight: bold;">계약연봉&nbsp;<span class="star">*</span></td>
 	 			<td>
-	 			<input type="text" name="empsalary" id="empsalary"  style="width: 100px;"/> <span>만원</span>
+	 			<input type="text" name="empsalary" id="empsalary" class="requiredInfo" style="width: 100px;"/> <span>만원</span>
 			    </td>
 	 		</tr>
 	 		<tr>
