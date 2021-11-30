@@ -706,6 +706,7 @@
 	// 검색결과 테이블 클릭
 	function changeScheduleModal(index){
 		
+		// 검색된 결과 리스트의 index번째 값을 input태그 value값에 저장
 		var fk_cno = $("td.searchFK_cno").eq(index).text();
 		var calName = $("td.searchCalName").eq(index).text();
 		var sno = $("td.searchSno").eq(index).text();
@@ -728,7 +729,14 @@
 		$("input#c_startTime").val(startTime);
 		$("input#c_endDay").val(endDay);
 		$("input#c_endTime").val(endTime);
-		$("input#c_status").val(status); 
+		$("input#c_status").val(status);
+		
+		$("input:checkbox[id='c_email']").attr('checked', false);
+		
+		// 알림 선택값 넘어가게		
+		if($("td.searchNotice").eq(index).text() == "email") {
+			$("input:checkbox[id='c_email']").attr('checked', true);
+		}
 		
 		$("#changeSchModal").modal();
 	}
@@ -803,7 +811,7 @@
 			<a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu"><i class="fa fa-remove"></i></a> <br><br>
 			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray;"><b><a href="<%= ctxPath %>/schedule.hello2">일정</a></b></span>
 		</div>
-		<div class="w3-bar-block" style="background-color: #f5f5f5; padding-bottom: 150px;"><br>
+		<div class="w3-bar-block" style="background-color: #f5f5f5; min-height: 470px; padding-bottom: 150px;"><br>
 			
 			<%-- 일정추가 모달창 버튼 --%>
 			<button type="button" id="addSch" class="btn" data-toggle="modal" data-target="#addSchModal" data-dismiss="modal" >일정 추가</button>
@@ -842,7 +850,7 @@
 	<%-- 사이드바 끝 --%>
 
 	<%-- 메인 컨텐츠 시작 --%>
-	<div class="w3-container w3-padding-large" style="margin: 30px 0 70px 300px">
+	<div class="w3-container w3-padding-large" style="margin: 30px 0 70px 300px; min-height: 100%;" >
 		<div style="margin: 100px auto 70px auto; width: 96%;">
 			
 			<%-- 검색 --%>
@@ -906,6 +914,7 @@
 							<td class="searchStartDate">${fn:substring(sch.startDate,0,10)} ${fn:substring(sch.startDate,11,16)}</td>
 							<td class="searchEndDate">${fn:substring(sch.endDate,0,10)} ${fn:substring(sch.endDate,11,16)}</td>
 							<td class="searchStatus">${sch.status}</td>
+							<td class="searchNotice" style="display: none;">${sch.notice}</td>
 						</tr>
 					
 					</c:forEach>
@@ -916,7 +925,6 @@
 				${requestScope.pageBar }
 			</nav>
 		<%  } %>
-		
 		
 	</div>
 	<%-- 메인 컨텐츠 끝 --%>
