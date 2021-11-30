@@ -41,7 +41,7 @@
 		
 		var searchFlag = false;
 		
-		$("input[name=payment]").bind('click', function() {
+		$("input[name=billtax_yn]").bind('click', function() {
 			$(this).parent().find('label').removeClass('checkedPayment');
 			$(this).next().addClass('checkedPayment');
 		});
