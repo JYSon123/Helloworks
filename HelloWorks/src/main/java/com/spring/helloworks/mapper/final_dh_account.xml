@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- ==== #29. mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!! 팀원님들 각자 하나씩 만드셔요) ==== -->
+<mapper namespace="final_dh_account">
+	
+	<select id="getAccountCount" parameterType="HashMap" resultType="int">
+		select count(*)
+		from
+		(
+		select accountempid
+		from tbl_accounting
+		) V
+		left join tbl_employee E
+		on V.accountempid = E.empid
+		<if test='searchWord != "" '>
+			where lower(${searchType}) like '%' || lower( #{searchWord} ) || '%'
+		</if>
+	</select>
+	
+	<select id="accountingListWithPaging" parameterType="HashMap" resultType="com.spring.helloworks.model_JDH.AccountingVO_JDH">
+		select accountbank, accountseq, accountnumber, accountregdate, accountempid, empname
+		from
+		(
+		    select rownum as rno, accountbank, accountseq, accountnumber, accountregdate, accountempid, empname
+		    from
+		    (
+		        select accountbank, accountseq, accountnumber,
+		             to_char(accountregdate, 'yyyy-mm-dd hh24:mi:ss') AS accountregdate, accountempid
+		        from tbl_accounting		        
+		    ) V
+		    join tbl_employee I
+		    on V.accountempid = I.empid
+		    <if test="searchType != '' and searchWord != ''">
+	           where lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+	        </if>
+		    order by accountregdate asc
+		)F
+		where rno between #{startRno} and #{endRno}	
+		
+	</select>
+	
+	<!-- 계좌삭제 -->
+	<delete id="deleteAccount">
+		delete from tbl_accounting
+		where accountseq in 
+		<foreach collection="arrAccountseq" index="i" open="(" separator="," close=")"> 
+    	'${arrAccountseq[i]}'
+    	</foreach>
+	</delete>
+	
+	<!-- 계좌 추가 -->
+	<insert id="addAccount">
+		insert into tbl_accounting(accountbank, accountseq, accountnumber, accountregdate, accountempid) 
+		values(#{accountbank}, accountseq.nextval, #{accountnumber}, default, #{accountempid})
+	</insert>
+	
+	<!-- 직원리스트 가져오기 -->
+	<resultMap type="HashMap" id="empMap">
+	<result column="deptname" property="deptname" javaType="String" />
+	<result column="empid" property="empid" javaType="String" />
+	<result column="empname" property="empname" javaType="String" />
+	<result column="accountbank" property="accountbank" javaType="String" />
+	<result column="accountnumber" property="accountnumber" javaType="String" />
+	</resultMap>	
+	<select id="empList" resultMap="empMap">
+	select deptname, empid, empname, accountbank, accountnumber
+	from
+	(
+	    select deptname, empid, empname
+	    from
+	    (
+	        select empid, empname, fk_deptnum
+	        from tbl_employee
+	    ) V
+	    join tbl_department D
+	    on V.fk_deptnum = D.deptnum
+	) C
+	left join tbl_accounting A
+	on C.empid = A.accountempid
+	order by accountbank asc
+	</select>
+	
+	<!-- 계좌 수정 -->
+	<insert id="editAccount" parameterType="HashMap">
+		update tbl_accounting set accountbank = #{accountbank}, accountnumber = #{accountnumber}
+		where accountempid = #{accountempid}
+	</insert>
+	
+	<!-- 카드 리스트 -->
+	<select id="cardList" parameterType="HashMap" resultType="com.spring.helloworks.model_JDH.CardVO_JDH">
+		select cardcompany, cardseq, cardnumber, cardregdate, cardempid, empname
+		from
+		(
+		    select rownum as rno, cardcompany, cardseq, cardnumber, cardregdate, cardempid, empname
+		    from
+		    (
+		        select cardcompany, cardseq, cardnumber,
+		             to_char(cardregdate, 'yyyy-mm-dd hh24:mi:ss') AS cardregdate, cardempid
+		        from tbl_card	        
+		    ) V
+		    join tbl_employee I
+		    on V.cardempid = I.empid
+		    <if test="searchType != '' and searchWord != ''">
+		       where lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+		    </if>
+		    order by cardregdate asc
+		)F
+		where rno between #{startRno} and #{endRno}	
+	</select>
+	
+	<!-- 카드 추가 -->
+	<insert id="addCard">
+		insert into tbl_card(cardcompany, cardseq, cardnumber, cardregdate, cardempid) 
+		values(#{cardcompany}, cardseq.nextval, #{cardnumber}, default, #{cardempid})
+	</insert>
+	
+	<!-- 카드리스트 갯수 알아오기  -->
+	<select id="getCardCount" parameterType="HashMap" resultType="int">
+		select count(*)
+		from
+		(
+		select cardempid
+		from tbl_card
+		) V
+		left join tbl_employee E
+		on V.cardempid = E.empid
+		<if test='searchWord != "" '>
+			where lower(${searchType}) like '%' || lower( #{searchWord} ) || '%'
+		</if>
+	</select>
+	
+	<!-- 카드 수정 -->
+	<insert id="editCard" parameterType="HashMap">
+		update tbl_card set cardcompany = #{cardcompany}, cardnumber = #{cardnumber}
+		where cardempid = #{cardempid}
+	</insert>
+	
+	<!-- 카드 삭제 -->
+	<delete id="deleteCard">
+		delete from tbl_card
+		where cardseq in 
+		<foreach collection="arrCardseq" index="i" open="(" separator="," close=")"> 
+    	'${arrCardseq[i]}'
+    	</foreach>
+	</delete>
+	
+	<!-- 카드 정보 리스트 가져오기 -->
+	<resultMap type="HashMap" id="empCardMap">
+	<result column="deptname" property="deptname" javaType="String" />
+	<result column="empid" property="empid" javaType="String" />
+	<result column="empname" property="empname" javaType="String" />
+	<result column="cardcompany" property="cardcompany" javaType="String" />
+	<result column="cardnumber" property="cardnumber" javaType="String" />
+	</resultMap>	
+	<select id="empCardList" resultMap="empCardMap">
+	select deptname, empid, empname, cardcompany, cardnumber
+	from
+	(
+	    select deptname, empid, empname
+	    from
+	    (
+	        select empid, empname, fk_deptnum
+	        from tbl_employee
+	    ) V
+	    join tbl_department D
+	    on V.fk_deptnum = D.deptnum
+	) A
+	left join tbl_card C
+	on A.empid = C.cardempid
+	order by cardcompany asc
+	</select>
+	
+</mapper>
+
+
+
+
+
