@@ -1330,7 +1330,7 @@ public class HelloWorksController_KJH {
 		if(checkDepartment)	{			
 			
 			String customer_id = request.getParameter("customer_id");
-			System.out.println("확인용 : " + customer_id);
+			
 			int n = service.deleteCustomer(customer_id);
 			
 			if(n != 0) {
