@@ -8,10 +8,13 @@
 
 <!-- 개인 연락처 조회 쿼리  -->
 
-<select id="addbookList_private" resultType="com.spring.addbook.model.AddbookVO">
-    select name, email, phonenum, company
-    from tbl_addbook
-	where pbl = 1
+<select id="addbookList_private" parameterType="HashMap" resultType="com.spring.addbook.model.AddbookVO">
+	select name, email, phonenum, company, fk_tag
+	from tbl_addbook
+	where pbl = 1 and fk_empid = 'jubar2222'
+	<if test = '!"".equals(fk_tag) and fk_tag != null'>
+	and fk_tag  = #{fk_tag}
+	</if>
 	order by name asc
 </select>
 	
@@ -19,12 +22,54 @@
 
 
 <select id="addbookList_public" resultType="com.spring.addbook.model.AddbookVO">
-    select name, email, phonenum, company
-    from tbl_addbook
+    select name, email, phonenum, company, fk_tag
+	from tbl_addbook
 	where pbl = 0
+	<if test = '!"".equals(fk_tag) and fk_tag != null'>
+	and fk_tag  = #{fk_tag}
+	</if>
 	order by name asc
 </select>
 
+<!-- 개인 연락처 추가 쿼리 -->
+<insert id = "addbookadd_private" parameterType = "com.spring.addbook.model.AddbookVO">
 
+
+
+
+</insert>
+
+
+<!-- 공유 연락처 추가 쿼리 -->
+<insert id = "addbookadd_public" parameterType = "com.spring.addbook.model.AddbookVO">
+
+
+
+
+</insert>
+<!--  개인태그 가져오는 쿼리 -->
+<select id="addbooktag_private" resultType="com.spring.addbook.model.Addbook_tagVO">
+	select tag
+	from tbl_addbooktag
+	where tag_pbl = 1 and fk_empid = 'jubar2222'
+</select>
+
+<!--  공유태그 가져오는 쿼리 -->
+<select id="addbooktag_public" resultType="com.spring.addbook.model.Addbook_tagVO">
+	select tag
+	from tbl_addbooktag
+	where tag_pbl = 0
+</select>
+
+
+<!-- 개인태그 추가 쿼리  -->
+
+
+
+<!-- 공유태그 추가 쿼리 -->
+
+
+
+<!-- 주소록 조회 쿼리  -->
 
 </mapper>

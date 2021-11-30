@@ -1,6 +1,7 @@
 package com.spring.addbook.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -20,17 +21,31 @@ public class AddbookDAO implements InterAddbookDAO {
 	
 	// 주소록 띄워주기
 	@Override
-	public List<AddbookVO> addbookList_private() {
-		List<AddbookVO> addbookList_private = sqlsession2.selectList("final_pjw.addbookList_private");
+	public List<AddbookVO> addbookList_private(Map<String,String> paramap) {
+		List<AddbookVO> addbookList_private = sqlsession2.selectList("final_pjw.addbookList_private", paramap);
 		return addbookList_private;
 	}
 
 	// 공용주소록 띄워주기
 	@Override
-	public List<AddbookVO> addbookList_public() {
-		List<AddbookVO> addbookList_public = sqlsession2.selectList("final_pjw.addbookList_public");
+	public List<AddbookVO> addbookList_public(Map<String, String> paramap) {
+		List<AddbookVO> addbookList_public = sqlsession2.selectList("final_pjw.addbookList_public", paramap);
 		return addbookList_public;
 	}
+
+	@Override
+	public List<Addbook_tagVO> addbooktag_private() {
+		List<Addbook_tagVO> addbooktag_private = sqlsession2.selectList("final_pjw.addbooktag_private");
+		return addbooktag_private;
+	}
+
+	@Override
+	public List<Addbook_tagVO> addbooktag_public() {
+		List<Addbook_tagVO> addbooktag_public = sqlsession2.selectList("final_pjw.addbooktag_public");
+		return addbooktag_public;
+	}
+	
+	
 	
 	
 }
