@@ -88,34 +88,46 @@ public class ScheduleController_HJE {
 		   List<CalendarVO_HJE> calList = service.showCalendarList(empid);
 		   request.setAttribute("calList", calList);
 		   
-		   
 		   String searchType = request.getParameter("searchType");
-		   paraMap.put("searchType", searchType);
-		   String startDate = "";
-		   String endDate = "";
-		   String searchWord = "";
-		   
-		   if( "term".equals(searchType) ) {
-			   startDate = request.getParameter("startDate");
-			   endDate = request.getParameter("endDate");
-		   }
-		   else {
-			   searchWord = request.getParameter("searchWord");
-		   }
-		   paraMap.put("startDate", startDate);
-		   paraMap.put("endDate", endDate);
-		   paraMap.put("searchWord", searchWord);
-		   
-		   request.setAttribute("paraMap", paraMap);
+		  
 		   ///////////////////////////////////////////////////////////////////
 		   // 검색이 없을 때 (전체 일정 출력)
 		   if (searchType == null ) {
 			   List<Map<String,String>> schList = service.showSchedule(empid);
 			   request.setAttribute("schList", schList);
+			   
+			   searchType = "";
+			   String startDate = "";
+			   String endDate = "";
+			   String searchWord = "";
+			   
+			   paraMap.put("searchType", searchType);
+			   paraMap.put("startDate", startDate);
+			   paraMap.put("endDate", endDate);
+			   paraMap.put("searchWord", searchWord);
+			   
+			   request.setAttribute("paraMap", paraMap);
 		   }
 		   //////////////////////////////////////////////////////////////////
 		   // 페이징처리
 		   else {
+			   paraMap.put("searchType", searchType);
+			   String startDate = "";
+			   String endDate = "";
+			   String searchWord = "";
+			   
+			   if( "term".equals(searchType) ) {
+				   startDate = request.getParameter("startDate");
+				   endDate = request.getParameter("endDate");
+			   }
+			   else {
+				   searchWord = request.getParameter("searchWord");
+			   }
+			   paraMap.put("startDate", startDate);
+			   paraMap.put("endDate", endDate);
+			   paraMap.put("searchWord", searchWord);
+			   
+			   request.setAttribute("paraMap", paraMap);
 			    
 			    // fullCalendar 출력, 엑셀다운을 위한 페이징처리하지 않은 검색결과
 			    List<Map<String,String>> searchSchList = service.searchSchedule(paraMap); 

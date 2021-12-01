@@ -283,12 +283,19 @@
   		
   		// 검색 시, 검색조건 및 검색어 값 유지시키기
 		if( ${not empty requestScope.paraMap.searchType} ) {
+			console.log("searchType 있음");
 			$("select#searchType").val("${requestScope.paraMap.searchType}");
-			$("input#searchWord").val("${requestScope.paraMap.searchWord}");
-			$("input#startDate").val("${requestScope.paraMap.startDate}");
-			$("input#endDate").val("${requestScope.paraMap.endDate}");
+			if( ${not empty requestScope.paraMap.searchWord} ) {
+				$("input#searchWord").val("${requestScope.paraMap.searchWord}");
+			}
+			else {
+				$("input#startDate").val("${requestScope.paraMap.startDate}");
+				$("input#endDate").val("${requestScope.paraMap.endDate}");
+				$("input#searchWord").prop("type", "hidden");
+	  			$("input#startDate").prop("type", "date");
+	  			$("input#endDate").prop("type", "date");
+			}
 		}
-  		
   		// 검색내용에 일치하는 내용이 없을 경우 alert 띄워주고, 일정 메인페이지로 이동
   		<%
   		if( searchSchList != null && searchSchList.size() == 0 ) {

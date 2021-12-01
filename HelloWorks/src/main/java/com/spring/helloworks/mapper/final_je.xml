@@ -110,7 +110,7 @@
        <result property="fk_cno"      	column="fk_cno"      javaType="String" />
        <result property="notice"      	column="notice"      javaType="String" />
     </resultMap>
-	<!-- 일정검사 -->
+	<!-- 일정검색 -->
 	<select id="searchSchedule"  resultMap="searchSchduleMap"  parameterType="HashMap">
 		select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
 		from tbl_calendar C JOIN tbl_schedule S
