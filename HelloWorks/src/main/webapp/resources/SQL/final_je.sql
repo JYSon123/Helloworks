@@ -246,8 +246,19 @@ select noticeemail
         where empid = 'jubar2222';
         commit
         
-        select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno,calname
+        select title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno,calname, notice
 		from tbl_calendar C JOIN tbl_schedule S
 		ON C.CALNO = S.FK_CALNO
 		where SHAREEMP like '%'|| 'test' ||'%'
         and calNo in (13,15,1)
+        
+        
+        select row_number() over (order by sno desc) AS rno,
+	               title, startDate, endDate, calName, shareEmp, color, sno, content, location, status, fk_cno, notice
+			from tbl_calendar C JOIN tbl_schedule S
+			ON C.CALNO = S.FK_CALNO
+			where 'test' in '('||Shareemp|| ')'
+            select calno, calname, color, fk_cno, shareemp
+            from tbl_calendar
+		where shareemp like '%'|| 'test' ||'%'
+		order by fk_cno, calno desc
