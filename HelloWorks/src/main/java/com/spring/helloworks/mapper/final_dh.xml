@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- ==== #29. mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- ==== #29. 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.!! 팀원님들 각자 하나씩 만드셔요) ==== -->
+<mapper namespace="mail">
+	
+	<select id="getTotalCount" parameterType="HashMap" resultType="int">
+		select count(*)
+		from tbl_email
+		where mailreceivestatus = 1 or mailsendstatus = 1
+		<if test='searchWord != "" '>
+			and lower(${searchType} ) like '%' || lower( #{searchWord} ) || '%'
+		</if>
+	</select>
+	
+	<!-- 받은메일 리스트 조회  -->
+	<select id="mailListSearchWithPaging" parameterType="HashMap" resultType="com.spring.helloworks.model.MailVO_JDH">
+		select mailseq, sendid, sendname, mailsubject, mailregdate, mailreadstatus, fk_mailseq, mailfilename
+		from
+		(
+		    select rownum as rno, mailseq, sendid, empname as sendname, mailsubject, mailreadstatus, 
+		         mailregdate, fk_mailseq, mailfilename
+		    from
+		    (
+		        select mailseq, sendid, mailsubject, mailreadstatus,
+		             to_char(mailregdate, 'yyyy-mm-dd hh24:mi:ss') AS mailregdate,
+		             nvl(fk_mailseq,'-9999') AS fk_mailseq, mailfilename
+		        from tbl_email
+		        where mailreceivestatus = 1 and recid = #{loginEmpid}
+		        <if test="searchType != '' and searchWord != ''">
+	               and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+	            </if>	            
+		    ) V
+		    join tbl_employee I
+		    on V.sendid = I.empid
+		) T
+		where rno between #{startRno} and #{endRno}
+		order by mailregdate desc
+		
+	</select>
+	
+	<insert id="send" parameterType="com.spring.helloworks.model.MailVO_JDH">
+	
+		
+			insert into tbl_email(mailseq, sendid, recid, mailsubject, mailreadstatus, mailcontent, mailsendstatus, mailreceivestatus, fk_mailseq, mailregdate)
+			values(mailseq.nextval, #{sendid}, #{recid}, #{mailsubject}, default , #{mailcontent}, default, default, #{fk_mailseq}, default )
+		
+		
+	</insert>
+	
+	<insert id="send_withFile" parameterType="com.spring.helloworks.model.MailVO_JDH">
+		
+				insert into tbl_email(mailseq, sendid, recid, mailsubject, mailreadstatus, mailcontent, mailsendstatus, mailreceivestatus, fk_mailseq, mailregdate, mailfilename, mailorgfilename, mailfilesize)
+				values(mailseq.nextval, #{sendid}, #{recid}, #{mailsubject}, default, #{mailcontent}, default, default, #{fk_mailseq}, default, #{mailfilename}, #{mailorgfilename}, #{mailfilesize} )
+		
+	</insert>
+	
+	<!-- recidList(자동검색) 만들기 -->
+	<resultMap type="HashMap" id="empDeptMap">
+		<!-- 아래에서 셀렉트해온 값을 여기서 연결해서 받아온다. -->
+		<result property="empname" 	column="empname" 	javaType="String" />
+		<result property="empid" 	column="empid" javaType="String" />
+		<result property="fk_deptnum" 		column="fk_deptnum" 	javaType="String" />
+		<result property="deptname" 		column="deptname" 		javaType="String" />
+	</resultMap>
+	<select id="recidSearchShow" parameterType="HashMap" resultMap="empDeptMap">
+		select empname, empid, fk_deptnum, deptname
+		from 
+		(
+		select empname, empid, fk_deptnum
+		from tbl_employee
+		where empname like '%' || #{searchWord} || '%' 
+		or empid like '%'|| lower(#{searchWord}) || '%'
+		) V
+		join tbl_department D
+		on V.fk_deptnum = D.deptnum
+
+	</select>
+	
+	<!-- // 글 조회하기 -->
+	<select id="getViewMail" parameterType="HashMap" resultType="com.spring.helloworks.model.MailVO_JDH">
+		select previousseq, previoussubject, mailseq, sendid, sendname, mailsubject, mailcontent, 
+        mailreadstatus, mailregdate, mailreceivestatus, mailsendstatus, nextseq, nextsubject, 
+        fk_mailseq, mailfilename, mailorgfilename, mailfilesize, recid, B.empname as recname
+		from        
+		(        
+		    select previousseq, previoussubject, mailseq, sendid, empname as sendname, mailsubject, mailcontent, 
+		            mailreadstatus, mailregdate, mailreceivestatus, mailsendstatus, nextseq, nextsubject, 
+		            fk_mailseq, mailfilename, mailorgfilename, mailfilesize, recid
+		    from
+		    (
+		        select lag(mailseq, 1) over(order by mailseq desc) as previousseq,
+		               lag(mailsubject, 1) over(order by mailseq desc) as previoussubject,
+		               mailseq, sendid, mailsubject, mailcontent, mailreadstatus, mailreceivestatus, mailsendstatus, 
+		               to_char(mailregdate, 'yyyy-mm-dd hh24-mi-ss') as mailregdate,
+		               lead(mailseq, 1) over(order by mailseq desc) as nextseq,
+		               lead(mailsubject, 1) over(order by mailseq desc) as nextsubject,
+		               fk_mailseq, mailfilename, mailorgfilename, mailfilesize, recid
+		        from tbl_email
+		        where mailreceivestatus != -1 or mailsendstatus != -1
+		    ) V
+		    join tbl_employee I
+		    on V.sendid = I.empid
+		    where mailseq = #{mailseq}
+		) R
+		join tbl_employee B
+		on R.recid = B.empid
+		
+	</select>
+	
+	<!-- 조회시 메일 읽음상태 변경 -->
+	<update id="updateReadStatus" parameterType="com.spring.helloworks.model.MailVO_JDH" >
+	update tbl_email set mailreadstatus = '1'
+	where mailseq = #{mailseq}
+	</update>
+	
+	<!-- 보낸 메일 조회 -->
+	<select id="sendmailListSearchWithPaging" parameterType="HashMap" resultType="com.spring.helloworks.model.MailVO_JDH">
+		select mailseq, recid, sendid, recname, mailsubject, mailregdate, mailreadstatus, fk_mailseq, mailfilename
+		from
+		(
+		    select rownum as rno, mailseq, recid, sendid, empname as recname, mailsubject, mailreadstatus, 
+		         mailregdate, fk_mailseq, mailfilename
+		    from
+		    (
+		       select mailseq, recid, sendid, mailsubject, mailreadstatus,
+		             to_char(mailregdate, 'yyyy-mm-dd hh24:mi:ss') AS mailregdate,
+		             nvl(fk_mailseq,'-9999') AS fk_mailseq, mailfilename
+		        from tbl_email
+		        where mailsendstatus = 1 and sendid = #{loginEmpid}
+		        <if test="searchType != '' and searchWord != ''">
+		          	and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+		        </if>		        
+		    ) V
+		    join tbl_employee I
+		    on V.recid = I.empid
+		) T
+		where rno between #{startRno} and #{endRno}
+		order by mailregdate desc
+		
+	</select>
+	
+	<!-- 휴지통 조회  -->
+	<select id="trashmailListSearchWithPaging" parameterType="HashMap" resultType="com.spring.helloworks.model.MailVO_JDH">
+		 select mailseq, sendid, sendname, mailsubject, mailregdate, mailreadstatus, fk_mailseq, mailfilename
+		from
+		(
+		    select rownum as rno, mailseq, sendid, empname as sendname, mailsubject, mailreadstatus, 
+		         mailregdate, fk_mailseq, mailfilename
+		    from
+		    (
+		        select mailseq, sendid, mailsubject, mailreadstatus,
+		             to_char(mailregdate, 'yyyy-mm-dd hh24:mi:ss') AS mailregdate,
+		             nvl(fk_mailseq,'-9999') AS fk_mailseq, mailfilename
+		        from tbl_email
+		        where mailreceivestatus = 0 and recid = #{loginEmpid}
+		        <if test="searchType != '' and searchWord != ''">
+	               and lower(${searchType}) like '%' || lower(#{searchWord}) || '%'
+	            </if>
+	            order by mailregdate asc
+		    ) V
+		    join tbl_employee I
+		    on V.sendid = I.empid
+		) T
+		where rno between #{startRno} and #{endRno}
+	</select>
+	
+	<!-- 메일 휴지통으로 보내기 -->
+	<update id="delete" parameterType="HashMap" >
+	update tbl_email set mailreceivestatus = 0
+	where mailseq in 
+		<foreach collection="arrMailseq" index="i" open="(" separator="," close=")"> <!-- collection에 배열을 적어준다. -->
+    	<!-- index에 배열인자를 적고, open,close인 ()안에 separator인 ,으로 구분짓는다. -->
+    	'${arrMailseq[i]}' <!-- 지금은 숫자이지만, 문자열이 나올경우를 대비해서 ''를 사용한다. --> 
+    	</foreach>
+	</update> 
+	
+	<!-- 메일 휴지통에서 살리기 -->
+	<update id="revive" parameterType="HashMap" >
+	update tbl_email set mailreceivestatus = 1
+	where mailseq in 
+		<foreach collection="arrMailseq" index="i" open="(" separator="," close=")"> <!-- collection에 배열을 적어준다. -->
+    	<!-- index에 배열인자를 적고, open,close인 ()안에 separator인 ,으로 구분짓는다. -->
+    	'${arrMailseq[i]}' <!-- 지금은 숫자이지만, 문자열이 나올경우를 대비해서 ''를 사용한다. --> 
+    	</foreach>
+	</update> 
+	
+	<!-- 휴지통 메일 삭제 -->
+	<update id="trashdelete" parameterType="HashMap">
+		update tbl_email set mailreceivestatus = -1
+		where mailseq in 
+		<foreach collection="arrMailseq" index="i" open="(" separator="," close=")"> <!-- collection에 배열을 적어준다. -->
+    	<!-- index에 배열인자를 적고, open,close인 ()안에 separator인 ,으로 구분짓는다. -->
+    	'${arrMailseq[i]}' <!-- 지금은 숫자이지만, 문자열이 나올경우를 대비해서 ''를 사용한다. --> 
+    	</foreach>
+	</update>
+	
+	<!-- 보낸 메일 삭제 -->
+	<update id="deleteSendMail" parameterType="HashMap">
+		update tbl_email set mailsendstatus = -1
+		where mailseq in 
+		<foreach collection="arrMailseq" index="i" open="(" separator="," close=")"> <!-- collection에 배열을 적어준다. -->
+    	<!-- index에 배열인자를 적고, open,close인 ()안에 separator인 ,으로 구분짓는다. -->
+    	'${arrMailseq[i]}' <!-- 지금은 숫자이지만, 문자열이 나올경우를 대비해서 ''를 사용한다. --> 
+    	</foreach>
+	</update>
+	
+	<!-- 스케줄러를 이용한 메일 데이터 삭제 -->
+	<delete id="realMailDelete">
+		delete from tbl_email
+		where mailsendstatus = -1 and mailreceivestatus = -1
+	</delete>
+	
+	<!-- 직원 정보 가져오기 -->
+	<resultMap type="HashMap" id="empMap">
+	<result property="empid" column="empid" javaType="String"/>
+	<result property="empname" column="empname" javaType="String"/>
+	<result property="deptname" column="deptname" javaType="String"/>
+	</resultMap>
+	<select id="searchEmp" resultMap="empMap" parameterType="String">
+		select empid, empname, deptname
+		from
+		(
+		select empid, empname, fk_deptnum
+		from tbl_employee
+		where empid = #{empid}
+		) E join tbl_department D
+		on E.fk_deptnum = D.deptnum
+	</select>
+
+</mapper>
+
+
+
+
+
