@@ -40,17 +40,17 @@
   
   <div class="container" style="margin:30px 0 0 75px; font-size:20px; color:#595959; width:320px">
       <span style="color:#0070C0" class="ml-3"><b>전체메뉴</b></span><br><br>
-	  <a href="#메일" onclick="#" class="w3-bar-item w3-button"><i class="far fa-envelope"></i>&emsp;메일</a>
+	  <a href="<%= ctxPath %>/mailList.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-envelope"></i>&emsp;메일</a>
 	  <a href="<%= ctxPath %>/list.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-clipboard"></i>&emsp;게시판</a>
 	  <a href="<%= ctxPath  %>/chat/multichat.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-comment"></i>&emsp;채팅</a>
 	  <a href="<%= ctxPath %>/account/home.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-calculator"></i>&emsp;전자세금계산서</a>
 	  <a href="<%= ctxPath %>/schedule.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-check-square"></i>&emsp;일정</a>
-	  <a href="#주소록" onclick="#" class="w3-bar-item w3-button"><i class="far fa-address-book"></i>&emsp;주소록</a>
-	  <a href="#예약" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-chart-pie"></i>&emsp;예약</a>
+	  <a href="<%= ctxPath %>/addbookList_private.hello2" onclick="#" class="w3-bar-item w3-button"><i class="far fa-address-book"></i>&emsp;주소록</a>
+	  <a href="<%= ctxPath %>/reservation_list.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-chart-pie"></i>&emsp;예약</a>
 	  <a href="<%= ctxPath %>/emp/viewAttend.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-users"></i>&emsp;인사</a>
 	  <a href="<%= ctxPath %>/documentMain.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-clipboard-check"></i>&emsp;전자결재</a>
 	  <a href="#관리" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-cog"></i>&emsp;오피스관리</a>
-	  <a href="#회계지원" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-sticky-note"></i>&emsp;회계지원</a>
+	  <a href="<%= ctxPath %>/empAccountList.hello2" onclick="#" class="w3-bar-item w3-button"><i class="fas fa-sticky-note"></i>&emsp;회계지원</a>
  </div>
 </nav>
 <!-- 좌측 사이드바 끝-->

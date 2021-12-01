@@ -307,12 +307,12 @@
 			    	<div class="modal-content">			      
 			      	
 			      		<!-- Modal header -->
-			      		<div class="modal-header row text-center">
-			        		<h6 class="modal-title">사업자 정보를 정말로 삭제하시겠습니까?</h6>
+			      		<div class="modal-header text-center">
+			        		<h6 class="modal-title w-100 text-center">사업자 정보를 정말로 삭제하시겠습니까?</h6>
 			      		</div>
 			      	
 			     		<!-- Modal body -->
-			      		<div class="modal-body row text-center">
+			      		<div class="modal-body text-center">
 	
 				      		<form name="deleteComp" method="POST" action="<%=request.getContextPath()%>/account/deleteCompany.hello2">
 				      			<input type="hidden" value="${sessionScope.comp.mycompany_id}" name="mycompany_id">				      		

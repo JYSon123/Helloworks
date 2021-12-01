@@ -283,12 +283,19 @@
   		
   		// 검색 시, 검색조건 및 검색어 값 유지시키기
 		if( ${not empty requestScope.paraMap.searchType} ) {
+			console.log("searchType 있음");
 			$("select#searchType").val("${requestScope.paraMap.searchType}");
-			$("input#searchWord").val("${requestScope.paraMap.searchWord}");
-			$("input#startDate").val("${requestScope.paraMap.startDate}");
-			$("input#endDate").val("${requestScope.paraMap.endDate}");
+			if( ${not empty requestScope.paraMap.searchWord} ) {
+				$("input#searchWord").val("${requestScope.paraMap.searchWord}");
+			}
+			else {
+				$("input#startDate").val("${requestScope.paraMap.startDate}");
+				$("input#endDate").val("${requestScope.paraMap.endDate}");
+				$("input#searchWord").prop("type", "hidden");
+	  			$("input#startDate").prop("type", "date");
+	  			$("input#endDate").prop("type", "date");
+			}
 		}
-  		
   		// 검색내용에 일치하는 내용이 없을 경우 alert 띄워주고, 일정 메인페이지로 이동
   		<%
   		if( searchSchList != null && searchSchList.size() == 0 ) {
@@ -706,6 +713,7 @@
 	// 검색결과 테이블 클릭
 	function changeScheduleModal(index){
 		
+		// 검색된 결과 리스트의 index번째 값을 input태그 value값에 저장
 		var fk_cno = $("td.searchFK_cno").eq(index).text();
 		var calName = $("td.searchCalName").eq(index).text();
 		var sno = $("td.searchSno").eq(index).text();
@@ -728,13 +736,44 @@
 		$("input#c_startTime").val(startTime);
 		$("input#c_endDay").val(endDay);
 		$("input#c_endTime").val(endTime);
-		$("input#c_status").val(status); 
+		$("input#c_status").val(status);
+		
+		$("input:checkbox[id='c_email']").attr('checked', false);
+		
+		// 알림 선택값 넘어가게		
+		if($("td.searchNotice").eq(index).text() == "email") {
+			$("input:checkbox[id='c_email']").attr('checked', true);
+		}
 		
 		$("#changeSchModal").modal();
 	}
 	
 	// 일정 수정 및 삭제
 	function changeSch(i){
+		
+		// 유효성 검사하기
+		var boolFlag = false;
+		
+		$("input.c_requiredInfo").each(function(index,item){
+			 var data = $(this).val().trim();
+			 if(data == "") {
+				alert("* 표시된 필수입력사항을 모두 입력해주세요.");
+				boolFlag = true;
+				return false;
+			 }
+		});
+ 		
+		if( ($("#c_startTime").val()=="" || $("#c_endTime").val()=="") && !$("input:checkbox[name='allDay']").is(":checked") ) {
+			alert("시간은 필수입력사항입니다.");
+			boolFlag = true;
+			return false;
+		}
+		
+		if(boolFlag) {
+			return;
+		}
+		
+		
 		if (i==1) {	// 수정일 경우 changeOption의 value값을 1로 준다.
 			$("input#changeSchOption").val("1"); 
 		}
@@ -779,7 +818,7 @@
 			<a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu"><i class="fa fa-remove"></i></a> <br><br>
 			<span style="font-size: 30pt; margin: 100px 0 30px 40px; color: gray;"><b><a href="<%= ctxPath %>/schedule.hello2">일정</a></b></span>
 		</div>
-		<div class="w3-bar-block" style="background-color: #f5f5f5; padding-bottom: 150px;"><br>
+		<div class="w3-bar-block" style="background-color: #f5f5f5; min-height: 470px; padding-bottom: 150px;"><br>
 			
 			<%-- 일정추가 모달창 버튼 --%>
 			<button type="button" id="addSch" class="btn" data-toggle="modal" data-target="#addSchModal" data-dismiss="modal" >일정 추가</button>
@@ -818,7 +857,7 @@
 	<%-- 사이드바 끝 --%>
 
 	<%-- 메인 컨텐츠 시작 --%>
-	<div class="w3-container w3-padding-large" style="margin: 30px 0 70px 300px">
+	<div class="w3-container w3-padding-large" style="margin: 30px 0 70px 300px; min-height: 100%;" >
 		<div style="margin: 100px auto 70px auto; width: 96%;">
 			
 			<%-- 검색 --%>
@@ -882,6 +921,7 @@
 							<td class="searchStartDate">${fn:substring(sch.startDate,0,10)} ${fn:substring(sch.startDate,11,16)}</td>
 							<td class="searchEndDate">${fn:substring(sch.endDate,0,10)} ${fn:substring(sch.endDate,11,16)}</td>
 							<td class="searchStatus">${sch.status}</td>
+							<td class="searchNotice" style="display: none;">${sch.notice}</td>
 						</tr>
 					
 					</c:forEach>
@@ -892,7 +932,6 @@
 				${requestScope.pageBar }
 			</nav>
 		<%  } %>
-		
 		
 	</div>
 	<%-- 메인 컨텐츠 끝 --%>
@@ -1026,20 +1065,20 @@
 										<td style="width: 80%;">
 											<input type="hidden" id="c_fk_cno" name="fk_cno" class="form-control" value="" />
 											<input type="hidden" id="c_sno" name="sno" class="form-control" value="" />
-											<input type="text" id="c_title" name="title" class="form-control" value="" />
+											<input type="text" id="c_title" name="title" class="c_requiredInfo form-control" value="" />
 										</td>
 									</tr>
 									<tr>
 										<td style="width: 20%;" id="title">시작&nbsp;<span class="star">*</span></td>
 										<td style="width: 99%; margin-left: 1px;" class="row">
-											<input type="date" id="c_startDay" name="startDay" class="form-control col-7" value="" />
+											<input type="date" id="c_startDay" name="startDay" class="c_requiredInfo form-control col-7" value="" />
 											<input type="time" id="c_startTime" name="startTime" class="form-control col-5" value="" />
 										</td>
 									</tr>
 									<tr>
 										<td style="width: 20%;" id="title">종료&nbsp;<span class="star">*</span></td>
 										<td style="width: 99%; margin-left: 1px;" class="row">
-											<input type="date" id="c_endDay" name="endDay" class="form-control col-7" value="" />
+											<input type="date" id="c_endDay" name="endDay" class="c_requiredInfo form-control col-7" value="" />
 											<input type="time" id="c_endTime" name="endTime" class="form-control col-5" value="" />
 										</td>
 									</tr>

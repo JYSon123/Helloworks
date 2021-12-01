@@ -72,7 +72,7 @@ h1 {
 	
 	<div class="w3-row"><br>
 		<div class="w3-quarter">
-			<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+			<button type="button" onclick="location.href='<%= ctxPath %>/mailList.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="far fa-envelope" style="font-size: 34pt"></i></button>
 			  <p class="p">메일</p>
 		</div>
@@ -105,13 +105,13 @@ h1 {
 		</div>
 		
 		<div class="w3-quarter">
-		<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		<button type="button" onclick="location.href='<%= ctxPath %>/addbookList_private.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="far fa-address-book" style="font-size: 34pt"></i></button>
 			  <p class="p">주소록</p>
 		</div>
 		
 		<div class="w3-quarter">
-		<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		<button type="button" onclick="location.href='<%= ctxPath %>/reservation_list.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="fas fa-chart-pie" style="font-size: 34pt"></i></button>
 			  <p class="p">예약</p>
 		</div>
@@ -138,7 +138,7 @@ h1 {
 		</div>
 		
 		<div class="w3-quarter">
-		<button type="button" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
+		<button type="button" onclick="location.href='<%= ctxPath %>/empAccountList.hello2'" class="btn btn-outline-dark" style="border-radius: 70px; width: 100px; height: 100px" >
 			  <i class="fas fa-sticky-note" style="font-size: 34pt"></i></button>
 			  <p class="p">회계지원</p>
 		</div>

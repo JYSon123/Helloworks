@@ -1,4 +1,4 @@
-package com.spring.chatting.websockethandler;
+package com.spring.chat.websockethandler;
 
 import java.util.*;
 
